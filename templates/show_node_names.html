@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+
+{% block body %}
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Dashboard</h1>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>IP Address</th>
+                  <th>MAC Address</th>
+                  <th>Device Name</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for entry in entries %}
+                <tr>
+                  <td>{{ entry.ip }}</td>
+                  <td>{{ entry.mac }}</td>
+                  <td>{{ entry.device_name }}</td>
+                  {% if "dns_data" in entry %}
+                  <td>Has DNS</td>
+                  {% endif %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% endblock %}
