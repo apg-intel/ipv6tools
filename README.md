@@ -8,9 +8,9 @@
 
 
 ## How to run
-
+```
 $ sudo python flaskr.py
-
+```
 
 ### Other Notes
 
