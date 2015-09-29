@@ -55,13 +55,21 @@ def show_entries():
     all_nodes = a.echoAllNodes()
     dns_query = Counter(aa.mDNSQuery())
     node_names = a.echoAllNodeNames()
-
     b = merge(all_nodes,node_names)
     b = merge(b,dns_query)
+
+    keylist = []
+    for x in b:
+        keylist.append(x)
+
+    dig = aa.dig_and_listen(keylist)
+    b = merge(b,dig)
     entries = convertToList(b)
-    print entries
     return render_template('show_node_names.html', entries=entries)
 
+@app.route('/node/<ipv6>')
+def node(ipv6=None):
+    return
 
 if __name__ == '__main__':
     app.run()

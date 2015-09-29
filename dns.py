@@ -6,6 +6,8 @@ from copy import copy
 from itertools import izip
 import time
 from dnslib import DNSRecord
+from itertools import izip_longest
+from ipv6 import createIPv6, get_source_address
 
 class DNS:
     def init(self):
@@ -17,6 +19,8 @@ class DNS:
         ip_packet.fields["nh"] = 17 #DNS
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = "ff02::fb"
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
 
         udp_segment = UDP()
         udp_segment.fields["dport"] = 5353
@@ -96,12 +100,46 @@ class DNS:
                 responseDict[ip].update({"dns_data":dnsDict})
         return response_return
 
+
+
+    def dig_and_listen(self,IPList,version=6):
+        build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,9])
+
+        for ip in IPList:
+            self.dig_noreceive(ip,version)
+
+
+        return_val = async_result.get()
+        returnResponse = self.parse_dig(return_val,IPList)
+
+        return returnResponse
+
+
+
+    def parse_dig(self,responses,IPList):
+        responseDict = {}
+        for response in responses:
+            try:
+                dnsRecord = DNSRecord.parse(str(response[Raw]))
+                answer_name = ".".join(str(dnsRecord.a.rname).split(".")[:4][::-1])
+                if answer_name.lower() in IPList:
+                    print dnsRecord.a.rdata
+                    responseDict[answer_name] = {"device_name":dnsRecord.a.rdata, "mac":""}
+            except Exception,e: print e
+        return responseDict
+
+
+
     def dig_noreceive(self,ip,version=6):
         response_return = ""
-        ip_packet = self.createIPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["nh"] = 17 #DNS
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = "ff02::fb"
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
 
         udp_segment = UDP()
         udp_segment.fields["dport"] = 5353
@@ -134,14 +172,16 @@ class DNS:
         raw = Raw()
         raw.fields["load"] = binascii.unhexlify(payload)
 
-        send(ip_packet/udp_segment/raw)
+        send(ip_packet/udp_segment/raw, verbose=False)
         
     
     def llmnr_noreceive(self,ip,version=6):
-        ip_packet = self.createIPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["nh"] = 17 #DNS
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = "ff02::1:3"
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
 
         udp_segment = UDP()
         udp_segment.fields["dport"] = 5355
@@ -176,10 +216,12 @@ class DNS:
         send(ip_packet/udp_segment/raw)
 
     def llmnr(self,ip,version=6):
-        ip_packet = self.createIPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["nh"] = 17 #DNS
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = "ff02::1:3"
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
 
         udp_segment = UDP()
         udp_segment.fields["dport"] = 5355
@@ -264,11 +306,21 @@ class DNS:
             responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
+    def grouper(self,iterable, n, fillvalue=None):
+        args = [iter(iterable)] * n
+        return izip_longest(*args, fillvalue=fillvalue)
+
+    def chunker(self,seq, size):
+        return (seq[pos:pos + size] for pos in xrange(0, len(seq), size))
+
+
     def mDNSQuery(self):
-        ip_packet = self.createIPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["nh"] = 17 #DNS
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = "ff02::fb"
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
 
         udp_segment = UDP()
         udp_segment.fields["dport"] = 5353
@@ -281,34 +333,35 @@ class DNS:
         authority_rrs = "0000"
         additional_rrs = "0000"
 
-        questionList = ['_spotify-connect._tcp','_googlecast._tcp','_services._dns-sd._udp','_apple-mobdev2._tcp','_workstation_tcp', '_http_tcp', '_https_tcp', '_rss_tcp', '_domain_udp', '_ntp_udp', '_smb_tcp', '_airport_tcp', '_ftp_tcp', '_tftp_udp', '_webdav_tcp', '_webdavs_tcp', '_afpovertcp_tcp', '_nfs_tcp', '_sftp-ssh_tcp', '_apt_tcp', '_ssh_tcp', '_rfb_tcp', '_telnet_tcp', '_timbuktu_tcp', '_net-assistant_udp', '_imap_tcp', '_pop3_tcp', '_printer_tcp', '_pdl-datastream_tcp', '_ipp_tcp', '_daap_tcp', '_dacp_tcp', '_realplayfavs_tcp', '_raop_tcp', '_rtsp_tcp', '_rtp_udp', '_dpap_tcp', '_pulse-server_tcp', '_pulse-sink_tcp', '_pulse-source_tcp', '_mpd_tcp', '_vlc-http_tcp', '_presence_tcp', '_sip_udp', '_h323_tcp', '_presenc_olp', '_iax_udp', '_skype_tcp', '_see_tcp', '_lobby_tcp', '_postgresql_tcp', '_svn_tcp', '_distcc_tcp', '_MacOSXDupSuppress_tcp', '_ksysguard_tcp', '_omni-bookmark_tcp', '_acrobatSRV_tcp', '_adobe-vc_tcp', '_pgpkey-hkp_tcp', '_ldap_tcp', '_tp_tcp', '_tps_tcp', '_tp-http_tcp', '_tp-https_tcp', '_workstation._tcp', '_http._tcp', '_https._tcp', '_rss._tcp', '_domain._udp', '_ntp._udp', '_smb._tcp', '_airport._tcp', '_ftp._tcp', '_tftp._udp', '_webdav._tcp', '_webdavs._tcp', '_afpovertcp._tcp', '_nfs._tcp', '_sftp-ssh._tcp', '_apt._tcp', '_ssh._tcp', '_rfb._tcp', '_telnet._tcp', '_timbuktu._tcp', '_net-assistant._udp', '_imap._tcp', '_pop3._tcp', '_printer._tcp', '_pdl-datastream._tcp', '_ipp._tcp', '_daap._tcp', '_dacp._tcp', '_realplayfavs._tcp', '_raop._tcp', '_rtsp._tcp', '_rtp._udp', '_dpap._tcp', '_pulse-server._tcp', '_pulse-sink._tcp', '_pulse-source._tcp', '_mpd._tcp', '_vlc-http._tcp', '_presence._tcp', '_sip._udp', '_h323._tcp', '_presenc._olp', '_iax._udp', '_skype._tcp', '_see._tcp', '_lobby._tcp', '_postgresql._tcp', '_svn._tcp', '_distcc._tcp', '_MacOSXDupSuppress._tcp', '_ksysguard._tcp', '_omni-bookmark._tcp', '_acrobatSRV._tcp', '_adobe-vc._tcp', '_pgpkey-hkp._tcp', '_ldap._tcp', '_tp._tcp', '_tps._tcp', '_tp-http._tcp', '_tp-https._tcp']
-        print len(questionList)
-        questionList = questionList[:50]
-        payload = ""
-        for questionName in questionList:
-            queryType = "000c" # domain pointer
-            questionIn = "8001"
-            payload += binascii.hexlify(str(DNSQR(qname=questionName + ".local",qtype='PTR')))[:-4] + "8001"
-        queryInfo = transaction_id + flags + "{:04x}".format(len(questionList)) + answer_rrs + authority_rrs + additional_rrs
-        payload = queryInfo + payload
-        raw = Raw()
-        raw.fields["load"] = binascii.unhexlify(payload)
+        questionListAll = ['_spotify-connect._tcp','_googlecast._tcp','_services._dns-sd._udp','_apple-mobdev2._tcp','_workstation_tcp', '_http_tcp', '_https_tcp', '_rss_tcp', '_domain_udp', '_ntp_udp', '_smb_tcp', '_airport_tcp', '_ftp_tcp', '_tftp_udp', '_webdav_tcp', '_webdavs_tcp', '_afpovertcp_tcp', '_nfs_tcp', '_sftp-ssh_tcp', '_apt_tcp', '_ssh_tcp', '_rfb_tcp', '_telnet_tcp', '_timbuktu_tcp', '_net-assistant_udp', '_imap_tcp', '_pop3_tcp', '_printer_tcp', '_pdl-datastream_tcp', '_ipp_tcp', '_daap_tcp', '_dacp_tcp', '_realplayfavs_tcp', '_raop_tcp', '_rtsp_tcp', '_rtp_udp', '_dpap_tcp', '_pulse-server_tcp', '_pulse-sink_tcp', '_pulse-source_tcp', '_mpd_tcp', '_vlc-http_tcp', '_presence_tcp', '_sip_udp', '_h323_tcp', '_presenc_olp', '_iax_udp', '_skype_tcp', '_see_tcp', '_lobby_tcp', '_postgresql_tcp', '_svn_tcp', '_distcc_tcp', '_MacOSXDupSuppress_tcp', '_ksysguard_tcp', '_omni-bookmark_tcp', '_acrobatSRV_tcp', '_adobe-vc_tcp', '_pgpkey-hkp_tcp', '_ldap_tcp', '_tp_tcp', '_tps_tcp', '_tp-http_tcp', '_tp-https_tcp', '_workstation._tcp', '_http._tcp', '_https._tcp', '_rss._tcp', '_domain._udp', '_ntp._udp', '_smb._tcp', '_airport._tcp', '_ftp._tcp', '_tftp._udp', '_webdav._tcp', '_webdavs._tcp', '_afpovertcp._tcp', '_nfs._tcp', '_sftp-ssh._tcp', '_apt._tcp', '_ssh._tcp', '_rfb._tcp', '_telnet._tcp', '_timbuktu._tcp', '_net-assistant._udp', '_imap._tcp', '_pop3._tcp', '_printer._tcp', '_pdl-datastream._tcp', '_ipp._tcp', '_daap._tcp', '_dacp._tcp', '_realplayfavs._tcp', '_raop._tcp', '_rtsp._tcp', '_rtp._udp', '_dpap._tcp', '_pulse-server._tcp', '_pulse-sink._tcp', '_pulse-source._tcp', '_mpd._tcp', '_vlc-http._tcp', '_presence._tcp', '_sip._udp', '_h323._tcp', '_presenc._olp', '_iax._udp', '_skype._tcp', '_see._tcp', '_lobby._tcp', '_postgresql._tcp', '_svn._tcp', '_distcc._tcp', '_MacOSXDupSuppress._tcp', '_ksysguard._tcp', '_omni-bookmark._tcp', '_acrobatSRV._tcp', '_adobe-vc._tcp', '_pgpkey-hkp._tcp', '_ldap._tcp', '_tp._tcp', '_tps._tcp', '_tp-http._tcp', '_tp-https._tcp']
+        #questionList = questionList[:50]
+        print "hello"
+
 
         if "src" in ip_packet.fields:
             build_lfilter = lambda (packet): IPv6 in packet and packet[IPv6].dst == ip_packet.fields["src"]
         else:
             src = ip_packet.route()[1]
-            print src
             build_lfilter = lambda (packet): IPv6 in packet and packet[IPv6].dst == src
 
-
-
-
-
         pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,3]) # tuple of args for foo
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,5]) # tuple of args for foo
 
-        send(ip_packet/udp_segment/raw)
+
+        for questionList in self.chunker(questionListAll,20):
+            print questionList
+            payload = ""
+            for questionName in questionList:
+                queryType = "000c" # domain pointer
+                questionIn = "8001"
+                payload += binascii.hexlify(str(DNSQR(qname=questionName + ".local",qtype='PTR')))[:-4] + "8001"
+            queryInfo = transaction_id + flags + "{:04x}".format(len(questionList)) + answer_rrs + authority_rrs + additional_rrs
+            payload = queryInfo + payload
+            raw = Raw()
+            raw.fields["load"] = binascii.unhexlify(payload)
+
+            send(ip_packet/udp_segment/raw)
+
         responseDict = {}
         return_val = async_result.get()
 
@@ -319,7 +372,6 @@ class DNS:
             rawSrc = self.grabRawSrc(rawSrc)
             mac = self.getMacAddress(rawSrc)
             responseDict[ip] = {"mac":mac}
-            print ip
 
             dnsDict = {}
             try:
@@ -343,15 +395,6 @@ class DNS:
             responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
-
-
-    def createIPv6(self):
-        ip_packet = IPv6()
-        ip_packet.fields["version"] = 6L
-        ip_packet.fields["tc"] = 0L
-        ip_packet.fields["nh"] = 58
-        ip_packet.fields["hlim"] = 1
-        return ip_packet
 
 
     def getMacAddress(self,ip):

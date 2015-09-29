@@ -16,12 +16,13 @@
               <tbody>
               {% for entry in entries %}
                 <tr>
-                  <td>{{ entry.ip }}</td>
+                  {% if "dns_data" in entry %}
+                    <td><a href="/node/{{ entry.ip }}">{{ entry.ip }}</a></td>
+                  {% else %}
+                    <td>{{ entry.ip }}</td>
+                  {% endif %}
                   <td>{{ entry.mac }}</td>
                   <td>{{ entry.device_name }}</td>
-                  {% if "dns_data" in entry %}
-                  <td>Has DNS</td>
-                  {% endif %}
                 </tr>
               {% endfor %}
               </tbody>

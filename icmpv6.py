@@ -6,44 +6,22 @@ from copy import copy
 from itertools import izip
 import time
 from dnslib import DNSRecord
+from ipv6 import get_source_address, createIPv6
 
 class ICMPv6:
     def init(self):
         None
 
     def echoAllNodes(self):
-        """ #IPv6 Packet
-            0                   1                   2                   3
-            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-           |Version| Traffic Class |           Flow Label                  |
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-           |         Payload Length        |  Next Header  |   Hop Limit   |
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-           |                                                               |
-           +                                                               +
-           |                                                               |
-           +                         Source Address                        +
-           |                                                               |
-           +                                                               +
-           |                                                               |
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-           |                                                               |
-           +                                                               +
-           |                                                               |
-           +                      Destination Address                      +
-           |                                                               |
-           +                                                               +
-           |                                                               |
-           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-        """
-
-        ip_packet = IPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["version"] = 6L
         ip_packet.fields["tc"] = 0L
         ip_packet.fields["nh"] = 58
         ip_packet.fields["hlim"] = 1
         ip_packet.fields["dst"] = "ff02::1"
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
+
 
         """
                #ICMPv6 Packet
@@ -86,18 +64,12 @@ class ICMPv6:
 
 
 
-    def createIPv6(self):
-        ip_packet = IPv6()
-        ip_packet.fields["version"] = 6L
-        ip_packet.fields["tc"] = 0L
-        ip_packet.fields["nh"] = 58
-        ip_packet.fields["hlim"] = 1
-        return ip_packet
-
-
     def echoAllNodeNames(self):
-        ip_packet = self.createIPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["dst"] = "ff02::1"
+
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
 
         icmp_packet = ICMPv6NIQueryName()
         icmp_packet.fields["code"] = 0
@@ -106,6 +78,7 @@ class ICMPv6:
         icmp_packet.fields["flags"] = 0L
         icmp_packet.fields["qtype"] = 2
         icmp_packet.fields["data"] = (0, 'ff02::1')
+
 
         build_lfilter = lambda (packet): ICMPv6NIReplyName in packet
 
@@ -152,12 +125,11 @@ class ICMPv6:
         #build_lfilter = lambda (packet): ICMPv6EchoReply in packet
         #build_lfilter = lambda (packet): ICMPv6NIReplyName in packet
         response = sniff(lfilter=build_lfilter, timeout=timeout)
-        print response
         return response
 
     def fuzzington(self):
 
-        ip_packet = IPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["version"] = 6L
         ip_packet.fields["tc"] = 0L
         ip_packet.fields["nh"] = 58
@@ -220,7 +192,7 @@ class ICMPv6:
         rawDst.remove_payload()
         rawDst = self.grabRawDst(rawDst)
 
-        ip_packet = IPv6()
+        ip_packet = createIPv6()
         ip_packet.fields["version"] = 6L
         ip_packet.fields["tc"] = 0L
         ip_packet.fields["nh"] = 58
