@@ -3,6 +3,8 @@
 - python 2.7
 - python pip
 - scapy (pip install)
+- pcapy (pip install)
+- dnet (pip install)
 - dnslib (pip install)
 - flask (pip install)
 - netifaces (pip install) --hopefully we don't need this for too long
