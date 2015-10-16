@@ -2,31 +2,51 @@
 
 
 {% block body %}
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>IP Address</th>
-                  <th>MAC Address</th>
-                  <th>Device Name</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for entry in entries %}
-                <tr>
-                  {% if "dns_data" in entry %}
-                    <td><a href="/node/{{ entry.ip }}">{{ entry.ip }}</a></td>
-                  {% else %}
-                    <td>{{ entry.ip }}</td>
-                  {% endif %}
-                  <td>{{ entry.mac }}</td>
-                  <td>{{ entry.device_name }}</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
+<h1 class="page-header">Dashboard</h1>
+<div class="row">
+  <div class="col-md-6">
+    <div id="nodegraph">
+
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>IP Address</th>
+            <th>MAC Address</th>
+            <th>Device Name</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for entry in entries %}
+          <tr>
+            {% if "dns_data" in entry %}
+              <td><a href="/node/{{ entry.ip }}">{{ entry.ip }}</a></td>
+            {% else %}
+              <td>{{ entry.ip }}</td>
+            {% endif %}
+            <td>{{ entry.mac }}</td>
+            <td>{{ entry.device_name }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+  $(function(){
+    var entries = {{entries|tojson|safe}};
+    for(var i in entries){
+      console.log(entries[i], i);
+      var x = parseInt(i);
+      nodegraph.graph.nodes.push({"value": x+1, "x": nodegraph.width/2, "y": nodegraph.height/2, "index": x+1});
+      nodegraph.graph.links.push({"source": 0, "target": x+1});
+    }
+
+    nodegraph.init();
+  });
+</script>
 {% endblock %}
