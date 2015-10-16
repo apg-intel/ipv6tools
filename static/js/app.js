@@ -8,8 +8,8 @@ var nodegraph = {
     nodes: [],
     links: []
   },
-  link: null,
-  node: null,
+  link: [],
+  node: [],
 
   init: function(){
     // set width and height
@@ -26,7 +26,9 @@ var nodegraph = {
       .size([nodegraph.width, nodegraph.height])
       .charge(-400)
       .linkDistance(40)
-      .on('tick', nodegraph.tick);
+      .on('tick', nodegraph.tick)
+      .nodes(nodegraph.graph.nodes)
+      .links(nodegraph.graph.links);
 
     var drag = force.drag()
       .on('dragstart', nodegraph.dragstart)
@@ -35,24 +37,42 @@ var nodegraph = {
       .attr("width", nodegraph.width)
       .attr("height", nodegraph.height);
 
-    var link = svg.selectAll(".link"),
-      node = svg.selectAll(".node");
+    var loading = svg.append("text")
+      .attr("x", nodegraph.width / 2)
+      .attr("y", nodegraph.height / 2)
+      .attr("dy", ".35em")
+      .style("text-anchor", "middle")
+      .text("Loading. One moment please…");
 
-    force
-      .nodes(nodegraph.graph.nodes)
-      .links(nodegraph.graph.links)
-      .start();
-    nodegraph.link = link.data(nodegraph.graph.links)
+    nodegraph.link = svg.selectAll(".link")
+      .data(nodegraph.graph.links)
       .enter().append("line")
+        .attr('opacity', 0)
         .attr("class", "link")
         .attr("stroke-width", 1)
         .attr("stroke", "#000");
-    nodegraph.node = node.data(nodegraph.graph.nodes)
+    nodegraph.node = svg.selectAll(".node")
+      .data(nodegraph.graph.nodes)
       .enter().append("circle")
+        .attr('opacity', 0)
         .attr("class", "node")
         .attr("r", 12)
         .on("dblclick", nodegraph.dblclick)
         .call(drag);
+
+    setTimeout(function(){
+      // simulate ticks while stuff isn't visible
+      var n = nodegraph.graph.nodes.length;
+      force.start();
+      for (var i = n * n; i > 0; --i) force.tick();
+      force.stop();
+
+      // remove loading sign and make stuff visible
+      loading.remove();
+      nodegraph.node.attr('opacity', 1);
+      nodegraph.link.attr('opacity', 1);
+    }, 10);
+
 
   },
   tick: function(){
