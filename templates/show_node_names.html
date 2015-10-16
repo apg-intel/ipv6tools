@@ -42,8 +42,15 @@
     for(var i in entries){
       // console.log(entries[i], i);
       var x = parseInt(i);
-      nodegraph.graph.nodes.push({"value": x+1, "x": nodegraph.width/2, "y": nodegraph.height/2, "index": x+1});
-      nodegraph.graph.links.push({"source": 0, "target": x+1});
+      nodegraph.graph.nodes.push({
+        "value": x+1,
+        "x": nodegraph.width/2,
+        "y": nodegraph.height/2,
+        "index": x+1
+      });
+      nodegraph.graph.links.push({
+        "source": 0,
+        "target": x+1});
     }
 
     nodegraph.init();

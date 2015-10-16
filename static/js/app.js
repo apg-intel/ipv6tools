@@ -58,6 +58,8 @@ var nodegraph = {
         .attr("class", "node")
         .attr("r", 12)
         .on("dblclick", nodegraph.dblclick)
+        .on("mouseover", nodegraph.mouseover)
+        .on("mouseout", nodegraph.mouseout)
         .call(drag);
 
     setTimeout(function(){
@@ -88,6 +90,12 @@ var nodegraph = {
   },
   dragstart: function(d){
     d3.select(this).classed("fixed", d.fixed = true);
+  },
+  mouseover: function(d){
+    console.log('mousein');
+  },
+  mouseout: function(d){
+    console.log('mouseout');
   },
   addNode: function(entry){
     console.log(entry);
