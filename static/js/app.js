@@ -9,7 +9,7 @@ var nodegraph = {
     links: []
   },
   link: [],
-  ngroups: [],
+  gnode: [],
   svg: null,
   force: null,
 
@@ -74,12 +74,17 @@ var nodegraph = {
       .attr("stroke-width", 2)
       .on("dblclick", this.dblclick)
       .on("mouseover", this.mouseover)
-      .on("mouseout", this.mouseout)
+      .on("mouseout", this.mouseout);
 
     this.gnode.append("text")
       .attr("dx", "1em")
       .attr("dy", "0.3em")
-      .text(function(d){ return (d.name) ? d.name : "" })
+      .text(function(d){ return (d.name) ? d.name : "" });
+
+    this.gnode.sort(function(a,b){
+      if(!a.name) return -1;
+      else return 1;
+    });
 
     // resize listener
     d3.select(window).on('resize', this.resize);
@@ -99,20 +104,36 @@ var nodegraph = {
     }, 10);
   },
   setDim: function(){
-    this.width = $(this.div).outerWidth(), this.height = $(this.div).outerWidth();
+    var width = $(this.div).outerWidth();
+    var aspect = (width > 700) ? 9/16 : 1;
+    this.width = width, this.height = width*aspect;
   },
   getFill: function(d){
+    var hovered = d3.select(this).classed("hovered");
     if(d.dns){
+      if(hovered) {
+        return "rgb(157, 42, 25)";
+      }
       return "rgb(197, 82, 65)";
     } else {
-      return "rgb(133, 133, 133)";
+      if(hovered){
+        return "rgb(140, 140, 140)";
+      }
+      return "rgb(170, 170, 170)";
     }
   },
   getStroke: function(d){
+    var hovered = d3.select(this).classed("hovered");
     if(d.dns){
+      if(hovered) {
+        return "rgb(143, 11, 8)";
+      }
       return "rgb(183, 39, 18)";
     } else {
-      return "rgb(102, 102, 102)";
+      if(hovered) {
+        return "rgb(90, 90, 90)";
+      }
+      return "rgb(130, 130, 130)";
     }
   },
   // tick for d3 positioning
@@ -133,10 +154,16 @@ var nodegraph = {
     d3.select(this).classed("fixed", d.fixed = true);
   },
   mouseover: function(d){
-    console.log(d);
+    d3.select(this)
+      .classed("hovered", true)
+      .attr("fill", nodegraph.getFill)
+      .attr("stroke", nodegraph.getStroke)
   },
   mouseout: function(d){
-    console.log('mouseout');
+    d3.select(this)
+      .classed("hovered", false)
+      .attr("fill", nodegraph.getFill)
+      .attr("stroke", nodegraph.getStroke);
   },
   resize: function(){
     nodegraph.setDim();
