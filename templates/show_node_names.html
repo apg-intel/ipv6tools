@@ -40,13 +40,14 @@
   $(function(){
     var entries = {{entries|tojson|safe}};
     for(var i in entries){
-      // console.log(entries[i], i);
       var x = parseInt(i);
       nodegraph.graph.nodes.push({
-        "value": x+1,
+        "value": 1,
         "x": nodegraph.width/2,
         "y": nodegraph.height/2,
-        "index": x+1
+        "index": x+1,
+        "name": entries[i].device_name || null,
+        "dns": $.isEmptyObject(entries[i].dns_data) ? null : entries[i].dns_data
       });
       nodegraph.graph.links.push({
         "source": 0,
