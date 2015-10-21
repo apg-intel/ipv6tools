@@ -81,10 +81,8 @@ class DNS:
                 answer_name = str(dnsRecord.a.rname)
                 if questionList[0].lower() in answer_name.lower():
                     answer_data = dnsRecord.a.rdata
-                    dnsDict["answer_name"] = answer_name
+                    dnsDict["answer_name"] = str(answer_name)
                     dnsDict["answer_data"] = answer_data
-                    print answer_name
-                    print answer_data
                     if dnsRecord.ar:
                         recordList = []
                         for record in dnsRecord.ar:
@@ -92,7 +90,7 @@ class DNS:
                             answer_record_data = record.rdata
                             recordDict = {}
                             recordDict["answer_record_name"] = str(answer_record_name)
-                            recordDict["answer_record_data"] = answer_record_data
+                            recordDict["answer_record_data"] = str(answer_record_data)
                             recordList.append(recordDict)
                         dnsDict["record_data"] = recordList
             except Exception,e: print e
@@ -298,8 +296,7 @@ class DNS:
                         answer_record_data = record.rdata
                         recordDict = {}
                         recordDict["answer_record_name"] = str(answer_record_name)
-                        recordDict["answer_record_data"] = answer_record_data
-                        print recordDict
+                        recordDict["answer_record_data"] = str(answer_record_data)
                         recordList.append(recordDict)
                     dnsDict["record_data"] = recordList
             except Exception,e: print e
@@ -379,7 +376,7 @@ class DNS:
                 answer_name = dnsRecord.a.rname
                 answer_data = dnsRecord.a.rdata
                 dnsDict["answer_name"] = str(answer_name)
-                dnsDict["answer_data"] = answer_data
+                dnsDict["answer_data"] = str(answer_data)
 
                 if dnsRecord.ar:
                     recordList = []
@@ -388,7 +385,7 @@ class DNS:
                         answer_record_data = record.rdata
                         recordDict = {}
                         recordDict["answer_record_name"] = str(answer_record_name)
-                        recordDict["answer_record_data"] = answer_record_data
+                        recordDict["answer_record_data"] = str(answer_record_data)
                         recordList.append(recordDict)
                     dnsDict["record_data"] = recordList
             except Exception,e: print e

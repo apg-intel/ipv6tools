@@ -39,7 +39,7 @@
 </div>
 <script>
   $(function(){
-    var entries = {{entries|tojson|safe}};
+    var entries = {{entries|safe}};
     for(var i in entries){
       var x = parseInt(i);
       nodegraph.graph.nodes.push({
