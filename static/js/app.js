@@ -93,7 +93,8 @@ var nodegraph = {
     // timeout so page doesn't lock while simulating
     setTimeout(function(){
       // simulate ticks while stuff isn't visible
-      var n = nodegraph.graph.nodes.length*2;
+      var n = nodegraph.graph.nodes.length;
+      if(n<100) n=100;
       force.start();
       for (var i = n * n; i > 0; --i) force.tick();
       force.stop();
