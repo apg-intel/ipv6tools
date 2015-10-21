@@ -65,6 +65,7 @@ def show_entries():
     dig = aa.dig_and_listen(keylist)
     b = merge(b,dig)
     entries = convertToList(b)
+    print entries
     return render_template('show_node_names.html', entries=entries)
 
 @app.route('/node/<ipv6>')

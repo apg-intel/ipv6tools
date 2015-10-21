@@ -23,7 +23,8 @@ var nodegraph = {
       "y": this.height/2,
       "fixed": true,
       "index": 0,
-      "value": 2
+      "value": 2,
+      "root": true
     });
 
     var force = d3.layout.force()
@@ -92,7 +93,7 @@ var nodegraph = {
     // timeout so page doesn't lock while simulating
     setTimeout(function(){
       // simulate ticks while stuff isn't visible
-      var n = nodegraph.graph.nodes.length;
+      var n = nodegraph.graph.nodes.length+20;
       force.start();
       for (var i = n * n; i > 0; --i) force.tick();
       force.stop();
@@ -110,13 +111,17 @@ var nodegraph = {
   },
   getFill: function(d){
     var hovered = d3.select(this).classed("hovered");
-    if(d.dns){
-      if(hovered) {
+
+    if(d.root){
+      return "rgb(51, 103, 153)";
+    }
+    else if(d.dns){
+      if(hovered || d.fixed) {
         return "rgb(157, 42, 25)";
       }
       return "rgb(197, 82, 65)";
     } else {
-      if(hovered){
+      if(hovered || d.fixed){
         return "rgb(140, 140, 140)";
       }
       return "rgb(170, 170, 170)";
@@ -124,13 +129,17 @@ var nodegraph = {
   },
   getStroke: function(d){
     var hovered = d3.select(this).classed("hovered");
-    if(d.dns){
-      if(hovered) {
+
+    if(d.root){
+      return "rgb(0, 66, 128)";
+    }
+    else if(d.dns){
+      if(hovered || d.fixed) {
         return "rgb(143, 11, 8)";
       }
       return "rgb(183, 39, 18)";
     } else {
-      if(hovered) {
+      if(hovered || d.fixed) {
         return "rgb(90, 90, 90)";
       }
       return "rgb(130, 130, 130)";
