@@ -23,14 +23,14 @@ var nodegraph = {
       "y": this.height/2,
       "fixed": true,
       "index": 0,
-      "value": 2,
+      "value": 3,
       "root": true
     });
 
     var force = d3.layout.force()
       .size([this.width, this.height])
       .charge(-800)
-      .linkDistance(60)
+      .linkDistance(80)
       .on('tick', this.tick)
       .nodes(this.graph.nodes)
       .links(this.graph.links);
@@ -158,10 +158,16 @@ var nodegraph = {
   },
   // event listeners
   dblclick: function(d){
-    d3.select(this).classed("fixed", d.fixed = false);
+    d3.select(this).classed("fixed", d.fixed = false)
+      .select('circle.node')
+      .attr("fill", nodegraph.getFill)
+      .attr("stroke", nodegraph.getStroke);
   },
   dragstart: function(d){
-    d3.select(this).classed("fixed", d.fixed = true);
+    d3.select(this).classed("fixed", d.fixed = true)
+      .select('circle.node')
+      .attr("fill", nodegraph.getFill)
+      .attr("stroke", nodegraph.getStroke);
   },
   mouseover: function(d){
     d3.select(this)
