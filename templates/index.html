@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+
+{% block body %}
+  <div class="row">
+    <div class="col-md-12">
+      <h2 class="page-header">Scan for devices</h2>
+    	<form class="form-inline" action="{{ url_for('scan') }}">
+    		<button type="submit" class="btn btn-primary">Start Scan</button>
+    	</form>
+    </div>
+  </div>
+
+{% endblock %}

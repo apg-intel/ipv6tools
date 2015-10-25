@@ -49,7 +49,11 @@ def merge(a, b, path=None):
     return a
 
 @app.route('/')
-def show_entries():
+def index():
+    return render_template('index.html')
+
+@app.route('/scan')
+def scan(ipv6=None):
     a = icmpv6.ICMPv6()
     aa = dns.DNS()
     all_nodes = a.echoAllNodes()
@@ -66,10 +70,6 @@ def show_entries():
     b = merge(b,dig)
     entries = convertToList(b)
     return render_template('show_node_names.html', entries=entries)
-
-@app.route('/node/<ipv6>')
-def node(ipv6=None):
-    return
 
 if __name__ == '__main__':
     app.run()
