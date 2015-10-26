@@ -107,7 +107,7 @@ var nodegraph = {
   },
   setDim: function(){
     var width = $(this.div).outerWidth();
-    var aspect = (width > 700) ? 9/16 : 1;
+    var aspect = (width > 700) ? 9/16 : 3/4;
     this.width = width, this.height = width*aspect;
   },
   getFill: function(d){

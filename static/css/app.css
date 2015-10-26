@@ -44,6 +44,16 @@ body {
 
 
 /*
+* Entries table
+*/
+tr.card-row .card-view > .title {
+  display: inline-block;
+  font-weight: bold;
+  min-width: 30%;
+  text-align: left;
+}
+
+/*
  * Node graph styles
  */
 
