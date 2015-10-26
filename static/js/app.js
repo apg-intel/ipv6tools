@@ -29,7 +29,8 @@ var nodegraph = {
 
     var force = d3.layout.force()
       .size([this.width, this.height])
-      .charge(-800)
+      .charge(function(d){ return d.value*-800 })
+      .gravity(0)
       .linkDistance(80)
       .on('tick', this.tick)
       .nodes(this.graph.nodes)
