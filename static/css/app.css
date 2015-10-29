@@ -46,7 +46,7 @@ body {
 /*
 * Entries table
 */
-tr.card-row .card-view > .title {
+.card-view > .title {
   display: inline-block;
   font-weight: bold;
   min-width: 30%;
