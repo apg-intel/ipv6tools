@@ -335,11 +335,7 @@ class DNS:
         print "hello"
 
 
-        if "src" in ip_packet.fields:
-            build_lfilter = lambda (packet): IPv6 in packet and packet[IPv6].dst == ip_packet.fields["src"]
-        else:
-            src = ip_packet.route()[1]
-            build_lfilter = lambda (packet): IPv6 in packet and packet[IPv6].dst == src
+        build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
 
         pool = ThreadPool(processes=1)
         async_result = pool.apply_async(self.listenForEcho,[build_lfilter,5]) # tuple of args for foo
@@ -371,6 +367,8 @@ class DNS:
             responseDict[ip] = {"mac":mac}
 
             dnsDict = {}
+            print response.summary()
+
             try:
                 dnsRecord = DNSRecord.parse(str(response[Raw]))
                 answer_name = dnsRecord.a.rname
