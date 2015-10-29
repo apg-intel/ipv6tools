@@ -367,8 +367,7 @@ class DNS:
             responseDict[ip] = {"mac":mac}
 
             dnsDict = {}
-            print response.summary()
-
+            """
             try:
                 dnsRecord = DNSRecord.parse(str(response[Raw]))
                 answer_name = dnsRecord.a.rname
@@ -387,10 +386,32 @@ class DNS:
                         recordList.append(recordDict)
                     dnsDict["record_data"] = recordList
             except Exception,e: print e
+            """
+
+            try:
+                dnsRecord = DNSRecord.parse(str(response[Raw]))
+                dnsDict = self.parsemDNS(dnsRecord)
+                print dnsDict
+            except Exception,e: print e
             responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
+    def parsemDNS(self, dnsRecord):
+        responseDict = {}
+        answer_json = []
+        for answer in dnsRecord.rr:
+            answer_json.append({"answer_name": str(answer.rname),
+                                "answer_type": str(answer.rtype),
+                                "answer_data": str(answer.rdata),
+                                "isAnswer": True})
+        if dnsRecord.ar:
+            for ar in dnsRecord.ar:
+                answer_json.append({"answer_name": str(ar.rname),
+                                    "answer_type": str(ar.rtype),
+                                    "answer_data": str(ar.rdata),
+                                    "isAnswer": False})
 
+        return answer_json
 
     def getMacAddress(self,ip):
         mac = ip.replace(":","")
