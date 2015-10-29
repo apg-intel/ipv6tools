@@ -10,49 +10,16 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div class="table-responsive">
-      <table class="table table-striped">
+    <div>
+      <table class="table table-striped" id="nodetable">
         <thead>
           <tr>
+            <th></th>
             <th>IP Address</th>
             <th>MAC Address</th>
             <th>Device Name</th>
           </tr>
         </thead>
-        <tbody>
-        {% for entry in entries %}
-          <tr>
-            {% if "dns_data" in entry %}
-              <td><a href="#entry-details-{{loop.index0}}" data-toggle="collapse">{{ entry.ip }}</a></td>
-            {% else %}
-              <td>{{ entry.ip }}</td>
-            {% endif %}
-            <td>{{ entry.mac }}</td>
-            <td>{{ entry.device_name }}</td>
-            <td>{{ entry.dns_data }}</td>
-          </tr>
-          <tr id="entry-details-{{loop.index0}}" class="collapse card-row">
-            <td colspan="5">
-              <div class="card-view">
-                <span class="title">IP Address</span>
-                <span class="value">{{ entry.ip }}</span>
-              </div>
-              <div class="card-view">
-                <span class="title">MAC Address</span>
-                <span class="value">{{ entry.mac }}</span>
-              </div>
-              <div class="card-view">
-                <span class="title">Device Name</span>
-                <span class="value">{{ entry.device_name }}</span>
-              </div>
-              <div class="card-view">
-                <span class="title">DNS Data</span>
-                <span class="value">{{ entry.dns_data }}</span>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
       </table>
     </div>
   </div>
@@ -75,7 +42,7 @@
         "source": 0,
         "target": x+1});
     }
-
+    nodetable.init(entries);
     nodegraph.init();
   });
 </script>

@@ -1,5 +1,62 @@
 console.log('initialized')
 
+
+var nodetable = {
+  init: function(data){
+    var table = $('#nodetable').DataTable({
+      data: data,
+      columns: [
+        {
+          className: 'details-control',
+          orderable: false,
+          data: null,
+          defaultContent: "<span class='glyphicon glyphicon-plus'></span>"
+        },
+        {data: "ip"},
+        {data: "mac"},
+        {
+          data: "device_name",
+          defaultContent: ""
+        }
+      ],
+      order: [[1, 'asc']]
+    });
+
+    $('#nodetable tbody').on('click', 'td.details-control', function(e){
+      var tr = $(this).closest('tr'),
+        row = table.row(tr);
+
+      if(row.child.isShown()){
+        row.child.hide();
+        tr.removeClass('shown');
+      } else {
+        row.child(nodetable.formatSubrow(row.data())).show();
+        tr.addClass('shown')
+      }
+    });
+  },
+  formatSubrow: function(d){
+    var table = '<table cellpadding="5" cellspacing="0" border="0" class="table">';
+
+    if(d.device_name){
+      table += '<tr>'+
+        '<th>Device Name</th>'+
+        '<td>'+ (d.device_name) +'</td>'+
+      '</tr>';
+    }
+
+    if(d.dns_data){
+      table += '<tr>'+
+        '<th>DNS Data</th>'+
+        '<td>'+ (JSON.stringify(d.dns_data) || '') +'</td>'+
+      '</tr>';
+    }
+
+    table += '</table>';
+    return table;
+  }
+}
+
 var nodegraph = {
   div: '#nodegraph',
   width: 500,
