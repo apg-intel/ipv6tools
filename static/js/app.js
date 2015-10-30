@@ -1,4 +1,4 @@
-console.log('initialized')
+console.log('initialized');
 
 
 var nodetable = {
@@ -149,7 +149,20 @@ var nodegraph = {
     this.gnode.append("text")
       .attr("dx", "1em")
       .attr("dy", "0.3em")
-      .text(function(d){ return (d.name) ? d.name : "" });
+      .text(function(d){
+        if(d.name){
+          return d.name;
+        } else if(d.dns){
+          var tmp = d.dns.filter(function(r){ console.log(r); return r.answer_type == 28; });
+          if(tmp.length > 0){
+            return tmp[0].answer_name.replace('.local.', '');
+          } else {
+            return '';
+          }
+        } else {
+          return '';
+        }
+      });
 
     this.gnode.sort(function(a,b){
       if(!a.name) return -1;

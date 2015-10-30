@@ -32,7 +32,7 @@ class DNS:
         answer_rrs = "0000"
         authority_rrs = "0000"
         additional_rrs = "0000"
-        
+
         if version == 4:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
@@ -149,7 +149,7 @@ class DNS:
         answer_rrs = "0000"
         authority_rrs = "0000"
         additional_rrs = "0000"
-        
+
         if version == 4:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
@@ -171,8 +171,8 @@ class DNS:
         raw.fields["load"] = binascii.unhexlify(payload)
 
         send(ip_packet/udp_segment/raw, verbose=False)
-        
-    
+
+
     def llmnr_noreceive(self,ip,version=6):
         ip_packet = createIPv6()
         ip_packet.fields["nh"] = 17 #DNS
@@ -401,13 +401,13 @@ class DNS:
         answer_json = []
         for answer in dnsRecord.rr:
             answer_json.append({"answer_name": str(answer.rname),
-                                "answer_type": str(answer.rtype),
+                                "answer_type": int(answer.rtype),
                                 "answer_data": str(answer.rdata),
                                 "isAnswer": True})
         if dnsRecord.ar:
             for ar in dnsRecord.ar:
                 answer_json.append({"answer_name": str(ar.rname),
-                                    "answer_type": str(ar.rtype),
+                                    "answer_type": int(ar.rtype),
                                     "answer_data": str(ar.rdata),
                                     "isAnswer": False})
 
