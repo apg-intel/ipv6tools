@@ -12,7 +12,7 @@ var nodetable = {
           defaultContent: "",
           render: function(data,type,full,meta){
             if(data.dns_data && !$.isEmptyObject(data.dns_data)){
-              return "<span class='glyphicon glyphicon-plus'></span>";
+              return "<span class='glyphicon glyphicon-chevron-down'></span>";
             }
           }
         },
@@ -23,12 +23,19 @@ var nodetable = {
           defaultContent: ""
         }
       ],
-      order: [[0, 'desc'], [3, 'desc']]
+      order: [[0, 'desc'], [3, 'desc']],
+      createdRow: function(row,d,index){
+        if(d.dns_data && !$.isEmptyObject(d.dns_data)){
+          $(row).addClass('has-dns');
+        }
+      }
     });
 
-    $('#nodetable tbody').on('click', 'td.details-control', function(e){
+    $('#nodetable tbody').on('click', 'tr.has-dns > td', function(e){
       var tr = $(this).closest('tr'),
         row = table.row(tr);
+
+      tr.find('.details-control > .glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
 
       if(row.child.isShown()){
         row.child.hide();
@@ -42,7 +49,7 @@ var nodetable = {
   formatSubrow: function(d){
     var table = ""
     if(d.dns_data && !$.isEmptyObject(d.dns_data)){
-      table = '<table cellpadding="5" cellspacing="0" border="0" class="table table-condensed borderless">';
+      table = '<table cellpadding="5" cellspacing="0" border="0" class="table table-condensed table-hover dns-details-table">';
       table += '<tr><th>';
       table += Object.keys(d.dns_data[0]).join("</th><th>");
       table += '</th></tr>';
@@ -50,7 +57,7 @@ var nodetable = {
       $.each(d.dns_data, function(i,row){
         table += '<tr>';
         $.each(row, function(k,v){
-          table += '<td>'+ (v) +'</td>';
+          table += '<td class="'+ k +'">'+ (v) +'</td>';
         });
         table += '</tr>';
       });

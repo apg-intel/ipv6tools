@@ -46,6 +46,18 @@ body {
 /*
 * Entries table
 */
+#nodetable tr.has-dns {
+  cursor: pointer;
+}
+
+#nodetable tr.has-dns > .details-control > .glyphicon {
+  opacity: 0.5;
+}
+
+#nodetable table.dns-details-table tr > td.answer_data {
+  word-break:break-word;
+}
+
 table.borderless tr > td {
   border:none!important;
 }
