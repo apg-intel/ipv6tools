@@ -46,11 +46,13 @@ body {
 /*
 * Entries table
 */
-.card-view > .title {
-  display: inline-block;
-  font-weight: bold;
-  min-width: 30%;
-  text-align: left;
+table.borderless tr > td {
+  border:none!important;
+}
+
+table.borderless tr > th {
+  border-top:none!important;
+  border-bottom: 1px solid #ddd;
 }
 
 /*

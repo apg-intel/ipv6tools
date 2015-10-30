@@ -8,9 +8,13 @@ var nodetable = {
       columns: [
         {
           className: 'details-control',
-          orderable: false,
           data: null,
-          defaultContent: "<span class='glyphicon glyphicon-plus'></span>"
+          defaultContent: "",
+          render: function(data,type,full,meta){
+            if(data.dns_data && !$.isEmptyObject(data.dns_data)){
+              return "<span class='glyphicon glyphicon-plus'></span>";
+            }
+          }
         },
         {data: "ip"},
         {data: "mac"},
@@ -19,7 +23,7 @@ var nodetable = {
           defaultContent: ""
         }
       ],
-      order: [[1, 'asc']]
+      order: [[0, 'desc'], [3, 'desc']]
     });
 
     $('#nodetable tbody').on('click', 'td.details-control', function(e){
@@ -36,20 +40,20 @@ var nodetable = {
     });
   },
   formatSubrow: function(d){
-    var table = '<table cellpadding="5" cellspacing="0" border="0" class="table">';
+    var table = ""
+    if(d.dns_data && !$.isEmptyObject(d.dns_data)){
+      table = '<table cellpadding="5" cellspacing="0" border="0" class="table table-condensed borderless">';
+      table += '<tr><th>';
+      table += Object.keys(d.dns_data[0]).join("</th><th>");
+      table += '</th></tr>';
 
-    if(d.device_name){
-      table += '<tr>'+
-        '<th>Device Name</th>'+
-        '<td>'+ (d.device_name) +'</td>'+
-      '</tr>';
-    }
-
-    if(d.dns_data){
-      table += '<tr>'+
-        '<th>DNS Data</th>'+
-        '<td>'+ (JSON.stringify(d.dns_data) || '') +'</td>'+
-      '</tr>';
+      $.each(d.dns_data, function(i,row){
+        table += '<tr>';
+        $.each(row, function(k,v){
+          table += '<td>'+ (v) +'</td>';
+        });
+        table += '</tr>';
+      });
     }
 
     table += '</table>';
