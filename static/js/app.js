@@ -2,6 +2,7 @@ console.log('initialized');
 
 
 var nodetable = {
+  table: null,
   init: function(data){
     var table = $('#nodetable').DataTable({
       data: data,
@@ -24,12 +25,18 @@ var nodetable = {
         }
       ],
       order: [[0, 'desc'], [3, 'desc']],
-      createdRow: function(row,d,index){
+      rowCallback: function(row,d,index){
+        $(row).attr('id', ipv6_id(d.ip));
         if(d.dns_data && !$.isEmptyObject(d.dns_data)){
           $(row).addClass('has-dns');
         }
+
+        if(nodegraph.pinned.indexOf(d.ip) >= 0){
+          $(row).addClass('highlighted-row');
+        }
       }
     });
+    this.table = table;
 
     $('#nodetable tbody').on('click', 'tr.has-dns > td', function(e){
       var tr = $(this).closest('tr'),
@@ -80,6 +87,7 @@ var nodegraph = {
   gnode: [],
   svg: null,
   force: null,
+  pinned: [],
 
   init: function(){
     // set width and height
@@ -233,24 +241,42 @@ var nodegraph = {
       .select('circle.node')
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
+
+    if(d.id){
+      if(nodegraph.pinned.indexOf(d.id) >= 0)  nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
+    }
   },
   dragstart: function(d){
     d3.select(this).classed("fixed", d.fixed = true)
       .select('circle.node')
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
+    if(d.id)  nodegraph.pinned.push(d.id);
   },
   mouseover: function(d){
+    // highlight node
     d3.select(this)
       .classed("hovered", true)
       .attr("fill", nodegraph.getFill)
-      .attr("stroke", nodegraph.getStroke)
+      .attr("stroke", nodegraph.getStroke);
+
+    // find in table
+    if(d.id){
+      $('#'+ipv6_id(d.id)).addClass('highlighted-row');
+    }
+
   },
   mouseout: function(d){
     d3.select(this)
       .classed("hovered", false)
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
+
+    if(d.id){
+      if(!d.fixed){
+        $('#'+ipv6_id(d.id)).removeClass('highlighted-row');
+      }
+    }
   },
   resize: function(){
     nodegraph.setDim();
@@ -271,4 +297,9 @@ var nodegraph = {
     // set force w/h
     nodegraph.force.size([nodegraph.width, nodegraph.height]).resume();
   }
+}
+
+
+function ipv6_id(ip){
+  return ip.replace(/\:/g, "");
 }

@@ -50,7 +50,8 @@ body {
   cursor: pointer;
 }
 
-#nodetable tr.has-dns.shown{
+#nodetable tr.has-dns.shown,
+#nodetable tr.highlighted-row {
   background-color: #d9edf7;
 }
 #nodetable tr.dns-details {
