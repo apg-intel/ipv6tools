@@ -79,6 +79,7 @@ var nodegraph = {
   div: '#nodegraph',
   width: 500,
   height: 500,
+  radius: 12, //value * 12
   graph: {
     nodes: [],
     links: []
@@ -106,7 +107,7 @@ var nodegraph = {
     var force = d3.layout.force()
       .size([this.width, this.height])
       .charge(function(d){ return d.value*-800 })
-      .gravity(0)
+      .gravity(0.06)
       .linkDistance(80)
       .on('tick', this.tick)
       .nodes(this.graph.nodes)
@@ -146,7 +147,7 @@ var nodegraph = {
 
     this.gnode.append("circle")
       .attr("class", function(d){ return (d.fixed) ? "node root_node" : "node" })
-      .attr("r", function(d){ return d.value * 12 })
+      .attr("r", function(d){ return d.value * nodegraph.radius; })
       .attr("fill", this.getFill)
       .attr("stroke", this.getStroke)
       .attr("stroke-width", 2)
@@ -227,13 +228,16 @@ var nodegraph = {
   },
   // tick for d3 positioning
   tick: function(){
+    nodegraph.gnode.attr("transform", function(d) {
+      var r = nodegraph.radius * d.value;
+      d.x = Math.max(r, Math.min(nodegraph.width - r, d.x));
+      d.y = Math.max(r, Math.min(nodegraph.height - r, d.y));
+      return 'translate('+ d.x +','+ d.y +')';
+    });
     nodegraph.link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
-    nodegraph.gnode.attr("transform", function(d) {
-       return 'translate(' + [d.x, d.y] + ')';
-     });
   },
   // event listeners
   dblclick: function(d){
