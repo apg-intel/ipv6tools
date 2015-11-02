@@ -242,16 +242,14 @@ var nodegraph = {
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
 
-    if(d.id){
-      if(nodegraph.pinned.indexOf(d.id) >= 0)  nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
-    }
+    if(d.id && nodegraph.pinned.indexOf(d.id) >= 0) nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
   },
   dragstart: function(d){
     d3.select(this).classed("fixed", d.fixed = true)
       .select('circle.node')
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
-    if(d.id)  nodegraph.pinned.push(d.id);
+    if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
   },
   mouseover: function(d){
     // highlight node
