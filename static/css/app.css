@@ -50,6 +50,17 @@ body {
   cursor: pointer;
 }
 
+#nodetable tr.has-dns.shown{
+  background-color: #d9edf7;
+}
+#nodetable tr.dns-details {
+  background-color: #f5f5f5;
+}
+
+#nodetable table.dns-details-table {
+  margin-bottom: 0;
+}
+
 #nodetable tr.has-dns > .details-control > .glyphicon {
   opacity: 0.5;
 }

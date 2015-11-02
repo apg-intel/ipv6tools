@@ -41,7 +41,7 @@ var nodetable = {
         row.child.hide();
         tr.removeClass('shown');
       } else {
-        row.child(nodetable.formatSubrow(row.data())).show();
+        row.child(nodetable.formatSubrow(row.data()), 'dns-details').show();
         tr.addClass('shown')
       }
     });
@@ -49,7 +49,7 @@ var nodetable = {
   formatSubrow: function(d){
     var table = ""
     if(d.dns_data && !$.isEmptyObject(d.dns_data)){
-      table = '<table cellpadding="5" cellspacing="0" border="0" class="table table-condensed table-hover dns-details-table">';
+      table = '<table class="table table-bordered table-condensed table-hover dns-details-table">';
       table += '<tr><th>';
       table += Object.keys(d.dns_data[0]).join("</th><th>");
       table += '</th></tr>';
@@ -150,18 +150,7 @@ var nodegraph = {
       .attr("dx", "1em")
       .attr("dy", "0.3em")
       .text(function(d){
-        if(d.name){
-          return d.name;
-        } else if(d.dns){
-          var tmp = d.dns.filter(function(r){ console.log(r); return r.answer_type == 28; });
-          if(tmp.length > 0){
-            return tmp[0].answer_name.replace('.local.', '');
-          } else {
-            return '';
-          }
-        } else {
-          return '';
-        }
+        return d.name || '';
       });
 
     this.gnode.sort(function(a,b){
