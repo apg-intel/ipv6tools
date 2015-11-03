@@ -153,7 +153,8 @@ var nodegraph = {
       .attr("stroke-width", 2)
       .on("dblclick", this.dblclick)
       .on("mouseover", this.mouseover)
-      .on("mouseout", this.mouseout);
+      .on("mouseout", this.mouseout)
+      .on("contextmenu", this.contextmenu);
 
     this.gnode.append("text")
       .attr("dx", "1em")
@@ -166,6 +167,13 @@ var nodegraph = {
       if(!a.name) return -1;
       else return 1;
     });
+
+    // add context menu
+    this.svg.selectAll('.nodegraph-context-menu')
+      .data([1])
+      .enter()
+      .append('div')
+      .attr('class', 'nodegraph-context-menu');
 
     // resize listener
     d3.select(window).on('resize', this.resize);
@@ -249,11 +257,13 @@ var nodegraph = {
     if(d.id && nodegraph.pinned.indexOf(d.id) >= 0) nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
   },
   dragstart: function(d){
-    d3.select(this).classed("fixed", d.fixed = true)
-      .select('circle.node')
-      .attr("fill", nodegraph.getFill)
-      .attr("stroke", nodegraph.getStroke);
-    if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
+    if(d3.event.sourceEvent.which === 1){ //only on left click drag
+      d3.select(this).classed("fixed", d.fixed = true)
+        .select('circle.node')
+        .attr("fill", nodegraph.getFill)
+        .attr("stroke", nodegraph.getStroke);
+      if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
+    }
   },
   mouseover: function(d){
     // highlight node
@@ -263,10 +273,7 @@ var nodegraph = {
       .attr("stroke", nodegraph.getStroke);
 
     // find in table
-    if(d.id){
-      $('#'+ipv6_id(d.id)).addClass('highlighted-row');
-    }
-
+    if(d.id)  $('#'+ipv6_id(d.id)).addClass('highlighted-row');
   },
   mouseout: function(d){
     d3.select(this)
@@ -279,6 +286,18 @@ var nodegraph = {
         $('#'+ipv6_id(d.id)).removeClass('highlighted-row');
       }
     }
+  },
+  contextmenu: function(d,i){
+    d3.event.preventDefault();
+    if(d.root){
+      // nothing yet
+    } else {
+      nodegraph.svg.select('.nodegraph-context-menu')
+        .style('left', (d3.event.pageX-2)+'px')
+        .style('top', (d3.event.pageY-2)+'px')
+        .style('display', 'block');
+    }
+    console.log(d);
   },
   resize: function(){
     nodegraph.setDim();
@@ -298,6 +317,14 @@ var nodegraph = {
 
     // set force w/h
     nodegraph.force.size([nodegraph.width, nodegraph.height]).resume();
+  },
+  buildMenu: function(d){
+    nodegraph.svg.selectAll('.nodegraph-context-menu').data([1])
+      .enter()
+      .append('div')
+      .attr('class', 'nodegraph-context-menu');
+
+    nodegraph.svg.selectAll('.nodegraph-context-menu')
   }
 }
 
