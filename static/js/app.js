@@ -104,11 +104,13 @@ var nodegraph = {
       "root": true
     });
 
+    var k = Math.sqrt(this.graph.nodes.length / (this.width * this.height)); //linear scale for gravity, charge, and linkDistance
+
     var force = d3.layout.force()
       .size([this.width, this.height])
-      .charge(function(d){ return d.value*-800 })
-      .gravity(0.06)
-      .linkDistance(80)
+      .charge(function(d){ return d.value*(-10/k) })
+      .gravity(10*k)
+      .linkDistance(2000*k)
       .on('tick', this.tick)
       .nodes(this.graph.nodes)
       .links(this.graph.links);
