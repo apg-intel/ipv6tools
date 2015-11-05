@@ -298,6 +298,25 @@ var nodegraph = {
 
     // set force w/h
     nodegraph.force.size([nodegraph.width, nodegraph.height]).resume();
+  },
+  addNode: function(node){
+    this.graph.nodes.push(node);
+    this.update();
+  },
+  removeNode: function(id){
+
+  },
+  addLink: function(sourceId, targetId){
+
+  },
+  findNode: function(id){
+    for(var i = 0; i < nodegraph.graph.nodes.length; i++){
+      if(nodegraph.graph.nodes[i].id === id)
+        return i
+    }
+  },
+  update: function(){
+
   }
 }
 

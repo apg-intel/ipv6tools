@@ -2,3 +2,4 @@ dnslib==0.9.4
 Flask==0.10.1
 netifaces==0.10.4
 scapy==2.3.1
+Flask-SocketIO==1.0

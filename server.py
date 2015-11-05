@@ -46,42 +46,29 @@ def merge(a, b, path=None):
 def index():
   return render_template('index.html')
 
-@app.route('/scan')
-def scan():
-  return render_template('show_node_names.html')
-
-
 
 # socket events
 @socketio.on('start_scan', namespace='/scan')
 def scan(message):
-  a = icmpv6.ICMPv6()
-  aa = dns.DNS()
-  all_nodes = a.echoAllNodes()
-  emit('scan_results', {'data': all_nodes, 'name': 'all_nodes'})
+  handler = icmpv6.ICMPv6()
 
-  dns_query = Counter(aa.mDNSQuery())
-  emit('scan_results', {'data': dns_query, 'name': 'dns_query'})
-
-  node_names = a.echoAllNodeNames()
-  emit('scan_results', {'data': node_names, 'name': 'node_names'})
+  all_nodes = handler.echoAllNodes()
+  emit('icmp_results', {'data': all_nodes})
+  # all_nodes = a.echoAllNodes()
 
 
+@socketio.on('scan_dns', namespace='/scan')
+def scan_dns(message):
+  handler = dns.DNS()
+  dns_query = Counter(handler.mDNSQuery())
+  emit('dns_results', {'data': dns_query})
 
+@socketio.on('dig_listen', namespace='/scan')
+def dig_listen(message):
+  handler = dns.DNS()
+  dig = handler.dig_and_listen(message['ips'])
+  emit('dig_results', {'data': dig})
 
-
-  b = merge(all_nodes,node_names)
-  b = merge(b,dns_query)
-
-  keylist = []
-  for x in b:
-      keylist.append(x)
-
-  dig = aa.dig_and_listen(keylist)
-  b = merge(b,dig)
-  entries = convertToList(b)
-
-  emit('scan_results', {'data': entries, 'name': 'entries'})
 
 if __name__ == '__main__':
     socketio.run(app)
