@@ -51,10 +51,10 @@ def index():
 @socketio.on('start_scan', namespace='/scan')
 def scan(message):
   handler = icmpv6.ICMPv6()
-
   all_nodes = handler.echoAllNodes()
-  emit('icmp_results', {'data': all_nodes})
-  # all_nodes = a.echoAllNodes()
+  node_names = handler.echoAllNodeNames()
+  res = merge(all_nodes,node_names)
+  emit('icmp_results', {'data': res, 'asdf': node_names})
 
 
 @socketio.on('scan_dns', namespace='/scan')

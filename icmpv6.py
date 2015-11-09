@@ -47,7 +47,7 @@ class ICMPv6:
         build_lfilter = lambda (packet): ICMPv6EchoReply in packet
 
         pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(self.listenForEcho,[build_lfilter]) 
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter])
 
         send(ip_packet / icmp_packet,verbose=False)
 
@@ -82,10 +82,10 @@ class ICMPv6:
 
         build_lfilter = lambda (packet): ICMPv6NIReplyName in packet
 
-        
+
         pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(self.listenForEcho,[build_lfilter]) 
-        
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter])
+
 
 
         send(ip_packet / icmp_packet)
@@ -167,7 +167,7 @@ class ICMPv6:
             print "done"
             time.sleep(10)
         async_result.get()
-        
+
 
 
     def listen1(self):

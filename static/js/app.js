@@ -94,28 +94,28 @@ var nodegraph = {
     // set width and height
     this.setDim();
 
-    // add root node
-    this.graph.nodes.unshift({
+    var force = d3.layout.force()
+      .nodes(this.graph.nodes)
+      .links(this.graph.links)
+      .charge(function(d){ return (d.value || 1)*-800 })
+      .linkDistance(80)
+      .gravity(0.06)
+      .size([this.width, this.height])
+      .on('tick', this.tick);
+    this.force = force;
+
+    this.graph.nodes.push({
       "x": this.width/2,
       "y": this.height/2,
       "fixed": true,
       "index": 0,
       "value": 3,
-      "root": true
+      "root": true,
+      "id": "root"
     });
 
-    var force = d3.layout.force()
-      .size([this.width, this.height])
-      .charge(function(d){ return d.value*-800 })
-      .gravity(0.06)
-      .linkDistance(80)
-      .on('tick', this.tick)
-      .nodes(this.graph.nodes)
-      .links(this.graph.links);
-    this.force = force;
-
     var drag = force.drag()
-      .on('dragstart', this.dragstart)
+      .on('dragstart', this.dragstart);
 
     var svg = d3.select(this.div).append("svg")
       .attr("width", this.width)
@@ -129,46 +129,13 @@ var nodegraph = {
       .style("text-anchor", "middle")
       .text("Loading. One moment please…");
 
-    this.link = svg.selectAll(".link")
-      .data(this.graph.links)
-      .enter().append("line")
-        .attr("opacity", 0)
-        .attr("class", "link")
-        .attr("stroke-width", 1)
-        .attr("stroke", "#999");
-
-    this.gnode = svg.selectAll("g.node")
-      .data(this.graph.nodes)
-      .enter()
-      .append("g")
-        .classed("gnode", true)
-        .attr("opacity", 0)
-        .call(drag);
-
-    this.gnode.append("circle")
-      .attr("class", function(d){ return (d.fixed) ? "node root_node" : "node" })
-      .attr("r", function(d){ return d.value * nodegraph.radius; })
-      .attr("fill", this.getFill)
-      .attr("stroke", this.getStroke)
-      .attr("stroke-width", 2)
-      .on("dblclick", this.dblclick)
-      .on("mouseover", this.mouseover)
-      .on("mouseout", this.mouseout);
-
-    this.gnode.append("text")
-      .attr("dx", "1em")
-      .attr("dy", "0.3em")
-      .text(function(d){
-        return d.name || '';
-      });
-
-    this.gnode.sort(function(a,b){
-      if(!a.name) return -1;
-      else return 1;
-    });
+    this.link = svg.selectAll(".link");
+    this.gnode = svg.selectAll(".gnode");
 
     // resize listener
     d3.select(window).on('resize', this.resize);
+
+    this.update();
 
     // timeout so page doesn't lock while simulating
     setTimeout(function(){
@@ -192,17 +159,18 @@ var nodegraph = {
   },
   getFill: function(d){
     var hovered = d3.select(this).classed("hovered");
+    var fixed = d3.select(this).classed("fixed");
 
     if(d.root){
       return "rgb(51, 103, 153)";
     }
     else if(d.dns){
-      if(hovered || d.fixed) {
+      if(hovered || fixed) {
         return "rgb(157, 42, 25)";
       }
       return "rgb(197, 82, 65)";
     } else {
-      if(hovered || d.fixed){
+      if(hovered || fixed){
         return "rgb(140, 140, 140)";
       }
       return "rgb(170, 170, 170)";
@@ -210,17 +178,18 @@ var nodegraph = {
   },
   getStroke: function(d){
     var hovered = d3.select(this).classed("hovered");
+    var fixed = d3.select(this).classed("fixed");
 
     if(d.root){
       return "rgb(0, 66, 128)";
     }
     else if(d.dns){
-      if(hovered || d.fixed) {
+      if(hovered || fixed) {
         return "rgb(143, 11, 8)";
       }
       return "rgb(183, 39, 18)";
     } else {
-      if(hovered || d.fixed) {
+      if(hovered || fixed) {
         return "rgb(90, 90, 90)";
       }
       return "rgb(130, 130, 130)";
@@ -229,7 +198,7 @@ var nodegraph = {
   // tick for d3 positioning
   tick: function(){
     nodegraph.gnode.attr("transform", function(d) {
-      var r = nodegraph.radius * d.value;
+      var r = nodegraph.radius * (d.value || 1);
       d.x = Math.max(r, Math.min(nodegraph.width - r, d.x));
       d.y = Math.max(r, Math.min(nodegraph.height - r, d.y));
       return 'translate('+ d.x +','+ d.y +')';
@@ -249,8 +218,9 @@ var nodegraph = {
     if(d.id && nodegraph.pinned.indexOf(d.id) >= 0) nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
   },
   dragstart: function(d){
-    d3.select(this).classed("fixed", d.fixed = true)
+    d3.select(this)
       .select('circle.node')
+      .classed("fixed", d.fixed = true)
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
     if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
@@ -307,16 +277,63 @@ var nodegraph = {
 
   },
   addLink: function(sourceId, targetId){
+    var sourceNode = this.findNode(sourceId);
+    var targetNode = this.findNode(targetId);
 
+    if(sourceNode !== undefined && targetNode !== undefined){
+      this.graph.links.push({source: sourceNode, target: targetNode});
+      this.update();
+    }
   },
   findNode: function(id){
     for(var i = 0; i < nodegraph.graph.nodes.length; i++){
       if(nodegraph.graph.nodes[i].id === id)
-        return i
+        return i;
     }
   },
   update: function(){
+    this.link = this.link.data(this.force.links(), function(d){ return d.source.id + "-" + d.target.id; });
 
+    this.link.enter().insert("line", ".gnode")
+        .attr("class", "link")
+        .attr("stroke-width", 1)
+        .attr("stroke", "#999");
+
+    this.link.exit().remove();
+
+    this.gnode = this.gnode.data(this.force.nodes(), function(d){ return d.id; });
+    var node = this.gnode.enter()
+      .append("g")
+        .classed("gnode", true)
+        .call(this.force.drag)
+
+    node.append("circle")
+      .attr("class", function(d){ return (d.fixed) ? "node root_node" : "node" })
+      .attr("r", function(d){ return (d.value || 1) * nodegraph.radius; })
+      .attr("fill", this.getFill)
+      .attr("stroke", this.getStroke)
+      .attr("stroke-width", 2)
+      .on("dblclick", this.dblclick)
+      .on("mouseover", this.mouseover)
+      .on("mouseout", this.mouseout);
+
+    node.append("text")
+      .attr("dx", "1em")
+      .attr("dy", "0.3em")
+      .text(function(d){
+        return d.name || '';
+      });
+
+    this.gnode.exit().remove();
+
+    this.gnode.sort(function(a,b){
+      if(!a.name) return -1;
+      else return 1;
+    });
+
+
+    // reset the force
+    this.force.start();
   }
 }
 

@@ -10,6 +10,17 @@
   socket.on('icmp_results', function(msg) {
     console.log(msg);
     $('body').append('<hr>icmp: ' + JSON.stringify(msg.data));
+    for(var ip in msg.data){
+      var tmp = {
+        id: ip,
+        mac: msg.data[ip].mac,
+        name: msg.data[ip].device_name,
+        x: 0,
+        y: 0
+      }
+      nodegraph.addNode(tmp)
+      nodegraph.addLink("root", ip);
+    }
     socket.emit('scan_dns', {});
   });
 
@@ -19,7 +30,7 @@
   */
   socket.on('dns_results', function(msg){
     console.log(msg);
-    $('body').append('<hr>icmp: ' + JSON.stringify(msg.data));
+    $('body').append('<hr>dns_data: ' + JSON.stringify(msg.data));
     // socket.emit('dig_listen', {ips: Object.keys(msg.data)}); // not needed yet i guess? no results...
   });
 
@@ -28,7 +39,7 @@
   */
   socket.on('dig_results', function(msg){
     console.log(msg);
-    $('body').append('<hr>icmp: ' + JSON.stringify(msg.data));
+    $('body').append('<hr>dig: ' + JSON.stringify(msg.data));
   });
 
   // event handler for scan action
