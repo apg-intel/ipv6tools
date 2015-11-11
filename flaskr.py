@@ -66,8 +66,8 @@ def scan(ipv6=None):
     for x in b:
         keylist.append(x)
 
-    dig = aa.dig_and_listen(keylist)
-    b = merge(b,dig)
+    # dig = aa.dig_and_listen(keylist)
+    # b = merge(b,dig)
     entries = convertToList(b)
     return render_template('show_node_names.html', entries=entries)
 
