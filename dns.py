@@ -5,9 +5,10 @@ from multiprocessing import Process, Pipe
 from copy import copy
 from itertools import izip
 import time
-from dnslib import DNSRecord
 from itertools import izip_longest
 from ipv6 import createIPv6, get_source_address
+from scapy.layers.dns import DNS as scapyDNS
+import traceback
 
 class DNS:
     def init(self):
@@ -76,23 +77,8 @@ class DNS:
 
             dnsDict = {}
             try:
-                dnsRecord = DNSRecord.parse(str(response[Raw]))
-                #print dnsRecord
-                answer_name = str(dnsRecord.a.rname)
-                if questionList[0].lower() in answer_name.lower():
-                    answer_data = dnsRecord.a.rdata
-                    dnsDict["answer_name"] = str(answer_name)
-                    dnsDict["answer_data"] = answer_data
-                    if dnsRecord.ar:
-                        recordList = []
-                        for record in dnsRecord.ar:
-                            answer_record_name = record.rname
-                            answer_record_data = record.rdata
-                            recordDict = {}
-                            recordDict["answer_record_name"] = str(answer_record_name)
-                            recordDict["answer_record_data"] = str(answer_record_data)
-                            recordList.append(recordDict)
-                        dnsDict["record_data"] = recordList
+                dnsRecord = scapyDNS(str(response[Raw]))
+                dnsDict = self.parsemDNS(dnsRecord)
             except Exception,e: print e
             if dnsDict:
                 responseDict[ip].update({"dns_data":dnsDict})
@@ -110,23 +96,13 @@ class DNS:
 
 
         return_val = async_result.get()
-        returnResponse = self.parse_dig(return_val,IPList)
+        #returnResponse = self.parse_dig(return_val,IPList)
 
-        return returnResponse
+        #Need to fix
+        return None
 
 
 
-    def parse_dig(self,responses,IPList):
-        responseDict = {}
-        for response in responses:
-            try:
-                dnsRecord = DNSRecord.parse(str(response[Raw]))
-                answer_name = ".".join(str(dnsRecord.a.rname).split(".")[:4][::-1])
-                if answer_name.lower() in IPList:
-                    print dnsRecord.a.rdata
-                    responseDict[answer_name] = {"device_name":dnsRecord.a.rdata, "mac":""}
-            except Exception,e: print e
-        return responseDict
 
 
 
@@ -282,24 +258,10 @@ class DNS:
 
             dnsDict = {}
             try:
-                dnsRecord = DNSRecord.parse(str(response[UDP][1]))
-                print dnsRecord
-                answer_name = dnsRecord.a.rname
-                answer_data = dnsRecord.a.rdata
-                dnsDict["answer_name"] = str(answer_name)
-                dnsDict["answer_data"] = answer_data
-
-                if dnsRecord.ar:
-                    recordList = []
-                    for record in dnsRecord.ar:
-                        answer_record_name = record.rname
-                        answer_record_data = record.rdata
-                        recordDict = {}
-                        recordDict["answer_record_name"] = str(answer_record_name)
-                        recordDict["answer_record_data"] = str(answer_record_data)
-                        recordList.append(recordDict)
-                    dnsDict["record_data"] = recordList
+                dnsRecord = scapyDNS(str(response[Raw]))
+                dnsDict = self.parsemDNS(dnsRecord)
             except Exception,e: print e
+
             responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
@@ -330,9 +292,8 @@ class DNS:
         authority_rrs = "0000"
         additional_rrs = "0000"
 
-        questionListAll = ['_spotify-connect._tcp','_googlecast._tcp','_services._dns-sd._udp','_apple-mobdev2._tcp','_workstation_tcp', '_http_tcp', '_https_tcp', '_rss_tcp', '_domain_udp', '_ntp_udp', '_smb_tcp', '_airport_tcp', '_ftp_tcp', '_tftp_udp', '_webdav_tcp', '_webdavs_tcp', '_afpovertcp_tcp', '_nfs_tcp', '_sftp-ssh_tcp', '_apt_tcp', '_ssh_tcp', '_rfb_tcp', '_telnet_tcp', '_timbuktu_tcp', '_net-assistant_udp', '_imap_tcp', '_pop3_tcp', '_printer_tcp', '_pdl-datastream_tcp', '_ipp_tcp', '_daap_tcp', '_dacp_tcp', '_realplayfavs_tcp', '_raop_tcp', '_rtsp_tcp', '_rtp_udp', '_dpap_tcp', '_pulse-server_tcp', '_pulse-sink_tcp', '_pulse-source_tcp', '_mpd_tcp', '_vlc-http_tcp', '_presence_tcp', '_sip_udp', '_h323_tcp', '_presenc_olp', '_iax_udp', '_skype_tcp', '_see_tcp', '_lobby_tcp', '_postgresql_tcp', '_svn_tcp', '_distcc_tcp', '_MacOSXDupSuppress_tcp', '_ksysguard_tcp', '_omni-bookmark_tcp', '_acrobatSRV_tcp', '_adobe-vc_tcp', '_pgpkey-hkp_tcp', '_ldap_tcp', '_tp_tcp', '_tps_tcp', '_tp-http_tcp', '_tp-https_tcp', '_workstation._tcp', '_http._tcp', '_https._tcp', '_rss._tcp', '_domain._udp', '_ntp._udp', '_smb._tcp', '_airport._tcp', '_ftp._tcp', '_tftp._udp', '_webdav._tcp', '_webdavs._tcp', '_afpovertcp._tcp', '_nfs._tcp', '_sftp-ssh._tcp', '_apt._tcp', '_ssh._tcp', '_rfb._tcp', '_telnet._tcp', '_timbuktu._tcp', '_net-assistant._udp', '_imap._tcp', '_pop3._tcp', '_printer._tcp', '_pdl-datastream._tcp', '_ipp._tcp', '_daap._tcp', '_dacp._tcp', '_realplayfavs._tcp', '_raop._tcp', '_rtsp._tcp', '_rtp._udp', '_dpap._tcp', '_pulse-server._tcp', '_pulse-sink._tcp', '_pulse-source._tcp', '_mpd._tcp', '_vlc-http._tcp', '_presence._tcp', '_sip._udp', '_h323._tcp', '_presenc._olp', '_iax._udp', '_skype._tcp', '_see._tcp', '_lobby._tcp', '_postgresql._tcp', '_svn._tcp', '_distcc._tcp', '_MacOSXDupSuppress._tcp', '_ksysguard._tcp', '_omni-bookmark._tcp', '_acrobatSRV._tcp', '_adobe-vc._tcp', '_pgpkey-hkp._tcp', '_ldap._tcp', '_tp._tcp', '_tps._tcp', '_tp-http._tcp', '_tp-https._tcp']
+        questionListAll = ['_device-info._tcp','_spotify-connect._tcp','_googlecast._tcp','_services._dns-sd._udp','_apple-mobdev2._tcp','_workstation_tcp', '_http_tcp', '_https_tcp', '_rss_tcp', '_domain_udp', '_ntp_udp', '_smb_tcp', '_airport_tcp', '_ftp_tcp', '_tftp_udp', '_webdav_tcp', '_webdavs_tcp', '_afpovertcp_tcp', '_nfs_tcp', '_sftp-ssh_tcp', '_apt_tcp', '_ssh_tcp', '_rfb_tcp', '_telnet_tcp', '_timbuktu_tcp', '_net-assistant_udp', '_imap_tcp', '_pop3_tcp', '_printer_tcp', '_pdl-datastream_tcp', '_ipp_tcp', '_daap_tcp', '_dacp_tcp', '_realplayfavs_tcp', '_raop_tcp', '_rtsp_tcp', '_rtp_udp', '_dpap_tcp', '_pulse-server_tcp', '_pulse-sink_tcp', '_pulse-source_tcp', '_mpd_tcp', '_vlc-http_tcp', '_presence_tcp', '_sip_udp', '_h323_tcp', '_presenc_olp', '_iax_udp', '_skype_tcp', '_see_tcp', '_lobby_tcp', '_postgresql_tcp', '_svn_tcp', '_distcc_tcp', '_MacOSXDupSuppress_tcp', '_ksysguard_tcp', '_omni-bookmark_tcp', '_acrobatSRV_tcp', '_adobe-vc_tcp', '_pgpkey-hkp_tcp', '_ldap_tcp', '_tp_tcp', '_tps_tcp', '_tp-http_tcp', '_tp-https_tcp', '_workstation._tcp', '_http._tcp', '_https._tcp', '_rss._tcp', '_domain._udp', '_ntp._udp', '_smb._tcp', '_airport._tcp', '_ftp._tcp', '_tftp._udp', '_webdav._tcp', '_webdavs._tcp', '_afpovertcp._tcp', '_nfs._tcp', '_sftp-ssh._tcp', '_apt._tcp', '_ssh._tcp', '_rfb._tcp', '_telnet._tcp', '_timbuktu._tcp', '_net-assistant._udp', '_imap._tcp', '_pop3._tcp', '_printer._tcp', '_pdl-datastream._tcp', '_ipp._tcp', '_daap._tcp', '_dacp._tcp', '_realplayfavs._tcp', '_raop._tcp', '_rtsp._tcp', '_rtp._udp', '_dpap._tcp', '_pulse-server._tcp', '_pulse-sink._tcp', '_pulse-source._tcp', '_mpd._tcp', '_vlc-http._tcp', '_presence._tcp', '_sip._udp', '_h323._tcp', '_presenc._olp', '_iax._udp', '_skype._tcp', '_see._tcp', '_lobby._tcp', '_postgresql._tcp', '_svn._tcp', '_distcc._tcp', '_MacOSXDupSuppress._tcp', '_ksysguard._tcp', '_omni-bookmark._tcp', '_acrobatSRV._tcp', '_adobe-vc._tcp', '_pgpkey-hkp._tcp', '_ldap._tcp', '_tp._tcp', '_tps._tcp', '_tp-http._tcp', '_tp-https._tcp']
         #questionList = questionList[:50]
-        print "hello"
 
 
         build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
@@ -367,49 +328,47 @@ class DNS:
             responseDict[ip] = {"mac":mac}
 
             dnsDict = {}
-            """
-            try:
-                dnsRecord = DNSRecord.parse(str(response[Raw]))
-                answer_name = dnsRecord.a.rname
-                answer_data = dnsRecord.a.rdata
-                dnsDict["answer_name"] = str(answer_name)
-                dnsDict["answer_data"] = str(answer_data)
-
-                if dnsRecord.ar:
-                    recordList = []
-                    for record in dnsRecord.ar:
-                        answer_record_name = record.rname
-                        answer_record_data = record.rdata
-                        recordDict = {}
-                        recordDict["answer_record_name"] = str(answer_record_name)
-                        recordDict["answer_record_data"] = str(answer_record_data)
-                        recordList.append(recordDict)
-                    dnsDict["record_data"] = recordList
-            except Exception,e: print e
-            """
 
             try:
-                dnsRecord = DNSRecord.parse(str(response[Raw]))
+                dnsRecord = scapyDNS(str(response[Raw]))
                 dnsDict = self.parsemDNS(dnsRecord)
-                print dnsDict
             except Exception,e: print e
             responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
-    def parsemDNS(self, dnsRecord):
-        responseDict = {}
+
+    def parsemDNS(self,dnsPacket):
         answer_json = []
-        for answer in dnsRecord.rr:
-            answer_json.append({"answer_name": str(answer.rname),
-                                "answer_type": int(answer.rtype),
-                                "answer_data": str(answer.rdata),
-                                "isAnswer": True})
-        if dnsRecord.ar:
-            for ar in dnsRecord.ar:
-                answer_json.append({"answer_name": str(ar.rname),
-                                    "answer_type": int(ar.rtype),
-                                    "answer_data": str(ar.rdata),
+        answers = dnsPacket.fields["an"]
+        additional_records = dnsPacket.fields["ar"]
+        counter = 0
+
+        while True:
+            if not answers:
+                break
+            layer = answers.getlayer(counter)
+            if layer:
+                answer_json.append({"answer_name": str(layer.fields["rrname"]),
+                                    "answer_type": int(layer.fields["type"]),
+                                    "answer_data": str(unicode(layer.fields["rdata"],errors="ignore")),
+                                    "isAnswer": True})
+            else:
+                break
+            counter += 1
+
+        counter = 0
+        while True:
+            if not additional_records:
+                break
+            layer = additional_records.getlayer(counter)
+            if layer:
+                answer_json.append({"answer_name": str(layer.fields["rrname"]),
+                                    "answer_type": int(layer.fields["type"]),
+                                    "answer_data": str(unicode(layer.fields["rdata"],errors="ignore")),
                                     "isAnswer": False})
+            else:
+                break
+            counter += 1
 
         return answer_json
 
