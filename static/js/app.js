@@ -93,16 +93,11 @@ var nodegraph = {
   init: function(){
     // set width and height
     this.setDim();
-
-    var force = d3.layout.force()
+    this.force = d3.layout.force()
       .nodes(this.graph.nodes)
       .links(this.graph.links)
-      .charge(function(d){ return (d.value || 1)*-800 })
-      .linkDistance(80)
-      .gravity(0.06)
-      .size([this.width, this.height])
       .on('tick', this.tick);
-    this.force = force;
+    this.setForce();
 
     this.graph.nodes.push({
       "x": this.width/2,
@@ -114,10 +109,10 @@ var nodegraph = {
       "id": "root"
     });
 
-    var drag = force.drag()
+    var drag = this.force.drag()
       .on('dragstart', this.dragstart);
 
-    var svg = d3.select(this.div).append("svg")
+    var svg = d3.select(this.div).html('').append("svg")
       .attr("width", this.width)
       .attr("height", this.height);
     this.svg = svg;
@@ -142,9 +137,9 @@ var nodegraph = {
       // simulate ticks while stuff isn't visible
       var n = nodegraph.graph.nodes.length;
       if(n<100) n=100;
-      force.start();
-      for (var i = n * n; i > 0; --i) force.tick();
-      force.stop();
+      nodegraph.force.start();
+      for (var i = n * n; i > 0; --i) nodegraph.force.tick();
+      nodegraph.force.stop();
 
       // remove loading sign and make stuff visible
       loading.remove();
@@ -156,6 +151,14 @@ var nodegraph = {
     var width = $(this.div).outerWidth();
     var aspect = (width > 700) ? 9/16 : 3/4;
     this.width = width, this.height = width*aspect;
+  },
+  setForce: function(){
+    var k = Math.sqrt(this.graph.nodes.length / (this.width * this.height)); //linear scale for gravity, charge, and linkDistance
+
+    return this.force.charge(function(d){ return (d.value || 1)*(-10/k) })
+      .linkDistance(2000*k)
+      .gravity(10*k)
+      .size([this.width, this.height]);
   },
   getFill: function(d){
     var hovered = d3.select(this).classed("hovered");
@@ -292,13 +295,13 @@ var nodegraph = {
     }
   },
   update: function(){
-    this.link = this.link.data(this.force.links(), function(d){ return d.source.id + "-" + d.target.id; });
+    this.force.stop();
 
+    this.link = this.link.data(this.force.links(), function(d){ return d.source.id + "-" + d.target.id; });
     this.link.enter().insert("line", ".gnode")
         .attr("class", "link")
         .attr("stroke-width", 1)
         .attr("stroke", "#999");
-
     this.link.exit().remove();
 
     this.gnode = this.gnode.data(this.force.nodes(), function(d){ return d.id; });
@@ -331,9 +334,11 @@ var nodegraph = {
       else return 1;
     });
 
+    // reset the dim
+    this.setDim();
 
     // reset the force
-    this.force.start();
+    this.setForce().start();
   }
 }
 
