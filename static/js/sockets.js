@@ -8,8 +8,6 @@
   * Handle the ICMP results and intialize the DNS scan
   */
   socket.on('icmp_results', function(msg) {
-    console.log(msg);
-    $('body').append('<hr>icmp: ' + JSON.stringify(msg.data));
     for(var ip in msg.data){
       var tmp = {
         id: ip,

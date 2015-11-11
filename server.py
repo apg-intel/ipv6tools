@@ -54,7 +54,7 @@ def scan(message):
   all_nodes = handler.echoAllNodes()
   node_names = handler.echoAllNodeNames()
   res = merge(all_nodes,node_names)
-  emit('icmp_results', {'data': res, 'asdf': node_names})
+  emit('icmp_results', {'data': res})
 
 
 @socketio.on('scan_dns', namespace='/scan')
