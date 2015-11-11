@@ -98,7 +98,7 @@ class DNS:
         return_val = async_result.get()
         #returnResponse = self.parse_dig(return_val,IPList)
 
-        #Need to fix
+        #Need to fix this
         return None
 
 

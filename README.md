@@ -3,7 +3,7 @@
 - python 2.7
 - python pip
 - scapy (pip install)
-- ~~dnslib (pip install)~~ No longer needed
+- ~~dnslib (pip install)~~ No longer needed using built in scapy DNS parsing
 - flask (pip install)
 - netifaces (pip install) --hopefully we don't need this for too long
 
