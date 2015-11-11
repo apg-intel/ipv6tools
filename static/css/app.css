@@ -86,3 +86,16 @@ table.borderless tr > th {
 circle.node {
   cursor: pointer;
 }
+
+/*
+* Node graph context menu
+*/
+.nodegraph-context-menu {
+  position: absolute;
+  display: none;
+  z-index:1200;
+}
+
+.nodegraph-context-menu ul.dropdown-menu {
+  display:block;
+}

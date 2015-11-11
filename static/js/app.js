@@ -221,12 +221,13 @@ var nodegraph = {
     if(d.id && nodegraph.pinned.indexOf(d.id) >= 0) nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
   },
   dragstart: function(d){
-    d3.select(this)
-      .select('circle.node')
-      .classed("fixed", d.fixed = true)
-      .attr("fill", nodegraph.getFill)
-      .attr("stroke", nodegraph.getStroke);
-    if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
+    if(d3.event.sourceEvent.which === 1){ //only on left click drag
+      d3.select(this).classed("fixed", d.fixed = true)
+        .select('circle.node')
+        .attr("fill", nodegraph.getFill)
+        .attr("stroke", nodegraph.getStroke);
+      if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
+    }
   },
   mouseover: function(d){
     // highlight node
@@ -236,10 +237,7 @@ var nodegraph = {
       .attr("stroke", nodegraph.getStroke);
 
     // find in table
-    if(d.id){
-      $('#'+ipv6_id(d.id)).addClass('highlighted-row');
-    }
-
+    if(d.id)  $('#'+ipv6_id(d.id)).addClass('highlighted-row');
   },
   mouseout: function(d){
     d3.select(this)
@@ -252,6 +250,62 @@ var nodegraph = {
         $('#'+ipv6_id(d.id)).removeClass('highlighted-row');
       }
     }
+  },
+  contextmenu: function(d,i){
+    // add context menu
+    d3.select('.nodegraph-context-menu')
+      .data([1])
+      .enter()
+      .append('div')
+      .attr('class', 'nodegraph-context-menu')
+      .html('<ul><li>asdf</li></ul>');
+
+    // set up listener to close CM
+    d3.select('body').on('click.nodegraph-context-menu', function(){
+      d3.select('.nodegraph-context-menu').style('display', 'none');
+    });
+
+
+    if(d.root){
+      // nothing yet
+    } else {
+      nodegraph.buildMenu();
+      d3.select('.nodegraph-context-menu')
+        .style('left', (d3.event.pageX-2)+'px')
+        .style('top', (d3.event.pageY-2)+'px')
+        .style('display', 'block');
+    }
+    d3.event.preventDefault();
+    console.log(d);
+  },
+  buildMenu: function(d){
+    var menu = [{
+      title: 'Do Something',
+      action: function(e,d,i){
+        console.log('asdf',e,d,i);
+      }
+    },
+    {
+      title: 'Do Something Else',
+      action: function(e,d,i){
+        console.log('asdf2',e,d,i);
+      }
+    }];
+
+    var elm = this;
+    d3.selectAll('.nodegraph-context-menu').html('')
+    var list = d3.selectAll('.nodegraph-context-menu').append('ul').attr('class', 'dropdown-menu');
+    list.selectAll('li').data(menu).enter()
+      .append('li')
+      .append('a')
+      .attr('href', '#')
+      .html(function(d){
+        return d.title;
+      })
+      .on('click', function(d,i){
+        d.action(elm,d,i);
+        d3.select('.nodegraph-context-menu').style('display', 'none');
+      });
   },
   resize: function(){
     nodegraph.setDim();
@@ -318,7 +372,8 @@ var nodegraph = {
       .attr("stroke-width", 2)
       .on("dblclick", this.dblclick)
       .on("mouseover", this.mouseover)
-      .on("mouseout", this.mouseout);
+      .on("mouseout", this.mouseout)
+      .on("contextmenu", this.contextmenu);
 
     node.append("text")
       .attr("dx", "1em")
