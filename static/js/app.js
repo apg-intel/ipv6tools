@@ -170,13 +170,6 @@ var nodegraph = {
       else return 1;
     });
 
-    // add context menu
-    this.svg.selectAll('.nodegraph-context-menu')
-      .data([1])
-      .enter()
-      .append('div')
-      .attr('class', 'nodegraph-context-menu');
-
     // resize listener
     d3.select(window).on('resize', this.resize);
 
@@ -290,15 +283,30 @@ var nodegraph = {
     }
   },
   contextmenu: function(d,i){
-    d3.event.preventDefault();
+    // add context menu
+    d3.select('.nodegraph-context-menu')
+      .data([1])
+      .enter()
+      .append('div')
+      .attr('class', 'nodegraph-context-menu')
+      .html('<ul><li>asdf</li></ul>');
+
+    // set up listener to close CM
+    d3.select('body').on('click.nodegraph-context-menu', function(){
+      d3.select('.nodegraph-context-menu').style('display', 'none');
+    });
+
+
     if(d.root){
       // nothing yet
     } else {
-      nodegraph.svg.select('.nodegraph-context-menu')
+      nodegraph.buildMenu();
+      d3.select('.nodegraph-context-menu')
         .style('left', (d3.event.pageX-2)+'px')
         .style('top', (d3.event.pageY-2)+'px')
         .style('display', 'block');
     }
+    d3.event.preventDefault();
     console.log(d);
   },
   resize: function(){
@@ -321,12 +329,33 @@ var nodegraph = {
     nodegraph.force.size([nodegraph.width, nodegraph.height]).resume();
   },
   buildMenu: function(d){
-    nodegraph.svg.selectAll('.nodegraph-context-menu').data([1])
-      .enter()
-      .append('div')
-      .attr('class', 'nodegraph-context-menu');
+    var menu = [{
+      title: 'Do Something',
+      action: function(e,d,i){
+        console.log('asdf',e,d,i);
+      }
+    },
+    {
+      title: 'Do Something Else',
+      action: function(e,d,i){
+        console.log('asdf2',e,d,i);
+      }
+    }];
 
-    nodegraph.svg.selectAll('.nodegraph-context-menu')
+    var elm = this;
+    d3.selectAll('.nodegraph-context-menu').html('')
+    var list = d3.selectAll('.nodegraph-context-menu').append('ul').attr('class', 'dropdown-menu');
+    list.selectAll('li').data(menu).enter()
+      .append('li')
+      .append('a')
+      .attr('href', '#')
+      .html(function(d){
+        return d.title;
+      })
+      .on('click', function(d,i){
+        d.action(elm,d,i);
+        d3.select('.nodegraph-context-menu').style('display', 'none');
+      });
   }
 }
 
