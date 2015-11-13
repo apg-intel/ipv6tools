@@ -3,7 +3,9 @@ console.log('initialized');
 
 var nodetable = {
   table: null,
+  data: null,
   init: function(data){
+    data = data || []
     var table = $('#nodetable').DataTable({
       data: data,
       columns: [
@@ -37,6 +39,7 @@ var nodetable = {
       }
     });
     this.table = table;
+    this.oTable = $('#nodetable').dataTable();
 
     $('#nodetable tbody').on('click', 'tr.has-dns > td', function(e){
       var tr = $(this).closest('tr'),
@@ -52,6 +55,24 @@ var nodetable = {
         tr.addClass('shown')
       }
     });
+  },
+  update: function(data){
+    this.data = data;
+    this.oTable.fnClearTable(this);
+    this.oTable.fnAddData(data);
+  },
+  addDNS: function(data){
+    if(data){
+      for(var ip in data){
+        var tmp = this.data.filter(function(obj){
+          return obj.ip === ip;
+        })[0];
+        if(tmp){
+          tmp.dns_data = data[ip].dns_data;
+        }
+      }
+    }
+    this.update(this.data);
   },
   formatSubrow: function(d){
     var table = ""
@@ -246,7 +267,7 @@ var nodegraph = {
       .attr("stroke", nodegraph.getStroke);
 
     if(d.id){
-      if(!d.fixed){
+      if(!d3.select(this).classed('fixed') && nodegraph.pinned.indexOf(d.id) < 0){
         $('#'+ipv6_id(d.id)).removeClass('highlighted-row');
       }
     }
@@ -384,6 +405,11 @@ var nodegraph = {
 
     this.gnode.exit().remove();
 
+    // update node colors
+    d3.selectAll('circle.node')
+      .attr("fill", this.getFill)
+      .attr("stroke", this.getStroke);
+
     this.gnode.sort(function(a,b){
       if(!a.name) return -1;
       else return 1;
@@ -394,6 +420,20 @@ var nodegraph = {
 
     // reset the force
     this.setForce().start();
+  },
+  addDNS: function(data){
+    if(data){
+      for(var ip in data){
+        var obj = this.graph.nodes.filter(function(obj){
+          return obj.id === ip;
+        })[0];
+        console.log(obj)
+        if(obj){
+          obj.dns = data[ip].dns_data;
+        }
+      }
+      this.update();
+    }
   }
 }
 
