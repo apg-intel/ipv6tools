@@ -6,7 +6,7 @@ from copy import copy
 from itertools import izip
 import time
 from dnslib import DNSRecord
-from ipv6 import get_source_address, createIPv6
+from ipv6 import get_source_address, createIPv6, getMacAddress, grabRawSrc, grabRawDst
 
 class ICMPv6:
     def init(self):
@@ -57,8 +57,8 @@ class ICMPv6:
             ip = response[IPv6].src
             rawSrc = copy(response[IPv6])
             rawSrc.remove_payload()
-            rawSrc = self.grabRawSrc(rawSrc)
-            mac = self.getMacAddress(rawSrc)
+            rawSrc = grabRawSrc(rawSrc)
+            mac = getMacAddress(rawSrc)
             responseDict[ip] = {"mac":mac}
         return responseDict
 
@@ -96,29 +96,13 @@ class ICMPv6:
             ip = response[IPv6].src
             rawSrc = copy(response[IPv6])
             rawSrc.remove_payload()
-            rawSrc = self.grabRawSrc(rawSrc)
-            mac = self.getMacAddress(rawSrc)
+            rawSrc = grabRawSrc(rawSrc)
+            mac = getMacAddress(rawSrc)
             device_name = response[ICMPv6NIReplyName].fields["data"][1][1].strip()
             responseDict[ip] = {"mac":mac,"device_name":device_name}
         return responseDict
 
 
-    def getMacAddress(self,ip):
-        mac = ip.replace(":","")
-        mac = mac[4:9] + mac[13:]
-        mac = "%s:%s:%s:%s:%s:%s" % (mac[:2],mac[2:4],mac[4:6],mac[6:8],mac[8:10],mac[10:12])
-
-        flipbit = bin(int(mac[1],16))[2:]
-        while len(flipbit) < 4:
-            flipbit = "0" + flipbit
-        if flipbit[2] == 0:
-            flipbit = flipbit[:2] + "1" + flipbit[3]
-        else:
-            flipbit = flipbit[:2] + "0" + flipbit[3]
-
-        flipbit = hex(int(flipbit,2))[2:]
-        mac = mac[0] + flipbit + mac[2:]
-        return mac
 
 
     def listenForEcho(self,build_lfilter,timeout=2):
@@ -175,22 +159,13 @@ class ICMPv6:
         response = sniff(lfilter=build_lfilter,prn=self.advertise)
         return response
 
-    def grabRawSrc(self,packet):
-        rawPacket = binascii.hexlify(str(packet))
-        srcAddress = rawPacket[16:20] + rawPacket[32:48]
-        return srcAddress
-
-    def grabRawDst(self,packet):
-        rawPacket = binascii.hexlify(str(packet))
-        dstAddress = rawPacket[48:52] + rawPacket[64:80]
-        return dstAddress
 
 
     def advertise(self,packet):
         newPacket = packet[1]
         rawDst = copy(newPacket)
         rawDst.remove_payload()
-        rawDst = self.grabRawDst(rawDst)
+        rawDst = grabRawDst(rawDst)
 
         ip_packet = createIPv6()
         ip_packet.fields["version"] = 6L
@@ -213,7 +188,7 @@ class ICMPv6:
         llpacket = ICMPv6NDOptSrcLLAddr()
         llpacket.fields["type"] = 2
         llpacket.fields["len"] = 1
-        llpacket.fields["lladdr"] = self.getMacAddress(rawDst)
+        llpacket.fields["lladdr"] = getMacAddress(rawDst)
 
         #print newPacket.dst
         #print ip_packet.show()
