@@ -103,6 +103,59 @@ class ICMPv6:
         return responseDict
 
 
+    def echoMulticastQuery(self):
+        ip_packet = createIPv6()
+        ip_packet.fields["dst"] = "ff02::1"
+        ip_packet.fields["nh"] = 0
+
+
+        router_alert = RouterAlert()
+        router_alert.fields["otype"] = 5
+        router_alert.fields["value"] = 0
+        router_alert.fields["optlen"] = 2
+
+        padding = PadN()
+        padding.fields["otype"] = 1
+        padding.fields["optlen"] = 0
+
+        ip_ext = IPv6ExtHdrHopByHop()
+        ip_ext.fields["nh"] = 58
+        ip_ext.fields["options"] = [router_alert,padding]
+        ip_ext.fields["autopad"] = 1
+
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
+
+        icmp_packet = ICMPv6MLQuery()
+        icmp_packet.fields["code"] = 0
+        icmp_packet.fields["reserved"] = 0
+        icmp_packet.fields["mladdr"] = "::"
+        flags = "02"
+        qqic = "7d" #125
+        numberOfSources = "0000"
+        raw = Raw()
+        raw.fields["load"] =  binascii.unhexlify(flags + qqic + numberOfSources)
+        send(ip_packet/ip_ext/icmp_packet/raw)
+
+
+    def echoMulticastReport(self):
+        ip_packet = createIPv6()
+        ip_packet.fields["dst"] = "ff02::16"
+
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
+
+        hexStream = "8f009ddc000000010400000000000000000000000000000000000000"
+        icmp_packet = ICMPv6Unknown(binascii.unhexlify(hexStream))
+        del icmp_packet.fields["cksum"]
+        #icmp_packet = ICMPv6MLReport()
+        #icmp_packet.fields["code"] = 0
+        #icmp_packet.fields["reserved"] = 0
+        #icmp_packet.fields["mladdr"] = "ff02::16"
+        send(ip_packet/icmp_packet)
+
+
+
 
 
     def listenForEcho(self,build_lfilter,timeout=2):
