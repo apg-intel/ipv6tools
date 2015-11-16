@@ -25,11 +25,17 @@ def convertToList(entryDict):
     for key in entryDict.keys():
         newDict = {}
         newDict["ip"] = key
-        newDict["mac"] = entryDict[key]["mac"]
-        if "device_name" in entryDict[key]:
-            newDict["device_name"] = entryDict[key]["device_name"]
-        if "dns_data" in entryDict[key]:
-            newDict["dns_data"] = entryDict[key]["dns_data"]
+        #newDict["mac"] = entryDict[key]["mac"]
+
+        for eKey in entryDict[key].keys():
+            newDict[eKey] = entryDict[key][eKey]
+
+        print entryDict[key]
+
+        #if "device_name" in entryDict[key]:
+        #    newDict["device_name"] = entryDict[key]["device_name"]
+        #if "dns_data" in entryDict[key]:
+        #    newDict["dns_data"] = entryDict[key]["dns_data"]
         returnList.append(newDict)
     return returnList
 
@@ -59,8 +65,10 @@ def scan(ipv6=None):
     all_nodes = a.echoAllNodes()
     dns_query = Counter(aa.mDNSQuery())
     node_names = a.echoAllNodeNames()
+    multicast_report = a.echoMulticastQuery()
     b = merge(all_nodes,node_names)
     b = merge(b,dns_query)
+    b = merge(b,multicast_report)
 
     keylist = []
     for x in b:

@@ -129,13 +129,48 @@ class ICMPv6:
         icmp_packet = ICMPv6MLQuery()
         icmp_packet.fields["code"] = 0
         icmp_packet.fields["reserved"] = 0
-        icmp_packet.fields["mladdr"] = "::"
+        icmp_packet.fields["mladdr"] = "ff02::c"
         flags = "02"
         qqic = "7d" #125
         numberOfSources = "0000"
         raw = Raw()
         raw.fields["load"] =  binascii.unhexlify(flags + qqic + numberOfSources)
-        send(ip_packet/ip_ext/icmp_packet/raw)
+
+        filter = lambda (packet): IPv6 in packet
+        payload = ip_packet/ip_ext/icmp_packet/raw
+
+        ####Add function here
+        responseDict = {}
+        responses = self.send_receive(payload,filter,5)
+        for response in responses:
+            if self.isMulticastReportv2(response):
+                reports = self.parseMulticastReport(response[Raw])
+                print reports
+                ip = response[IPv6].src
+                rawSrc = copy(response[IPv6])
+                rawSrc.remove_payload()
+                rawSrc = grabRawSrc(rawSrc)
+                mac = getMacAddress(rawSrc)
+                responseDict[ip] = {"mac":mac,"multicast_report":reports}
+
+        return responseDict
+
+
+
+    def send_receive(self,payload,filter,timeout=2):
+        build_lfilter = filter
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,timeout])
+
+        send(payload)
+
+        responses = async_result.get()
+        return responses
+
+    def isMulticastReportv2(self,response):
+        if Raw in response and binascii.hexlify(str(response[Raw]))[0:2] == "8f":
+            return True
+
 
 
     def echoMulticastReport(self):
@@ -155,6 +190,28 @@ class ICMPv6:
         send(ip_packet/icmp_packet)
 
 
+
+    def parseMulticastReport(self,payload):
+        responseDict = []
+        raw_packet = binascii.hexlify(str(payload))
+        type = raw_packet[0:2]
+        code = raw_packet[2:4]
+        cksum = raw_packet[4:8]
+        reserved = raw_packet[8:12]
+        num_of_records = int(raw_packet[12:16],16)
+        print type,code,cksum,reserved,num_of_records
+
+        for record in xrange(num_of_records):
+            offset = (16 + (40 * record))
+            record_data = raw_packet[offset:(offset + 40)]
+            record_type = record_data[0:2]
+            data_len = record_data[2:4]
+            num_of_sources = record_data[4:8]
+            multicast_address = record_data[8:40]
+            responseDict.append({"record_type": record_type,
+                                 "multicast_address":multicast_address})
+
+        return responseDict
 
 
 

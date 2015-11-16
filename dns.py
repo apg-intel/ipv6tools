@@ -303,7 +303,6 @@ class DNS:
 
 
         for questionList in self.chunker(questionListAll,20):
-            print questionList
             payload = ""
             for questionName in questionList:
                 queryType = "000c" # domain pointer
