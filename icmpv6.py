@@ -6,7 +6,7 @@ from copy import copy
 from itertools import izip
 import time
 from dnslib import DNSRecord
-from ipv6 import get_source_address, createIPv6
+from ipv6 import get_source_address, createIPv6, getMacAddress, grabRawSrc, grabRawDst
 
 class ICMPv6:
     def init(self):
@@ -57,8 +57,8 @@ class ICMPv6:
             ip = response[IPv6].src
             rawSrc = copy(response[IPv6])
             rawSrc.remove_payload()
-            rawSrc = self.grabRawSrc(rawSrc)
-            mac = self.getMacAddress(rawSrc)
+            rawSrc = grabRawSrc(rawSrc)
+            mac = getMacAddress(rawSrc)
             responseDict[ip] = {"mac":mac}
         return responseDict
 
@@ -96,29 +96,123 @@ class ICMPv6:
             ip = response[IPv6].src
             rawSrc = copy(response[IPv6])
             rawSrc.remove_payload()
-            rawSrc = self.grabRawSrc(rawSrc)
-            mac = self.getMacAddress(rawSrc)
+            rawSrc = grabRawSrc(rawSrc)
+            mac = getMacAddress(rawSrc)
             device_name = response[ICMPv6NIReplyName].fields["data"][1][1].strip()
             responseDict[ip] = {"mac":mac,"device_name":device_name}
         return responseDict
 
 
-    def getMacAddress(self,ip):
-        mac = ip.replace(":","")
-        mac = mac[4:9] + mac[13:]
-        mac = "%s:%s:%s:%s:%s:%s" % (mac[:2],mac[2:4],mac[4:6],mac[6:8],mac[8:10],mac[10:12])
+    def echoMulticastQuery(self):
+        ip_packet = createIPv6()
+        ip_packet.fields["dst"] = "ff02::1"
+        ip_packet.fields["nh"] = 0
 
-        flipbit = bin(int(mac[1],16))[2:]
-        while len(flipbit) < 4:
-            flipbit = "0" + flipbit
-        if flipbit[2] == 0:
-            flipbit = flipbit[:2] + "1" + flipbit[3]
-        else:
-            flipbit = flipbit[:2] + "0" + flipbit[3]
 
-        flipbit = hex(int(flipbit,2))[2:]
-        mac = mac[0] + flipbit + mac[2:]
-        return mac
+        router_alert = RouterAlert()
+        router_alert.fields["otype"] = 5
+        router_alert.fields["value"] = 0
+        router_alert.fields["optlen"] = 2
+
+        padding = PadN()
+        padding.fields["otype"] = 1
+        padding.fields["optlen"] = 0
+
+        ip_ext = IPv6ExtHdrHopByHop()
+        ip_ext.fields["nh"] = 58
+        ip_ext.fields["options"] = [router_alert,padding]
+        ip_ext.fields["autopad"] = 1
+
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
+
+        icmp_packet = ICMPv6MLQuery()
+        icmp_packet.fields["code"] = 0
+        icmp_packet.fields["reserved"] = 0
+        icmp_packet.fields["mladdr"] = "ff02::c"
+        flags = "02"
+        qqic = "7d" #125
+        numberOfSources = "0000"
+        raw = Raw()
+        raw.fields["load"] =  binascii.unhexlify(flags + qqic + numberOfSources)
+
+        filter = lambda (packet): IPv6 in packet
+        payload = ip_packet/ip_ext/icmp_packet/raw
+
+        ####Add function here
+        responseDict = {}
+        responses = self.send_receive(payload,filter,5)
+        for response in responses:
+            if self.isMulticastReportv2(response):
+                reports = self.parseMulticastReport(response[Raw])
+                print reports
+                ip = response[IPv6].src
+                rawSrc = copy(response[IPv6])
+                rawSrc.remove_payload()
+                rawSrc = grabRawSrc(rawSrc)
+                mac = getMacAddress(rawSrc)
+                responseDict[ip] = {"mac":mac,"multicast_report":reports}
+
+        return responseDict
+
+
+
+    def send_receive(self,payload,filter,timeout=2):
+        build_lfilter = filter
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,timeout])
+
+        send(payload)
+
+        responses = async_result.get()
+        return responses
+
+    def isMulticastReportv2(self,response):
+        if Raw in response and binascii.hexlify(str(response[Raw]))[0:2] == "8f":
+            return True
+
+
+
+    def echoMulticastReport(self):
+        ip_packet = createIPv6()
+        ip_packet.fields["dst"] = "ff02::16"
+
+        if "src" not in ip_packet.fields:
+            ip_packet.fields["src"] = get_source_address(ip_packet)
+
+        hexStream = "8f009ddc000000010400000000000000000000000000000000000000"
+        icmp_packet = ICMPv6Unknown(binascii.unhexlify(hexStream))
+        del icmp_packet.fields["cksum"]
+        #icmp_packet = ICMPv6MLReport()
+        #icmp_packet.fields["code"] = 0
+        #icmp_packet.fields["reserved"] = 0
+        #icmp_packet.fields["mladdr"] = "ff02::16"
+        send(ip_packet/icmp_packet)
+
+
+
+    def parseMulticastReport(self,payload):
+        responseDict = []
+        raw_packet = binascii.hexlify(str(payload))
+        type = raw_packet[0:2]
+        code = raw_packet[2:4]
+        cksum = raw_packet[4:8]
+        reserved = raw_packet[8:12]
+        num_of_records = int(raw_packet[12:16],16)
+        print type,code,cksum,reserved,num_of_records
+
+        for record in xrange(num_of_records):
+            offset = (16 + (40 * record))
+            record_data = raw_packet[offset:(offset + 40)]
+            record_type = record_data[0:2]
+            data_len = record_data[2:4]
+            num_of_sources = record_data[4:8]
+            multicast_address = record_data[8:40]
+            responseDict.append({"record_type": record_type,
+                                 "multicast_address":multicast_address})
+
+        return responseDict
+
 
 
     def listenForEcho(self,build_lfilter,timeout=2):
@@ -175,22 +269,13 @@ class ICMPv6:
         response = sniff(lfilter=build_lfilter,prn=self.advertise)
         return response
 
-    def grabRawSrc(self,packet):
-        rawPacket = binascii.hexlify(str(packet))
-        srcAddress = rawPacket[16:20] + rawPacket[32:48]
-        return srcAddress
-
-    def grabRawDst(self,packet):
-        rawPacket = binascii.hexlify(str(packet))
-        dstAddress = rawPacket[48:52] + rawPacket[64:80]
-        return dstAddress
 
 
     def advertise(self,packet):
         newPacket = packet[1]
         rawDst = copy(newPacket)
         rawDst.remove_payload()
-        rawDst = self.grabRawDst(rawDst)
+        rawDst = grabRawDst(rawDst)
 
         ip_packet = createIPv6()
         ip_packet.fields["version"] = 6L
@@ -213,7 +298,7 @@ class ICMPv6:
         llpacket = ICMPv6NDOptSrcLLAddr()
         llpacket.fields["type"] = 2
         llpacket.fields["len"] = 1
-        llpacket.fields["lladdr"] = self.getMacAddress(rawDst)
+        llpacket.fields["lladdr"] = getMacAddress(rawDst)
 
         #print newPacket.dst
         #print ip_packet.show()
