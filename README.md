@@ -10,7 +10,7 @@
 
 ## How to run
 
-$ sudo python flaskr.py
+$ sudo python server.py
 
 
 ### Other Notes

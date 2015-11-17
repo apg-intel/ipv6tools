@@ -6,6 +6,7 @@ var scanPage = {
   form: $('#scan-form'),
   progress: $('#scan-progress'),
   results: $('#scan-results'),
+  results_header: $('#results-header'),
   scanStart: function(){
     this.form.find('button#submit').hide();
     this.progress.show();
@@ -14,6 +15,7 @@ var scanPage = {
   showResults: function(){
     this.form.hide();
     this.results.show();
+    this.results_header.show();
     nodegraph.init();
     nodetable.init();
   },
