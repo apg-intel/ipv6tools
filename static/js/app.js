@@ -1,6 +1,30 @@
 console.log('initialized');
 
 
+// control the ajax-ness of the page
+var scanPage = {
+  form: $('#scan-form'),
+  progress: $('#scan-progress'),
+  results: $('#scan-results'),
+  scanStart: function(){
+    this.form.find('button#submit').hide();
+    this.progress.show();
+    this.results.hide();
+  },
+  showResults: function(){
+    this.form.hide();
+    this.results.show();
+    nodegraph.init();
+    nodetable.init();
+  },
+  scanDone: function(){
+    this.progress.hide();
+    this.form.find('button#submit').show();
+    // this.form.show();
+  }
+}
+
+// initialize, modify, and update the table
 var nodetable = {
   table: null,
   data: null,
@@ -58,17 +82,28 @@ var nodetable = {
   },
   update: function(data){
     this.data = data;
+    // update device count
+    $('#scan-results-count').text(data.length);
     this.oTable.fnClearTable(this);
     this.oTable.fnAddData(data);
   },
   addDNS: function(data){
     if(data){
       for(var ip in data){
-        var tmp = this.data.filter(function(obj){
-          return obj.ip === ip;
-        })[0];
-        if(tmp){
-          tmp.dns_data = data[ip].dns_data;
+        if(!$.isEmptyObject(data[ip].dns_data)){
+          var tmp = this.data.filter(function(obj){
+            return obj.ip === ip;
+          })[0];
+          if(tmp){
+            tmp.dns_data = data[ip].dns_data;
+            // set the name if answer_type is 28
+            var name = data[ip].dns_data.filter(function(obj){
+              return obj.answer_type == 28;
+            })[0];
+            if(name){
+              tmp.device_name = name.answer_name;
+            }
+          }
         }
       }
     }
@@ -243,8 +278,9 @@ var nodegraph = {
   },
   dragstart: function(d){
     if(d3.event.sourceEvent.which === 1){ //only on left click drag
-      d3.select(this).classed("fixed", d.fixed = true)
+      d3.select(this)
         .select('circle.node')
+        .classed("fixed", d.fixed = true)
         .attr("fill", nodegraph.getFill)
         .attr("stroke", nodegraph.getStroke);
       if(d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
@@ -267,7 +303,7 @@ var nodegraph = {
       .attr("stroke", nodegraph.getStroke);
 
     if(d.id){
-      if(!d3.select(this).classed('fixed') && nodegraph.pinned.indexOf(d.id) < 0){
+      if(!d3.select(this).classed("fixed") && nodegraph.pinned.indexOf(d.id) < 0){
         $('#'+ipv6_id(d.id)).removeClass('highlighted-row');
       }
     }
@@ -397,6 +433,7 @@ var nodegraph = {
       .on("contextmenu", this.contextmenu);
 
     node.append("text")
+      .attr("class", "nodelabel")
       .attr("dx", "1em")
       .attr("dy", "0.3em")
       .text(function(d){
@@ -406,9 +443,15 @@ var nodegraph = {
     this.gnode.exit().remove();
 
     // update node colors
-    d3.selectAll('circle.node')
+    d3.selectAll("circle.node")
       .attr("fill", this.getFill)
       .attr("stroke", this.getStroke);
+
+    // update nodelabels
+    d3.selectAll("text.nodelabel")
+      .text(function(d){
+        return d.name || '';
+      });
 
     this.gnode.sort(function(a,b){
       if(!a.name) return -1;
@@ -424,12 +467,22 @@ var nodegraph = {
   addDNS: function(data){
     if(data){
       for(var ip in data){
-        var obj = this.graph.nodes.filter(function(obj){
-          return obj.id === ip;
-        })[0];
-        console.log(obj)
-        if(obj){
-          obj.dns = data[ip].dns_data;
+        if(!$.isEmptyObject(data[ip].dns_data)){
+          var obj = this.graph.nodes.filter(function(obj){
+            return obj.id === ip;
+          })[0];
+          if(obj){
+            obj.dns = data[ip].dns_data;
+            // set the name if answer_type is 28
+            var name = data[ip].dns_data.filter(function(obj){
+              return obj.answer_type == 28;
+            })[0];
+            if(name){
+              // console.log(name.answer_name)
+              obj.name = name.answer_name;
+            }
+          }
+
         }
       }
       this.update();

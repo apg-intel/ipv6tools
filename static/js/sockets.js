@@ -8,6 +8,7 @@
   * Handle the ICMP results and intialize the DNS scan
   */
   socket.on('icmp_results', function(msg) {
+    scanPage.showResults();
     var tableData = [];
     for(var ip in msg.data){
       var tmp = {
@@ -35,11 +36,9 @@
   * Handle the DNS query results
   */
   socket.on('dns_results', function(msg){
-    console.log(msg);
-    $('body').append('<hr>dns_data: ' + JSON.stringify(msg.data));
-    console.log(msg.data, nodetable.data);
     nodetable.addDNS(msg.data);
     nodegraph.addDNS(msg.data);
+    scanPage.scanDone();
     // socket.emit('dig_listen', {ips: Object.keys(msg.data)}); // not needed yet i guess? no results...
   });
 
@@ -54,9 +53,8 @@
   // event handler for scan action
   $('form#start-scan').submit(function(event) {
     console.log('scanning...');
-    socket.emit('start_scan', {data: 'sadf'});
+    scanPage.scanStart();
+    socket.emit('start_scan', {});
     return false;
   });
-
-
 });
