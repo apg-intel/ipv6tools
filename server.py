@@ -53,9 +53,10 @@ def scan(message):
   handler = icmpv6.ICMPv6()
   all_nodes = handler.echoAllNodes()
   node_names = handler.echoAllNodeNames()
+  multicast_report = handler.echoMulticastQuery()
   res = merge(all_nodes,node_names)
+  res = merge(res,multicast_report)
   emit('icmp_results', {'data': res})
-
 
 @socketio.on('scan_dns', namespace='/scan')
 def scan_dns(message):
