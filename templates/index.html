@@ -1,45 +1,45 @@
-{% extends "layout.html" %}
-{% block body %}
-  <div class="row" id="scan-form-wrapper">
-    <div class="col-md-12">
-      <h2 class="page-header" id="results-header" style="display:none;"><span id="scan-results-count">No</span> devices found</h2>
-      <div id="scan-form">
-        <h2 class="page-header">Scan for devices</h2>
-      	<form class="form-inline" action="#" method="POST" id="start-scan">
-      		<button type="submit" class="btn btn-primary" id="submit">Start Scan</button>
-      	</form>
-      </div>
-      <div id="scan-progress" style="display:none;">
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
-            <span>Scanning...</span>
-          </div>
+{% extends "layout.html" %} {% block body %}
+<div class="row" id="scan-form-wrapper">
+  <div class="col-md-12">
+    <h2 class="page-header" id="results-header" style="display:none;">
+      <span id="scan-results-count">No</span> devices found</h2>
+    <div id="scan-form">
+      <h2 class="page-header">Scan for devices</h2>
+      <form class="form-inline" action="#" method="POST" id="start-scan">
+        <button type="submit" class="btn btn-primary" id="submit">Start Scan</button>
+      </form>
+    </div>
+    <div id="scan-progress" style="display:none;">
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped active" role="progressbar" style="width: 100%">
+          <span>Scanning...</span>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div id="scan-results" style="display: none;">
+<div id="scan-results" style="display: none;">
 
-    <div class="row">
-      <div class="col-md-6">
-        <div id="nodegraph">
-        </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div id="nodegraph">
       </div>
-      <div class="col-md-6">
-        <div id="nodetable-wrapper">
-          <table class="table table-hover" id="nodetable">
-            <thead>
-              <tr>
-                <th>DNS</th>
-                <th>IP Address</th>
-                <th>MAC Address</th>
-                <th>Device Name</th>
-              </tr>
-            </thead>
-          </table>
-        </div>
+    </div>
+    <div class="col-md-6">
+      <div id="nodetable-wrapper">
+        <table class="table table-hover" id="nodetable">
+          <thead>
+            <tr>
+              <th>DNS</th>
+              <th>IP Address</th>
+              <th>MAC Address</th>
+              <th>Device Name</th>
+            </tr>
+          </thead>
+        </table>
       </div>
     </div>
   </div>
+</div>
 {% endblock %}

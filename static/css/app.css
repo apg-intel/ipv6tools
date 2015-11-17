@@ -2,11 +2,12 @@
  * Base structure
  */
 
+
 /* Move down content because we have a fixed navbar that is 50px tall */
+
 body {
   padding-top: 50px;
 }
-
 
 /*
  * Global add-ons
@@ -21,6 +22,7 @@ body {
  * Top navigation
  * Hide default border to remove 1px line.
  */
+
 .navbar-fixed-top {
   border: 0;
 }
@@ -42,40 +44,33 @@ body {
   margin-top: 0;
 }
 
-
 /*
 * Entries table
 */
+
 #nodetable tr.has-dns {
   cursor: pointer;
 }
-
-#nodetable tr.has-dns.shown,
-#nodetable tr.highlighted-row {
+#nodetable tr.has-dns.shown, #nodetable tr.highlighted-row {
   background-color: #d9edf7;
 }
 #nodetable tr.dns-details {
   background-color: #f5f5f5;
 }
-
 #nodetable table.dns-details-table {
   margin-bottom: 0;
 }
-
 #nodetable tr.has-dns > .details-control > .glyphicon {
   opacity: 0.5;
 }
-
 #nodetable table.dns-details-table tr > td.answer_data {
-  word-break:break-word;
+  word-break: break-word;
 }
-
 table.borderless tr > td {
-  border:none!important;
+  border: none!important;
 }
-
 table.borderless tr > th {
-  border-top:none!important;
+  border-top: none!important;
   border-bottom: 1px solid #ddd;
 }
 
@@ -90,12 +85,12 @@ circle.node {
 /*
 * Node graph context menu
 */
+
 .nodegraph-context-menu {
   position: absolute;
   display: none;
-  z-index:1200;
+  z-index: 1200;
 }
-
 .nodegraph-context-menu ul.dropdown-menu {
-  display:block;
+  display: block;
 }
