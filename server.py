@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 from flask.ext.socketio import SocketIO, emit
-import icmpv6
-import dns
+import ipv6.icmpv6 as icmpv6
+import ipv6.dns as dns
 from collections import Counter
 from operator import add
 
