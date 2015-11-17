@@ -24,14 +24,14 @@ var scanPage = {
     this.form.find('button#submit').show();
     // this.form.show();
   }
-}
+};
 
 // initialize, modify, and update the table
 var nodetable = {
   table: null,
   data: null,
   init: function(data){
-    data = data || []
+    data = data || [];
     var table = $('#nodetable').DataTable({
       data: data,
       columns: [
@@ -78,7 +78,7 @@ var nodetable = {
         tr.removeClass('shown');
       } else {
         row.child(nodetable.formatSubrow(row.data()), 'dns-details').show();
-        tr.addClass('shown')
+        tr.addClass('shown');
       }
     });
   },
@@ -90,12 +90,13 @@ var nodetable = {
     this.oTable.fnAddData(data);
   },
   addDNS: function(data){
+    var ipMatch = function(obj){
+      return obj.ip === ip;
+    };
     if(data){
       for(var ip in data){
         if(!$.isEmptyObject(data[ip].dns_data)){
-          var tmp = this.data.filter(function(obj){
-            return obj.ip === ip;
-          })[0];
+          var tmp = this.data.filter(ipMatch)[0];
           if(tmp){
             tmp.dns_data = data[ip].dns_data;
             // set the name if answer_type is 28
@@ -112,7 +113,7 @@ var nodetable = {
     this.update(this.data);
   },
   formatSubrow: function(d){
-    var table = ""
+    var table = "";
     if(d.dns_data && !$.isEmptyObject(d.dns_data)){
       table = '<table class="table table-bordered table-condensed table-hover dns-details-table">';
       table += '<tr><th>';
@@ -131,7 +132,7 @@ var nodetable = {
     table += '</table>';
     return table;
   }
-}
+};
 
 var nodegraph = {
   div: '#nodegraph',
@@ -208,12 +209,13 @@ var nodegraph = {
   setDim: function(){
     var width = $(this.div).outerWidth();
     var aspect = (width > 700) ? 9/16 : 3/4;
-    this.width = width, this.height = width*aspect;
+    this.width = width;
+    this.height = width*aspect;
   },
   setForce: function(){
     var k = Math.sqrt(this.graph.nodes.length / (this.width * this.height)); //linear scale for gravity, charge, and linkDistance
 
-    return this.force.charge(function(d){ return (d.value || 1)*(-10/k) })
+    return this.force.charge(function(d){ return (d.value || 1)*(-10/k); })
       .linkDistance(2000*k)
       .gravity(10*k)
       .size([this.width, this.height]);
@@ -352,7 +354,7 @@ var nodegraph = {
     }];
 
     var elm = this;
-    d3.selectAll('.nodegraph-context-menu').html('')
+    d3.selectAll('.nodegraph-context-menu').html('');
     var list = d3.selectAll('.nodegraph-context-menu').append('ul').attr('class', 'dropdown-menu');
     list.selectAll('li').data(menu).enter()
       .append('li')
@@ -421,10 +423,10 @@ var nodegraph = {
     var node = this.gnode.enter()
       .append("g")
         .classed("gnode", true)
-        .call(this.force.drag)
+        .call(this.force.drag);
 
     node.append("circle")
-      .attr("class", function(d){ return (d.fixed) ? "node root_node" : "node" })
+      .attr("class", function(d){ return (d.fixed) ? "node root_node" : "node"; })
       .attr("r", function(d){ return (d.value || 1) * nodegraph.radius; })
       .attr("fill", this.getFill)
       .attr("stroke", this.getStroke)
@@ -467,12 +469,13 @@ var nodegraph = {
     this.setForce().start();
   },
   addDNS: function(data){
+    var ipMatch = function(obj){
+      return obj.id === ip;
+    };
     if(data){
       for(var ip in data){
         if(!$.isEmptyObject(data[ip].dns_data)){
-          var obj = this.graph.nodes.filter(function(obj){
-            return obj.id === ip;
-          })[0];
+          var obj = this.graph.nodes.filter(ipMatch)[0];
           if(obj){
             obj.dns = data[ip].dns_data;
             // set the name if answer_type is 28
@@ -490,7 +493,7 @@ var nodegraph = {
       this.update();
     }
   }
-}
+};
 
 
 function ipv6_id(ip){

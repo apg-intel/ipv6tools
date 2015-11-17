@@ -8,6 +8,7 @@
   * Handle the ICMP results and intialize the DNS scan
   */
   socket.on('icmp_results', function(msg) {
+    console.log('icmp_results', msg);
     scanPage.showResults();
     var tableData = [];
     for(var ip in msg.data){
@@ -17,8 +18,8 @@
         name: msg.data[ip].device_name,
         x: 0,
         y: 0
-      }
-      nodegraph.addNode(tmp)
+      };
+      nodegraph.addNode(tmp);
       nodegraph.addLink("root", ip);
 
       tableData.push({
@@ -36,6 +37,7 @@
   * Handle the DNS query results
   */
   socket.on('dns_results', function(msg){
+    console.log('dns_results', msg);
     nodetable.addDNS(msg.data);
     nodegraph.addDNS(msg.data);
     scanPage.scanDone();
