@@ -98,15 +98,15 @@ var nodetable = {
     if (data) {
       for (var ip in data) {
         if (!$.isEmptyObject(data[ip].dns_data)) {
-          var tmp = this.data.filter(ipMatch)[0];
-          if (tmp) {
-            tmp.dns_data = data[ip].dns_data;
+          var obj = this.data.filter(ipMatch)[0];
+          if (obj) {
+            obj.dns_data = data[ip].dns_data;
             // set the name if answer_type is 28
             var name = data[ip].dns_data.filter(function(obj) {
               return obj.answer_type == 28;
             })[0];
             if (name) {
-              tmp.device_name = name.answer_name;
+              obj.device_name = formatName(name.answer_name);
             }
           }
         }
@@ -503,8 +503,7 @@ var nodegraph = {
               return obj.answer_type == 28;
             })[0];
             if (name) {
-              // console.log(name.answer_name)
-              obj.name = name.answer_name;
+              obj.name = formatName(name.answer_name);
             }
           }
 
@@ -515,7 +514,9 @@ var nodegraph = {
   }
 };
 
-
+function formatName(name){
+  return name.replace(/\.local\./g, "");
+}
 function ipv6_id(ip) {
   return ip.replace(/\:/g, "");
 }
