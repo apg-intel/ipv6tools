@@ -129,7 +129,7 @@ var nodetable = {
         });
         table += '</tr>';
       });
-    table += '</table>';
+      table += '</table>';
     }
 
     return table;
