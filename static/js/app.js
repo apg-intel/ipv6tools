@@ -5,10 +5,12 @@ console.log('initialized');
 var scanPage = {
   form: $('#scan-form'),
   progress: $('#scan-progress'),
+  error: $('#scan-error'),
   results: $('#scan-results'),
   results_header: $('#results-header'),
   scanStart: function() {
     this.form.find('button#submit').hide();
+    this.error.hide();
     this.progress.show();
     this.results.hide();
   },
@@ -18,6 +20,14 @@ var scanPage = {
     this.results_header.show();
     nodegraph.init();
     nodetable.init();
+  },
+  showError: function(){
+    this.form.show();
+    this.form.find('button#submit').show();
+    this.results.hide();
+    this.results_header.hide();
+    this.progress.hide();
+    this.error.show();
   },
   scanDone: function() {
     this.progress.hide();

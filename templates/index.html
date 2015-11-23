@@ -5,6 +5,11 @@
       <span id="scan-results-count">No</span> devices found</h2>
     <div id="scan-form">
       <h2 class="page-header">Scan for devices</h2>
+      <div id="scan-error" style="display: none;">
+        <div class="alert alert-danger" role="alert">
+          <strong>Error! </strong>No devices found.
+        </div>
+      </div>
       <form class="form-inline" action="#" method="POST" id="start-scan">
         <button type="submit" class="btn btn-primary" id="submit">Start Scan</button>
       </form>
@@ -20,7 +25,6 @@
 </div>
 
 <div id="scan-results" style="display: none;">
-
   <div class="row">
     <div class="col-md-6">
       <div id="nodegraph">
