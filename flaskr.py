@@ -60,6 +60,8 @@ def index():
 
 @app.route('/scan')
 def scan(ipv6=None):
+    # TODO create single listener for all echoes
+
     a = icmpv6.ICMPv6()
     aa = dns.DNS()
     all_nodes = a.echoAllNodes()
