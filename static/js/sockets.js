@@ -15,21 +15,17 @@
         scanPage.showResults();
         var tableData = [];
         for (var ip in msg.data) {
-          var tmp = {
-            id: ip,
-            mac: msg.data[ip].mac,
-            name: msg.data[ip].device_name,
-            x: 0,
-            y: 0
-          };
+          var tmp = msg.data[ip];
+          tmp.name = msg.data[ip].device_name;
+          tmp.id = ip;
+          tmp.ip = ip;
+          tableData.push(tmp);
+
+          tmp.x = 0;
+          tmp.y = 0;
           nodegraph.addNode(tmp);
           nodegraph.addLink("root", ip);
 
-          tableData.push({
-            ip: ip,
-            mac: msg.data[ip].mac,
-            device_name: msg.data[ip].device_name
-          });
         }
         nodetable.update(tableData);
       } else {

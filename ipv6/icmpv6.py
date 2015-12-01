@@ -129,7 +129,7 @@ class ICMPv6:
         icmp_packet = ICMPv6MLQuery()
         icmp_packet.fields["code"] = 0
         icmp_packet.fields["reserved"] = 0
-        icmp_packet.fields["mladdr"] = "ff02::c"
+        icmp_packet.fields["mladdr"] = "::"
         flags = "02"
         qqic = "7d" #125
         numberOfSources = "0000"

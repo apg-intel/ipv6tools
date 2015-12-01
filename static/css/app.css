@@ -48,22 +48,22 @@ body {
 * Entries table
 */
 
-#nodetable tr.has-dns {
+#nodetable tr.has-details {
   cursor: pointer;
 }
-#nodetable tr.has-dns.shown, #nodetable tr.highlighted-row {
+#nodetable tr.has-details.shown, #nodetable tr.highlighted-row {
   background-color: #d9edf7;
 }
 #nodetable tr.dns-details {
   background-color: #f5f5f5;
 }
-#nodetable table.dns-details-table {
+#nodetable table.row-details-table {
   margin-bottom: 0;
 }
-#nodetable tr.has-dns > .details-control > .glyphicon {
+#nodetable tr.has-details > .details-control > .glyphicon {
   opacity: 0.5;
 }
-#nodetable table.dns-details-table tr > td.answer_data {
+#nodetable table.row-details-table tr > td.answer_data {
   word-break: break-word;
 }
 table.borderless tr > td {

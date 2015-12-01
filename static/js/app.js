@@ -49,7 +49,7 @@ var nodetable = {
         data: null,
         defaultContent: "",
         render: function(data, type, full, meta) {
-          if (data.dns_data && !$.isEmptyObject(data.dns_data)) {
+          if ((data.dns_data && !$.isEmptyObject(data.dns_data)) || data.multicast_report) {
             return "<span class='glyphicon glyphicon-chevron-down'></span>";
           }
         }
@@ -67,8 +67,8 @@ var nodetable = {
       ],
       rowCallback: function(row, d, index) {
         $(row).attr('id', ipv6_id(d.ip));
-        if (d.dns_data && !$.isEmptyObject(d.dns_data)) {
-          $(row).addClass('has-dns');
+        if ((d.dns_data && !$.isEmptyObject(d.dns_data)) || d.multicast_report) {
+          $(row).addClass('has-details');
         }
 
         if (nodegraph.pinned.indexOf(d.ip) >= 0) {
@@ -79,7 +79,7 @@ var nodetable = {
     this.table = table;
     this.oTable = $('#nodetable').dataTable();
 
-    $('#nodetable tbody').on('click', 'tr.has-dns > td', function(e) {
+    $('#nodetable tbody').on('click', 'tr.has-details > td', function(e) {
       var tr = $(this).closest('tr'),
         row = table.row(tr);
 
@@ -126,8 +126,26 @@ var nodetable = {
   },
   formatSubrow: function(d) {
     var table = "";
+    if(d.multicast_report){
+      table = '<table class="table table-bordered table-condensed table-hover row-details-table">';
+      table += '<thead><tr><th colspan="10">Multicast Report</th></tr></thead>'
+      table += '<tr><th>';
+      table += Object.keys(d.multicast_report[0]).join("</th><th>");
+      table += '</th></tr>';
+
+      $.each(d.multicast_report, function(i, row) {
+        table += '<tr>';
+        $.each(row, function(k, v) {
+          table += '<td class="' + k + '">' + (v) + '</td>';
+        });
+        table += '</tr>';
+      });
+      table += '</table>';
+    }
+
     if (d.dns_data && !$.isEmptyObject(d.dns_data)) {
-      table = '<table class="table table-bordered table-condensed table-hover dns-details-table">';
+      table = '<table class="table table-bordered table-condensed table-hover row-details-table">';
+      table += '<thead><tr><th colspan="10">DNS Details</th></tr></thead>'
       table += '<tr><th>';
       table += Object.keys(d.dns_data[0]).join("</th><th>");
       table += '</th></tr>';
@@ -240,7 +258,7 @@ var nodegraph = {
 
     if (d.root) {
       return "rgb(51, 103, 153)";
-    } else if (d.dns) {
+    } else if (d.dns || d.multicast_report) {
       if (hovered || fixed) {
         return "rgb(157, 42, 25)";
       }
@@ -258,7 +276,7 @@ var nodegraph = {
 
     if (d.root) {
       return "rgb(0, 66, 128)";
-    } else if (d.dns) {
+    } else if (d.dns || d.multicast_report) {
       if (hovered || fixed) {
         return "rgb(143, 11, 8)";
       }
