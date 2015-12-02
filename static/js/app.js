@@ -127,7 +127,7 @@ var nodetable = {
   formatSubrow: function(d) {
     var table = "";
     if(d.multicast_report){
-      table = '<table class="table table-bordered table-condensed table-hover row-details-table">';
+      table += '<table class="table table-bordered table-condensed table-hover row-details-table">';
       table += '<thead><tr><th colspan="10">Multicast Report</th></tr></thead>';
       table += '<tr><th>';
       table += Object.keys(d.multicast_report[0]).join("</th><th>");
@@ -144,7 +144,7 @@ var nodetable = {
     }
 
     if (d.dns_data && !$.isEmptyObject(d.dns_data)) {
-      table = '<table class="table table-bordered table-condensed table-hover row-details-table">';
+      table += '<table class="table table-bordered table-condensed table-hover row-details-table">';
       table += '<thead><tr><th colspan="10">DNS Details</th></tr></thead>';
       table += '<tr><th>';
       table += Object.keys(d.dns_data[0]).join("</th><th>");
