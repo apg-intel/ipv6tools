@@ -56,13 +56,21 @@ def scan(message):
   multicast_report = handler.echoMulticastQuery()
   res = merge(all_nodes,node_names)
   res = merge(res,multicast_report)
+
   emit('icmp_results', {'data': res})
+
 
 @socketio.on('scan_dns', namespace='/scan')
 def scan_dns(message):
   handler = dns.DNS()
-  dns_query = Counter(handler.mDNSQuery())
-  emit('dns_results', {'data': dns_query})
+  dns_query = handler.mDNSQuery()
+
+  llmnr_query = handler.llmnr_send_recv(message['res'])
+  print llmnr_query
+  res2 = merge(dns_query,llmnr_query)
+
+
+  emit('dns_results', {'data': res2})
 
 @socketio.on('dig_listen', namespace='/scan')
 def dig_listen(message):

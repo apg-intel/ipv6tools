@@ -73,7 +73,8 @@ class DNS:
             rawSrc.remove_payload()
             rawSrc = grabRawSrc(rawSrc)
             mac = getMacAddress(rawSrc)
-            responseDict[ip] = {"mac":mac}
+            if ip not in responseDict:
+                responseDict[ip] = {"mac":mac}
 
             dnsDict = {}
             try:
@@ -188,6 +189,43 @@ class DNS:
         raw = Raw()
         raw.fields["load"] = binascii.unhexlify(payload)
         send(ip_packet/udp_segment/raw)
+
+    def llmnr_send_recv(self,res):
+        build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5355
+
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,2]) # tuple of args for foo
+
+        for ip in res:
+            if "multicast_report" in res[ip]:
+                for report in res[ip]["multicast_report"]:
+                    if report["multicast_address"] == "ff02::1:3":
+                        self.llmnr_noreceive(ip)
+
+        return_val = async_result.get()
+        return self.parseLLMNR(return_val)
+
+    def parseLLMNR(self,responses):
+        responseDict = {}
+        for response in responses:
+            ip = response[IPv6].src
+            rawSrc = copy(response[IPv6])
+            rawSrc.remove_payload()
+            rawSrc = grabRawSrc(rawSrc)
+            mac = getMacAddress(rawSrc)
+            if ip not in responseDict:
+                responseDict[ip] = {"mac":mac}
+
+            dnsDict = {}
+
+            try:
+                print response.summary()
+                dnsRecord = scapyDNS(str(response[LLMNRQuery]))
+                dnsDict = self.parseLLMNRPacket(dnsRecord)
+            except Exception,e: print e
+            responseDict[ip].update({"dns_data":dnsDict})
+        return responseDict
+
 
     def llmnr(self,ip,version=6):
         ip_packet = createIPv6()
@@ -324,7 +362,8 @@ class DNS:
             rawSrc.remove_payload()
             rawSrc = grabRawSrc(rawSrc)
             mac = getMacAddress(rawSrc)
-            responseDict[ip] = {"mac":mac}
+            if ip not in responseDict:
+                responseDict[ip] = {"mac":mac}
 
             dnsDict = {}
 
@@ -364,6 +403,42 @@ class DNS:
                 answer_json.append({"answer_name": str(layer.fields["rrname"]),
                                     "answer_type": int(layer.fields["type"]),
                                     "answer_data": str(unicode(layer.fields["rdata"],errors="ignore")),
+                                    "isAnswer": False})
+            else:
+                break
+            counter += 1
+
+        return answer_json
+
+
+    def parseLLMNRPacket(self,dnsPacket):
+        answer_json = []
+        answers = dnsPacket.fields["an"]
+        additional_records = dnsPacket.fields["ar"]
+        counter = 0
+
+        while True:
+            if not answers:
+                break
+            layer = answers.getlayer(counter)
+            if layer:
+                answer_json.append({"answer_name": str(unicode(layer.fields["rdata"],errors="ignore")) + "local.",
+                                    "answer_type": 28,
+                                    "answer_data": str(layer.fields["rrname"]),
+                                    "isAnswer": True})
+            else:
+                break
+            counter += 1
+
+        counter = 0
+        while True:
+            if not additional_records:
+                break
+            layer = additional_records.getlayer(counter)
+            if layer:
+                answer_json.append({"answer_name": str(unicode(layer.fields["rdata"],errors="ignore")) + "local.",
+                                    "answer_type": 28,
+                                    "answer_data": str(layer.fields["rrname"]),
                                     "isAnswer": False})
             else:
                 break

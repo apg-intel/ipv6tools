@@ -11,7 +11,7 @@
       // initiate next step(s)
       console.log('icmp_results', msg);
       if(!$.isEmptyObject(msg.data)){
-        socket.emit('scan_dns', {});
+        socket.emit('scan_dns', {res: msg.data});
         scanPage.showResults();
         var tableData = [];
         for (var ip in msg.data) {

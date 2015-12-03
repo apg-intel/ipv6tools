@@ -141,18 +141,19 @@ class ICMPv6:
 
         ####Add function here
         responseDict = {}
-        responses = self.send_receive(payload,filter,5)
+        responses = self.send_receive(payload,filter,8)
         for response in responses:
             if self.isMulticastReportv2(response):
                 reports = self.parseMulticastReport(response[Raw])
-                print reports
                 ip = response[IPv6].src
                 rawSrc = copy(response[IPv6])
                 rawSrc.remove_payload()
                 rawSrc = grabRawSrc(rawSrc)
                 mac = getMacAddress(rawSrc)
-                responseDict[ip] = {"mac":mac,"multicast_report":reports}
-
+                if ip in responseDict:
+                    responseDict[ip]["multicast_report"] += reports
+                else:
+                    responseDict[ip] = {"mac":mac,"multicast_report":reports}
         return responseDict
 
 
@@ -199,7 +200,6 @@ class ICMPv6:
         cksum = raw_packet[4:8]
         reserved = raw_packet[8:12]
         num_of_records = int(raw_packet[12:16],16)
-        print type,code,cksum,reserved,num_of_records
 
         for record in xrange(num_of_records):
             offset = (16 + (40 * record))
@@ -208,12 +208,24 @@ class ICMPv6:
             data_len = record_data[2:4]
             num_of_sources = record_data[4:8]
             multicast_address = record_data[8:40]
+            multicast_address = ':'.join([multicast_address[i:i+4] for i in range(0, len(multicast_address), 4)])
+            multicast_address = IPv6(dst = multicast_address).fields["dst"]
             responseDict.append({"record_type": record_type,
-                                 "multicast_address":multicast_address})
+                                 "multicast_address":multicast_address,
+                                 "service":self.getService(multicast_address)})
 
         return responseDict
 
-
+    def getService(self,multicast_address):
+        serviceDict = {"ff02::202":"RPC",
+            "ff02::fb":"mDNS",
+            "ff02::1:3":"LLMNR",
+            "ff02::c":"SSDP",
+            "ff02::1000":"SLP"}
+        if multicast_address in serviceDict:
+            return serviceDict[multicast_address]
+        else:
+            return ""
 
     def listenForEcho(self,build_lfilter,timeout=2):
         #build_lfilter = lambda (packet): ICMPv6EchoReply in packet
