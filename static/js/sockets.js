@@ -55,10 +55,15 @@
       $('body').append('<hr>dig: ' + JSON.stringify(msg.data));
     });
 
+    socket.on('packet_received', function(msg) {
+      console.log(msg);
+    });
+
     // event handler for scan action
     $('form#start-scan').submit(function(event) {
       console.log('scanning...');
       scanPage.scanStart();
+      socket.emit('sniffer_init', {});
       socket.emit('start_scan', {});
       return false;
     });

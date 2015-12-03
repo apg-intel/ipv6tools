@@ -1,10 +1,11 @@
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 from flask.ext.socketio import SocketIO, emit
 import ipv6.icmpv6 as icmpv6
 import ipv6.dns as dns
 from collections import Counter
 from operator import add
-
+from scapy.all import sniff, IPv6
+from multiprocessing.pool import ThreadPool, Pool
 
 PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
@@ -46,6 +47,13 @@ def merge(a, b, path=None):
 def index():
   return render_template('index.html')
 
+@socketio.on('sniffer_init', namespace='/scan')
+def sniffer_init(message):
+  print('=================sniffer init=================')
+  print(request.namespace)
+  pool = ThreadPool(processes=1)
+  async_result = pool.apply_async(sniff_listener,[request.namespace])
+  # sniff(filter='icmp', prn=sniff_callback)
 
 # socket events
 @socketio.on('start_scan', namespace='/scan')
@@ -78,6 +86,10 @@ def dig_listen(message):
   dig = handler.dig_and_listen(message['ips'])
   emit('dig_results', {'data': dig})
 
+def sniff_listener(namespace):
+  print('***********************async')
+  print(namespace)
+  sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): socketio.emit('packet_received', {'packet': packet.show()}, namespace=namespace))
 
 if __name__ == '__main__':
     socketio.run(app)
