@@ -223,7 +223,8 @@ class DNS:
                 dnsRecord = scapyDNS(str(response[LLMNRQuery]))
                 dnsDict = self.parseLLMNRPacket(dnsRecord)
             except Exception,e: print e
-            responseDict[ip].update({"dns_data":dnsDict})
+            if dnsDict:
+                responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
 
@@ -371,7 +372,8 @@ class DNS:
                 dnsRecord = scapyDNS(str(response[Raw]))
                 dnsDict = self.parsemDNS(dnsRecord)
             except Exception,e: print e
-            responseDict[ip].update({"dns_data":dnsDict})
+            if dnsDict:
+                responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
 

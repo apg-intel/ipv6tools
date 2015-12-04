@@ -32,6 +32,8 @@ def merge(a, b, path=None):
         if key in a:
             if isinstance(a[key], dict) and isinstance(b[key], dict):
                 merge(a[key], b[key], path + [str(key)])
+            elif isinstance(a[key], list) and isinstance(b[key], list):
+                a[key] = a[key] + b[key]
             elif a[key] == b[key]:
                 pass # same leaf value
             else:
@@ -56,7 +58,6 @@ def scan(message):
   multicast_report = handler.echoMulticastQuery()
   res = merge(all_nodes,node_names)
   res = merge(res,multicast_report)
-
   emit('icmp_results', {'data': res})
 
 
@@ -66,8 +67,7 @@ def scan_dns(message):
   dns_query = handler.mDNSQuery()
 
   llmnr_query = handler.llmnr_send_recv(message['res'])
-  print llmnr_query
-  res2 = merge(dns_query,llmnr_query)
+  res2 = merge(llmnr_query,dns_query)
 
 
   emit('dns_results', {'data': res2})
