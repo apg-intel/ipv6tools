@@ -4,7 +4,9 @@ import ipv6.icmpv6 as icmpv6
 import ipv6.dns as dns
 from collections import Counter
 from operator import add
-from scapy.all import sniff, IPv6
+from scapy.all import *
+from ipv6.ipv6 import getMacAddress
+import binascii
 from multiprocessing.pool import ThreadPool, Pool
 
 PROPAGATE_EXCEPTIONS = True
@@ -89,7 +91,24 @@ def dig_listen(message):
 def sniff_listener(namespace):
   print('***********************async')
   print(namespace)
-  sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): socketio.emit('packet_received', {'packet': packet.show()}, namespace=namespace))
+  sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): sniff_callback(packet, namespace), store=0)
+
+def sniff_callback(packet, namespace):
+  # icmp node
+  if ICMPv6EchoReply in packet:
+    socketio.emit('packet_received', {'packet': 'icmp_nodename1'}, namespace=namespace)
+  # icmp node name
+  elif ICMPv6NIReplyName in packet:
+    socketio.emit('packet_received', {'packet': 'icmp_nodename2'}, namespace=namespace)
+  # multicast report
+  elif Raw in packet and binascii.hexlify(str(packet[Raw]))[0:2] == "8f":
+    res = {
+      'ip': packet[IPv6].src,
+      'mac': getMacAddress(packet[IPv6].src)
+    }
+    socketio.emit('packet_received', {'packet': res}, namespace=namespace)
+
+
 
 if __name__ == '__main__':
     socketio.run(app)
