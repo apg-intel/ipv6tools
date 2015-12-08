@@ -78,8 +78,7 @@ class DNS:
 
             dnsDict = {}
             try:
-                dnsRecord = scapyDNS(str(response[Raw]))
-                dnsDict = self.parsemDNS(dnsRecord)
+                dnsDict = self.parsemDNS(response[Raw])
             except Exception,e: print e
             if dnsDict:
                 responseDict[ip].update({"dns_data":dnsDict})
@@ -220,8 +219,7 @@ class DNS:
 
             try:
                 print response.summary()
-                dnsRecord = scapyDNS(str(response[LLMNRQuery]))
-                dnsDict = self.parseLLMNRPacket(dnsRecord)
+                dnsDict = self.parseLLMNRPacket(response[LLMNRQuery])
             except Exception,e: print e
             if dnsDict:
                 responseDict[ip].update({"dns_data":dnsDict})
@@ -297,8 +295,7 @@ class DNS:
 
             dnsDict = {}
             try:
-                dnsRecord = scapyDNS(str(response[Raw]))
-                dnsDict = self.parsemDNS(dnsRecord)
+                dnsDict = self.parsemDNS(response[Raw])
             except Exception,e: print e
 
             responseDict[ip].update({"dns_data":dnsDict})
@@ -369,15 +366,15 @@ class DNS:
             dnsDict = {}
 
             try:
-                dnsRecord = scapyDNS(str(response[Raw]))
-                dnsDict = self.parsemDNS(dnsRecord)
+                dnsDict = self.parsemDNS(response[Raw])
             except Exception,e: print e
             if dnsDict:
                 responseDict[ip].update({"dns_data":dnsDict})
         return responseDict
 
 
-    def parsemDNS(self,dnsPacket):
+    def parsemDNS(self,raw):
+        dnsPacket = scapyDNS(str(raw))
         answer_json = []
         answers = dnsPacket.fields["an"]
         additional_records = dnsPacket.fields["ar"]
@@ -412,8 +409,8 @@ class DNS:
 
         return answer_json
 
-
-    def parseLLMNRPacket(self,dnsPacket):
+    def parseLLMNRPacket(self,llmnrq):
+        dnsPacket = scapyDNS(str(llmnrq))
         answer_json = []
         answers = dnsPacket.fields["an"]
         additional_records = dnsPacket.fields["ar"]

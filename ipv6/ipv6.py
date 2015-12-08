@@ -1,5 +1,6 @@
 __author__ = 'prototype'
 from scapy.all import *
+from copy import copy
 import netifaces
 import binascii
 
@@ -76,3 +77,9 @@ def getMacAddress(ip):
     flipbit = hex(int(flipbit, 2))[2:]
     mac = mac[0] + flipbit + mac[2:]
     return mac
+
+def getMacFromPacket(packet):
+    rawSrc = copy(packet[IPv6])
+    rawSrc.remove_payload()
+    rawSrc = grabRawSrc(rawSrc)
+    return getMacAddress(rawSrc)

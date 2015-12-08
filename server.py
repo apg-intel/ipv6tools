@@ -4,8 +4,9 @@ import ipv6.icmpv6 as icmpv6
 import ipv6.dns as dns
 from collections import Counter
 from operator import add
+
 from scapy.all import *
-from ipv6.ipv6 import getMacAddress
+from ipv6.ipv6 import getMacFromPacket
 import binascii
 from multiprocessing.pool import ThreadPool, Pool
 
@@ -13,20 +14,6 @@ PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
-
-
-def convertToList(entryDict):
-    returnList = []
-    for key in entryDict.keys():
-        newDict = {}
-        newDict["ip"] = key
-        newDict["mac"] = entryDict[key]["mac"]
-        if "device_name" in entryDict[key]:
-            newDict["device_name"] = entryDict[key]["device_name"]
-        if "dns_data" in entryDict[key]:
-            newDict["dns_data"] = entryDict[key]["dns_data"]
-        returnList.append(newDict)
-    return returnList
 
 def merge(a, b, path=None):
     "merges b into a"
@@ -70,16 +57,12 @@ def scan(message):
   res = merge(res,multicast_report)
   emit('icmp_results', {'data': res})
 
-
 @socketio.on('scan_dns', namespace='/scan')
 def scan_dns(message):
   handler = dns.DNS()
   dns_query = handler.mDNSQuery()
-
   llmnr_query = handler.llmnr_send_recv(message['res'])
   res2 = merge(llmnr_query,dns_query)
-
-
   emit('dns_results', {'data': res2})
 
 @socketio.on('dig_listen', namespace='/scan')
@@ -94,20 +77,38 @@ def sniff_listener(namespace):
   sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): sniff_callback(packet, namespace), store=0)
 
 def sniff_callback(packet, namespace):
+  res = {}
+  res['ip'] = packet[IPv6].src
+
   # icmp node
   if ICMPv6EchoReply in packet:
-    socketio.emit('packet_received', {'packet': 'icmp_nodename1'}, namespace=namespace)
+    res['mac'] = getMacFromPacket(packet)
+    socketio.emit('packet_received', res, namespace=namespace)
   # icmp node name
-  elif ICMPv6NIReplyName in packet:
-    socketio.emit('packet_received', {'packet': 'icmp_nodename2'}, namespace=namespace)
+  if ICMPv6NIReplyName in packet:
+    res['device_name'] = packet[ICMPv6NIReplyName].fields["data"][1][1].strip()
+    res['mac'] = getMacFromPacket(packet)
+    socketio.emit('packet_received', res, namespace=namespace)
   # multicast report
-  elif Raw in packet and binascii.hexlify(str(packet[Raw]))[0:2] == "8f":
-    res = {
-      'ip': packet[IPv6].src,
-      'mac': getMacAddress(packet[IPv6].src)
-    }
-    socketio.emit('packet_received', {'packet': res}, namespace=namespace)
-
+  if Raw in packet and binascii.hexlify(str(packet[Raw]))[0:2] == "8f":
+    handler = icmpv6.ICMPv6()
+    reports = handler.parseMulticastReport(packet[Raw])
+    res['multicast_report'] = reports
+    res['mac'] = getMacFromPacket(packet)
+    socketio.emit('packet_received', res, namespace=namespace)
+  # dns data
+  if UDP in packet and packet[UDP].dport == 5353:
+    handler = dns.DNS()
+    res['dns_data'] = handler.parsemDNS(packet[Raw])
+    res['mac'] = getMacFromPacket(packet)
+    # socketio.emit('packet_received', res, namespace=namespace)
+  # llmnr
+  if UDP in packet and packet[UDP].dport == 5355:
+    handler = dns.DNS()
+    # res['dns_data'] = handler.parseLLMNRPacket(packet[LLMNRQuery])
+    res['asdf'] = 'llmnr'
+    res['mac'] = getMacFromPacket(packet)
+    socketio.emit('packet_received', res, namespace=namespace)
 
 
 if __name__ == '__main__':
