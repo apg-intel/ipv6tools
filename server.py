@@ -83,32 +83,29 @@ def sniff_callback(packet, namespace):
   # icmp node
   if ICMPv6EchoReply in packet:
     res['mac'] = getMacFromPacket(packet)
-    socketio.emit('packet_received', res, namespace=namespace)
   # icmp node name
   if ICMPv6NIReplyName in packet:
     res['device_name'] = packet[ICMPv6NIReplyName].fields["data"][1][1].strip()
     res['mac'] = getMacFromPacket(packet)
-    socketio.emit('packet_received', res, namespace=namespace)
   # multicast report
   if Raw in packet and binascii.hexlify(str(packet[Raw]))[0:2] == "8f":
     handler = icmpv6.ICMPv6()
     reports = handler.parseMulticastReport(packet[Raw])
     res['multicast_report'] = reports
     res['mac'] = getMacFromPacket(packet)
-    socketio.emit('packet_received', res, namespace=namespace)
   # dns data
   if UDP in packet and packet[UDP].dport == 5353:
     handler = dns.DNS()
     res['dns_data'] = handler.parsemDNS(packet[Raw])
     res['mac'] = getMacFromPacket(packet)
-    # socketio.emit('packet_received', res, namespace=namespace)
   # llmnr
   if UDP in packet and packet[UDP].dport == 5355:
     handler = dns.DNS()
-    # res['dns_data'] = handler.parseLLMNRPacket(packet[LLMNRQuery])
+    res['dns_data_llmnr'] = handler.parseLLMNRPacket(packet[LLMNRQuery])
     res['asdf'] = 'llmnr'
     res['mac'] = getMacFromPacket(packet)
-    socketio.emit('packet_received', res, namespace=namespace)
+
+  socketio.emit('packet_received', res, namespace=namespace)
 
 
 if __name__ == '__main__':
