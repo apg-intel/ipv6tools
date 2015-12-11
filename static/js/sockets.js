@@ -55,8 +55,24 @@
       $('body').append('<hr>dig: ' + JSON.stringify(msg.data));
     });
 
-    socket.on('packet_received', function(msg) {
-      console.log(msg);
+    /*
+    *  listen for sniffed results
+    *  result channels: ['icmp_echo_result', 'icmp_name_result', 'multicast_result', 'mdns_result', 'llmnr_result']
+    */
+    socket.on('icmp_echo_result', function(msg){
+      console.log('icmp_echo_result', msg);
+    });
+    socket.on('icmp_name_result', function(msg){
+      console.log('icmp_name_result', msg);
+    });
+    socket.on('multicast_result', function(msg){
+      console.log('multicast_result', msg);
+    });
+    socket.on('mdns_result', function(msg){
+      console.log('mdns_result', msg);
+    });
+    socket.on('llmnr_result', function(msg){
+      console.log('llmnr_result', msg);
     });
 
     // event handler for scan action
