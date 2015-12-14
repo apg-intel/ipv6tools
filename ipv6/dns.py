@@ -6,7 +6,7 @@ from copy import copy
 from itertools import izip
 import time
 from itertools import izip_longest
-from ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, getMacAddress
+from ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, getMacAddress, grabFullRawSrc
 from scapy.layers.dns import DNS as scapyDNS
 import traceback
 
@@ -131,8 +131,11 @@ class DNS:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
             ipaddress = []
+
+            ip = IPv6(src=ip)
+            ip = grabFullRawSrc(ip)
+            digits = ip
             digits = ip.replace(":","")
-            digits = digits[:4] + "000000000000" + digits[4:]
             for digit in digits[::-1]:
                 ipaddress.append(digit)
             questionList = [".".join(ipaddress) + ".ip6.arpa"]
@@ -173,8 +176,10 @@ class DNS:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
             ipaddress = []
+            ip = IPv6(src=ip)
+            ip = grabFullRawSrc(ip)
+            digits = ip
             digits = ip.replace(":","")
-            digits = digits[:4] + "000000000000" + digits[4:]
             for digit in digits[::-1]:
                 ipaddress.append(digit)
             questionList = [".".join(ipaddress) + ".ip6.arpa"]

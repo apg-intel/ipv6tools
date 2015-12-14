@@ -59,6 +59,11 @@ def grabRawDst(packet):
     dstAddress = rawPacket[48:52] + rawPacket[64:80]
     return dstAddress
 
+def grabFullRawSrc(packet):
+    rawPacket = binascii.hexlify(str(packet))
+    srcAddress = rawPacket[16:48]
+    return srcAddress
+
 
 def getMacAddress(ip):
     mac = ip.replace(":", "")
