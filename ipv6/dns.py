@@ -332,10 +332,9 @@ class DNS:
         #questionList = questionList[:50]
 
 
-        build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
-
-        pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(self.listenForEcho,[build_lfilter,5]) # tuple of args for foo
+        # build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
+        # pool = ThreadPool(processes=1)
+        # async_result = pool.apply_async(self.listenForEcho,[build_lfilter,5]) # tuple of args for foo
 
 
         for questionList in self.chunker(questionListAll,20):
@@ -351,26 +350,26 @@ class DNS:
 
             send(ip_packet/udp_segment/raw)
 
-        responseDict = {}
-        return_val = async_result.get()
+        # responseDict = {}
+        # return_val = async_result.get()
 
-        for response in return_val:
-            ip = response[IPv6].src
-            rawSrc = copy(response[IPv6])
-            rawSrc.remove_payload()
-            rawSrc = grabRawSrc(rawSrc)
-            mac = getMacAddress(rawSrc)
-            if ip not in responseDict:
-                responseDict[ip] = {"mac":mac}
-
-            dnsDict = {}
-
-            try:
-                dnsDict = self.parsemDNS(response[Raw])
-            except Exception,e: print e
-            if dnsDict:
-                responseDict[ip].update({"dns_data":dnsDict})
-        return responseDict
+        # for response in return_val:
+        #     ip = response[IPv6].src
+        #     rawSrc = copy(response[IPv6])
+        #     rawSrc.remove_payload()
+        #     rawSrc = grabRawSrc(rawSrc)
+        #     mac = getMacAddress(rawSrc)
+        #     if ip not in responseDict:
+        #         responseDict[ip] = {"mac":mac}
+        #
+        #     dnsDict = {}
+        #
+        #     try:
+        #         dnsDict = self.parsemDNS(response[Raw])
+        #     except Exception,e: print e
+        #     if dnsDict:
+        #         responseDict[ip].update({"dns_data":dnsDict})
+        # return responseDict
 
 
     def parsemDNS(self,raw):

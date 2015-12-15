@@ -436,7 +436,8 @@ var nodegraph = {
 
   },
   addLink: function(sourceId, targetId) {
-    var sourceNode = this.findNode(sourceId);
+    // var sourceNode = this.findNode(sourceId);
+    var sourceNode = 0;
     var targetNode = this.findNode(targetId);
 
     if (sourceNode !== undefined && targetNode !== undefined) {
@@ -549,6 +550,16 @@ var nodegraph = {
         this.update();
       }
     }
+  }
+};
+
+var new_result = {
+  delay: 250,
+  updatePage: function(msg){
+    setTimeout(function(){
+      nodetable.updateRow(msg);
+      nodegraph.updateNode(msg);
+    }, new_result.delay);
   }
 };
 

@@ -40,40 +40,27 @@ def index():
 
 @socketio.on('sniffer_init', namespace='/scan')
 def sniffer_init(message):
-  print('=================sniffer init=================')
-  print(request.namespace)
   pool = ThreadPool(processes=1)
   async_result = pool.apply_async(sniff_listener,[request.namespace])
-  # sniff(filter='icmp', prn=sniff_callback)
 
 # socket events
 @socketio.on('start_scan', namespace='/scan')
 def scan(message):
   handler = icmpv6.ICMPv6()
-  all_nodes = handler.echoAllNodes()
-  node_names = handler.echoAllNodeNames()
-  multicast_report = handler.echoMulticastQuery()
-  res = merge(all_nodes,node_names)
-  res = merge(res,multicast_report)
-  emit('icmp_results', {'data': res})
-
-@socketio.on('scan_dns', namespace='/scan')
-def scan_dns(message):
+  handler.echoAllNodes()
+  handler.echoAllNodeNames()
+  handler.echoMulticastQuery()
   handler = dns.DNS()
   dns_query = handler.mDNSQuery()
-  llmnr_query = handler.llmnr_send_recv(message['res'])
-  res2 = merge(llmnr_query,dns_query)
-  emit('dns_results', {'data': res2})
 
-@socketio.on('dig_listen', namespace='/scan')
-def dig_listen(message):
-  handler = dns.DNS()
-  dig = handler.dig_and_listen(message['ips'])
-  emit('dig_results', {'data': dig})
+@socketio.on('scan_llmnr', namespace='/scan')
+def scan_llmnr(message):
+  if "multicast_report" in message:
+    handler = dns.DNS()
+    for report in message['multicast_report']:
+      handler.llmnr_noreceive(report['multicast_address'])
 
 def sniff_listener(namespace):
-  print('***********************async')
-  print(namespace)
   sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): sniff_callback(packet, namespace), store=0)
 
 def sniff_callback(packet, namespace):

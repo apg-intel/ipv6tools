@@ -44,23 +44,21 @@ class ICMPv6:
         data = "e3d3f15500000000f7f0010000000000101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f3031323334353637"
         icmp_packet.fields["data"] = binascii.unhexlify(data)
 
-        build_lfilter = lambda (packet): ICMPv6EchoReply in packet
-
-        pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(self.listenForEcho,[build_lfilter])
+        # build_lfilter = lambda (packet): ICMPv6EchoReply in packet
+        # pool = ThreadPool(processes=1)
+        # async_result = pool.apply_async(self.listenForEcho,[build_lfilter])
 
         send(ip_packet / icmp_packet,verbose=False)
-
-        responseDict = {}
-        return_val = async_result.get()
-        for response in return_val:
-            ip = response[IPv6].src
-            rawSrc = copy(response[IPv6])
-            rawSrc.remove_payload()
-            rawSrc = grabRawSrc(rawSrc)
-            mac = getMacAddress(rawSrc)
-            responseDict[ip] = {"mac":mac}
-        return responseDict
+        # responseDict = {}
+        # return_val = async_result.get()
+        # for response in return_val:
+        #     ip = response[IPv6].src
+        #     rawSrc = copy(response[IPv6])
+        #     rawSrc.remove_payload()
+        #     rawSrc = grabRawSrc(rawSrc)
+        #     mac = getMacAddress(rawSrc)
+        #     responseDict[ip] = {"mac":mac}
+        # return responseDict
 
 
 
@@ -80,27 +78,23 @@ class ICMPv6:
         icmp_packet.fields["data"] = (0, 'ff02::1')
 
 
-        build_lfilter = lambda (packet): ICMPv6NIReplyName in packet
-
-
-        pool = ThreadPool(processes=1)
-        async_result = pool.apply_async(self.listenForEcho,[build_lfilter])
-
-
+        # build_lfilter = lambda (packet): ICMPv6NIReplyName in packet
+        # pool = ThreadPool(processes=1)
+        # async_result = pool.apply_async(self.listenForEcho,[build_lfilter])
 
         send(ip_packet / icmp_packet)
 
-        responseDict = {}
-        return_val = async_result.get()
-        for response in return_val:
-            ip = response[IPv6].src
-            rawSrc = copy(response[IPv6])
-            rawSrc.remove_payload()
-            rawSrc = grabRawSrc(rawSrc)
-            mac = getMacAddress(rawSrc)
-            device_name = response[ICMPv6NIReplyName].fields["data"][1][1].strip()
-            responseDict[ip] = {"mac":mac,"device_name":device_name}
-        return responseDict
+        # responseDict = {}
+        # return_val = async_result.get()
+        # for response in return_val:
+        #     ip = response[IPv6].src
+        #     rawSrc = copy(response[IPv6])
+        #     rawSrc.remove_payload()
+        #     rawSrc = grabRawSrc(rawSrc)
+        #     mac = getMacAddress(rawSrc)
+        #     device_name = response[ICMPv6NIReplyName].fields["data"][1][1].strip()
+        #     responseDict[ip] = {"mac":mac,"device_name":device_name}
+        # return responseDict
 
 
     def echoMulticastQuery(self):
@@ -136,25 +130,26 @@ class ICMPv6:
         raw = Raw()
         raw.fields["load"] =  binascii.unhexlify(flags + qqic + numberOfSources)
 
-        filter = lambda (packet): IPv6 in packet
+        # filter = lambda (packet): IPv6 in packet
         payload = ip_packet/ip_ext/icmp_packet/raw
+        send(payload)
 
         ####Add function here
-        responseDict = {}
-        responses = self.send_receive(payload,filter,8)
-        for response in responses:
-            if self.isMulticastReportv2(response):
-                reports = self.parseMulticastReport(response[Raw])
-                ip = response[IPv6].src
-                rawSrc = copy(response[IPv6])
-                rawSrc.remove_payload()
-                rawSrc = grabRawSrc(rawSrc)
-                mac = getMacAddress(rawSrc)
-                if ip in responseDict:
-                    responseDict[ip]["multicast_report"] += reports
-                else:
-                    responseDict[ip] = {"mac":mac,"multicast_report":reports}
-        return responseDict
+        # responseDict = {}
+        # responses = self.send_receive(payload,filter,8)
+        # for response in responses:
+        #     if self.isMulticastReportv2(response):
+        #         reports = self.parseMulticastReport(response[Raw])
+        #         ip = response[IPv6].src
+        #         rawSrc = copy(response[IPv6])
+        #         rawSrc.remove_payload()
+        #         rawSrc = grabRawSrc(rawSrc)
+        #         mac = getMacAddress(rawSrc)
+        #         if ip in responseDict:
+        #             responseDict[ip]["multicast_report"] += reports
+        #         else:
+        #             responseDict[ip] = {"mac":mac,"multicast_report":reports}
+        # return responseDict
 
 
 
