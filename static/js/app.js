@@ -13,13 +13,13 @@ var scanPage = {
     this.error.hide();
     this.progress.show();
     this.results.hide();
+    this.results.show();
+    nodetable.init();
+    nodegraph.init();
   },
   showResults: function() {
     this.form.hide();
-    this.results.show();
     this.results_header.show();
-    nodegraph.init();
-    nodetable.init();
   },
   showError: function(){
     this.form.show();
@@ -39,7 +39,7 @@ var scanPage = {
 // initialize, modify, and update the table
 var nodetable = {
   table: null,
-  data: null,
+  data: [],
   init: function(data) {
     data = data || [];
     var table = $('#nodetable').DataTable({
@@ -56,7 +56,8 @@ var nodetable = {
       }, {
         data: "ip"
       }, {
-        data: "mac"
+        data: "mac",
+        defaultContent: ""
       }, {
         data: "device_name",
         defaultContent: ""
@@ -101,28 +102,31 @@ var nodetable = {
     this.oTable.fnClearTable(this);
     this.oTable.fnAddData(data);
   },
-  addDNS: function(data) {
-    var ipMatch = function(obj) {
-      return obj.ip === ip;
+  updateRow: function(data){
+    var ipMatch = function(obj){
+      return obj.ip === data.ip;
     };
-    if (data) {
-      for (var ip in data) {
-        if (!$.isEmptyObject(data[ip].dns_data)) {
-          var obj = this.data.filter(ipMatch)[0];
-          if (obj) {
-            obj.dns_data = data[ip].dns_data;
-            // set the name if answer_type is 28
-            var name = data[ip].dns_data.filter(function(obj) {
-              return obj.answer_type == 28;
-            })[0];
-            if (name) {
-              obj.device_name = formatName(name.answer_name);
-            }
+    if(data){
+      var obj = this.data.filter(ipMatch)[0];
+      if(obj){
+        var orig = $.extend(true, {}, obj); //set original
+        $.extend(true, obj, data); //merged new
+        if(obj.dns_data){
+          var name = obj.dns_data.filter(function(obj) {
+            return obj.answer_type == 28;
+          })[0];
+          if(name) {
+            obj.device_name = obj.device_name || formatName(name.answer_name);
+            this.update(this.data);
           }
         }
+        else if(JSON.stringify(obj) !== JSON.stringify(orig)){//only update if merged new and original aren't equal
+        }
+      } else {
+        this.data.push(data);
+        this.update(this.data);
       }
     }
-    this.update(this.data);
   },
   formatSubrow: function(d) {
     var table = "";
@@ -489,7 +493,7 @@ var nodegraph = {
       .attr("dx", "1em")
       .attr("dy", "0.3em")
       .text(function(d) {
-        return d.name || '';
+        return d.device_name || '';
       });
 
     this.gnode.exit().remove();
@@ -502,11 +506,11 @@ var nodegraph = {
     // update nodelabels
     d3.selectAll("text.nodelabel")
       .text(function(d) {
-        return d.name || '';
+        return d.device_name || '';
       });
 
     this.gnode.sort(function(a, b) {
-      if (!a.name) return -1;
+      if (!a.device_name) return -1;
       else return 1;
     });
 
@@ -516,28 +520,34 @@ var nodegraph = {
     // reset the force
     this.setForce().start();
   },
-  addDNS: function(data) {
-    var ipMatch = function(obj) {
-      return obj.id === ip;
+  updateNode: function(data){
+    var ipMatch = function(obj){
+      return obj.ip === data.ip;
     };
-    if (data) {
-      for (var ip in data) {
-        if (!$.isEmptyObject(data[ip].dns_data)) {
-          var obj = this.graph.nodes.filter(ipMatch)[0];
-          if (obj) {
-            obj.dns = data[ip].dns_data;
-            // set the name if answer_type is 28
-            var name = data[ip].dns_data.filter(function(obj) {
-              return obj.answer_type == 28;
-            })[0];
-            if (name) {
-              obj.name = formatName(name.answer_name);
-            }
+    if(data){
+      var obj = this.graph.nodes.filter(ipMatch)[0];
+      if(obj){
+        var orig = $.extend(true, {}, obj); //set original
+        $.extend(true, obj, data); //merged new
+        if(obj.dns_data){
+          var name = obj.dns_data.filter(function(obj) {
+            return obj.answer_type == 28;
+          })[0];
+          if(name) {
+            obj.device_name = obj.device_name || formatName(name.answer_name);
           }
-
         }
+        if(JSON.stringify(orig) !== JSON.stringify(obj)){//only update if merged new and original aren't equal
+          this.update();
+        }
+      } else {
+        data.id = data.ip;
+        data.x = 0;
+        data.y = 0;
+        this.addNode(data);
+        this.addLink("root", data.ip);
+        this.update();
       }
-      this.update();
     }
   }
 };

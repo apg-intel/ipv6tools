@@ -13,21 +13,6 @@
       if(!$.isEmptyObject(msg.data)){
         socket.emit('scan_dns', {res: msg.data});
         scanPage.showResults();
-        var tableData = [];
-        for (var ip in msg.data) {
-          var tmp = msg.data[ip];
-          tmp.name = msg.data[ip].device_name;
-          tmp.id = ip;
-          tmp.ip = ip;
-          tableData.push(tmp);
-
-          tmp.x = 0;
-          tmp.y = 0;
-          nodegraph.addNode(tmp);
-          nodegraph.addLink("root", ip);
-
-        }
-        nodetable.update(tableData);
       } else {
         scanPage.showError();
       }
@@ -39,10 +24,6 @@
      */
     socket.on('dns_results', function(msg) {
       console.log('dns_results', msg);
-      if(!$.isEmptyObject(msg.data)){
-        nodetable.addDNS(msg.data);
-        nodegraph.addDNS(msg.data);
-      }
       scanPage.scanDone();
       // socket.emit('dig_listen', {ips: Object.keys(msg.data)}); // not needed yet i guess? no results...
     });
@@ -60,19 +41,24 @@
     *  result channels: ['icmp_echo_result', 'icmp_name_result', 'multicast_result', 'mdns_result', 'llmnr_result']
     */
     socket.on('icmp_echo_result', function(msg){
-      console.log('icmp_echo_result', msg);
+      nodetable.updateRow(msg);
+      nodegraph.updateNode(msg);
     });
     socket.on('icmp_name_result', function(msg){
-      console.log('icmp_name_result', msg);
+      nodetable.updateRow(msg);
+      nodegraph.updateNode(msg);
     });
     socket.on('multicast_result', function(msg){
-      console.log('multicast_result', msg);
+      nodetable.updateRow(msg);
+      nodegraph.updateNode(msg);
     });
     socket.on('mdns_result', function(msg){
-      console.log('mdns_result', msg);
+      nodetable.updateRow(msg);
+      nodegraph.updateNode(msg);
     });
     socket.on('llmnr_result', function(msg){
-      console.log('llmnr_result', msg);
+      nodetable.updateRow(msg);
+      nodegraph.updateNode(msg);
     });
 
     // event handler for scan action
