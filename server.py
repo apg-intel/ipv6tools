@@ -42,7 +42,7 @@ def scan_llmnr(message):
     handler = dns.DNS()
     for report in message['multicast_report']:
       if report['multicast_address'] == "ff02::1:3":
-        handler.llmnr_noreceive(report['multicast_address'])
+        handler.llmnr_noreceive(message['ip'])
 
 def sniff_listener(namespace):
   sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): sniff_callback(packet, namespace), store=0)
@@ -73,8 +73,12 @@ def sniff_callback(packet, namespace):
     channel = 'llmnr_result'
     try:
       handler = dns.DNS()
-      res['dns_data'] = handler.parseLLMNRPacket(packet[LLMNRQuery])
-      res['mac'] = getMacFromPacket(packet)
+      dns_data = handler.parseLLMNRPacket(packet[LLMNRQuery])
+      if dns_data:
+        res['dns_data'] = dns_data
+        res['mac'] = getMacFromPacket(packet)
+      else:
+        res = None
     except Exception:
       pass
   # dns data
@@ -82,12 +86,16 @@ def sniff_callback(packet, namespace):
     channel = 'mdns_result'
     try:
       handler = dns.DNS()
-      res['dns_data'] = handler.parsemDNS(packet[Raw])
-      res['mac'] = getMacFromPacket(packet)
+      dns_data = handler.parsemDNS(packet[Raw])
+      if dns_data:
+        res['dns_data'] = dns_data
+        res['mac'] = getMacFromPacket(packet)
+      else:
+        res = None
     except Exception:
       pass
 
-  if channel:
+  if channel and res:
     socketio.emit(channel, res, namespace=namespace)
 
 

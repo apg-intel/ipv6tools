@@ -32,7 +32,6 @@
       new_result.updatePage(msg);
     });
     socket.on('llmnr_result', function(msg){
-      console.log('llmnr', msg)
       new_result.updatePage(msg);
     });
 

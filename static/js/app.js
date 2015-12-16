@@ -262,7 +262,7 @@ var nodegraph = {
 
     if (d.root) {
       return "rgb(51, 103, 153)";
-    } else if (d.dns || d.multicast_report) {
+    } else if (d.dns_data || d.multicast_report) {
       if (hovered || fixed) {
         return "rgb(157, 42, 25)";
       }
@@ -280,7 +280,7 @@ var nodegraph = {
 
     if (d.root) {
       return "rgb(0, 66, 128)";
-    } else if (d.dns || d.multicast_report) {
+    } else if (d.dns_data || d.multicast_report) {
       if (hovered || fixed) {
         return "rgb(143, 11, 8)";
       }
