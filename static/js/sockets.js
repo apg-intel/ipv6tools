@@ -32,15 +32,16 @@
       new_result.updatePage(msg);
     });
     socket.on('llmnr_result', function(msg){
+      console.log('llmnr', msg)
       new_result.updatePage(msg);
     });
 
     // event handler for scan action
     $('form#start-scan').submit(function(event) {
       console.log('scanning...');
+      socket.emit('sniffer_init', {});
       scanPage.scanStart();
       scanPage.showResults();
-      socket.emit('sniffer_init', {});
       socket.emit('start_scan', {});
       return false;
     });

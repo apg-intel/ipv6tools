@@ -15,23 +15,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 
-def merge(a, b, path=None):
-    "merges b into a"
-    if path is None: path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge(a[key], b[key], path + [str(key)])
-            elif isinstance(a[key], list) and isinstance(b[key], list):
-                a[key] = a[key] + b[key]
-            elif a[key] == b[key]:
-                pass # same leaf value
-            else:
-                raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
-
 
 # flask routes
 @app.route('/')
@@ -58,7 +41,8 @@ def scan_llmnr(message):
   if "multicast_report" in message:
     handler = dns.DNS()
     for report in message['multicast_report']:
-      handler.llmnr_noreceive(report['multicast_address'])
+      if report['multicast_address'] == "ff02::1:3":
+        handler.llmnr_noreceive(report['multicast_address'])
 
 def sniff_listener(namespace):
   sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): sniff_callback(packet, namespace), store=0)
