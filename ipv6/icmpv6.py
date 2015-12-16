@@ -221,6 +221,10 @@ class ICMPv6:
             "ff02::fb":"mDNS",
             "ff02::1:3":"LLMNR",
             "ff02::c":"SSDP",
+            "ff02::116":"SRVLOC",
+            "ff02::123":"SVRLOC-DA",
+            "ff05::2":"OSPFv3",
+            "ff02::2":"Router",
             "ff02::1000":"SLP"}
         if multicast_address in serviceDict:
             return serviceDict[multicast_address]

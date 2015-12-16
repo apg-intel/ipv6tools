@@ -224,7 +224,6 @@ class DNS:
             dnsDict = {}
 
             try:
-                print response.summary()
                 dnsRecord = scapyDNS(str(response[LLMNRQuery]))
                 dnsDict = self.parseLLMNRPacket(dnsRecord)
             except Exception,e: print e
