@@ -33,6 +33,7 @@ var scanPage = {
     this.progress.hide();
     this.form.find('button#submit').show();
     // this.form.show();
+    // this.form.find('.page-header').hide();
   }
 };
 
@@ -537,8 +538,8 @@ var nodegraph = {
           if(name) {
             obj.device_name = obj.device_name || formatName(name.answer_name);
           }
-        }
-        if(JSON.stringify(orig) !== JSON.stringify(obj)){//only update if merged new and original aren't equal
+            this.update();
+        } else if(JSON.stringify(orig) !== JSON.stringify(obj)){//only update if merged new and original aren't equal
           this.update();
         }
       } else {
@@ -554,11 +555,21 @@ var nodegraph = {
 };
 
 var new_result = {
+  fto: null,
+  set_finished_to: function(){
+    new_result.fto = setTimeout(function(){
+      scanPage.scanDone();
+    }, 5000);
+  },
   delay: 250,
   updatePage: function(msg){
     setTimeout(function(){
       nodetable.updateRow(msg);
       nodegraph.updateNode(msg);
+
+      // reset timeout to remove scanning bar
+      clearTimeout(new_result.fto);
+      new_result.set_finished_to();
     }, new_result.delay);
   }
 };

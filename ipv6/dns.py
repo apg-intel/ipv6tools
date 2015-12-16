@@ -6,7 +6,7 @@ from copy import copy
 from itertools import izip
 import time
 from itertools import izip_longest
-from ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, getMacAddress, grabFullRawSrc
+from ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, getMacAddress
 from scapy.layers.dns import DNS as scapyDNS
 import traceback
 
@@ -130,11 +130,8 @@ class DNS:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
             ipaddress = []
-
-            ip = IPv6(src=ip)
-            ip = grabFullRawSrc(ip)
-            digits = ip
             digits = ip.replace(":","")
+            digits = digits[:4] + "000000000000" + digits[4:]
             for digit in digits[::-1]:
                 ipaddress.append(digit)
             questionList = [".".join(ipaddress) + ".ip6.arpa"]
@@ -175,10 +172,8 @@ class DNS:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
             ipaddress = []
-            ip = IPv6(src=ip)
-            ip = grabFullRawSrc(ip)
-            digits = ip
             digits = ip.replace(":","")
+            digits = digits[:4] + "000000000000" + digits[4:]
             for digit in digits[::-1]:
                 ipaddress.append(digit)
             questionList = [".".join(ipaddress) + ".ip6.arpa"]
@@ -314,7 +309,7 @@ class DNS:
         return (seq[pos:pos + size] for pos in xrange(0, len(seq), size))
 
 
-    def mDNSQuery(self):
+    def mDNSQuery(self, receive=False):
         ip_packet = createIPv6()
         ip_packet.fields["nh"] = 17 #DNS
         ip_packet.fields["hlim"] = 255
@@ -337,9 +332,10 @@ class DNS:
         #questionList = questionList[:50]
 
 
-        # build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
-        # pool = ThreadPool(processes=1)
-        # async_result = pool.apply_async(self.listenForEcho,[build_lfilter,5]) # tuple of args for foo
+        if receive:
+            build_lfilter = lambda (packet): IPv6 in packet and UDP in packet and packet[UDP].dport == 5353
+            pool = ThreadPool(processes=1)
+            async_result = pool.apply_async(self.listenForEcho,[build_lfilter,5]) # tuple of args for foo
 
 
         for questionList in self.chunker(questionListAll,20):
@@ -355,26 +351,27 @@ class DNS:
 
             send(ip_packet/udp_segment/raw)
 
-        # responseDict = {}
-        # return_val = async_result.get()
 
-        # for response in return_val:
-        #     ip = response[IPv6].src
-        #     rawSrc = copy(response[IPv6])
-        #     rawSrc.remove_payload()
-        #     rawSrc = grabRawSrc(rawSrc)
-        #     mac = getMacAddress(rawSrc)
-        #     if ip not in responseDict:
-        #         responseDict[ip] = {"mac":mac}
-        #
-        #     dnsDict = {}
-        #
-        #     try:
-        #         dnsDict = self.parsemDNS(response[Raw])
-        #     except Exception,e: print e
-        #     if dnsDict:
-        #         responseDict[ip].update({"dns_data":dnsDict})
-        # return responseDict
+        if receive:
+            responseDict = {}
+            return_val = async_result.get()
+            for response in return_val:
+                ip = response[IPv6].src
+                rawSrc = copy(response[IPv6])
+                rawSrc.remove_payload()
+                rawSrc = grabRawSrc(rawSrc)
+                mac = getMacAddress(rawSrc)
+                if ip not in responseDict:
+                    responseDict[ip] = {"mac":mac}
+
+                dnsDict = {}
+
+                try:
+                    dnsDict = self.parsemDNS(response[Raw])
+                except Exception,e: print e
+                if dnsDict:
+                    responseDict[ip].update({"dns_data":dnsDict})
+            return responseDict
 
 
     def parsemDNS(self,raw):

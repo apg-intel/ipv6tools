@@ -34,7 +34,7 @@ def scan(message):
   handler.echoAllNodeNames()
   handler.echoMulticastQuery()
   handler = dns.DNS()
-  dns_query = handler.mDNSQuery()
+  handler.mDNSQuery()
 
 @socketio.on('scan_llmnr', namespace='/scan')
 def scan_llmnr(message):
