@@ -188,10 +188,6 @@ class ICMPv6:
         hexStream = "8f009ddc000000010400000000000000000000000000000000000000"
         icmp_packet = ICMPv6Unknown(binascii.unhexlify(hexStream))
         del icmp_packet.fields["cksum"]
-        #icmp_packet = ICMPv6MLReport()
-        #icmp_packet.fields["code"] = 0
-        #icmp_packet.fields["reserved"] = 0
-        #icmp_packet.fields["mladdr"] = "ff02::16"
         send(ip_packet/icmp_packet)
 
 
@@ -225,6 +221,10 @@ class ICMPv6:
             "ff02::fb":"mDNS",
             "ff02::1:3":"LLMNR",
             "ff02::c":"SSDP",
+            "ff02::116":"SRVLOC",
+            "ff02::123":"SVRLOC-DA",
+            "ff05::2":"OSPFv3",
+            "ff02::2":"Router",
             "ff02::1000":"SLP"}
         if multicast_address in serviceDict:
             return serviceDict[multicast_address]
