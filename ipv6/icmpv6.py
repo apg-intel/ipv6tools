@@ -184,10 +184,6 @@ class ICMPv6:
         hexStream = "8f009ddc000000010400000000000000000000000000000000000000"
         icmp_packet = ICMPv6Unknown(binascii.unhexlify(hexStream))
         del icmp_packet.fields["cksum"]
-        #icmp_packet = ICMPv6MLReport()
-        #icmp_packet.fields["code"] = 0
-        #icmp_packet.fields["reserved"] = 0
-        #icmp_packet.fields["mladdr"] = "ff02::16"
         send(ip_packet/icmp_packet)
 
 

@@ -127,6 +127,7 @@ class DNS:
         authority_rrs = "0000"
         additional_rrs = "0000"
 
+
         if version == 4:
             questionList = [".".join(ip.split(".")[::-1]) + ".in-addr.arpa"]
         elif version == 6:
