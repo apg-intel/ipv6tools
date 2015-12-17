@@ -537,9 +537,10 @@ var nodegraph = {
           })[0];
           if(name) {
             obj.device_name = obj.device_name || formatName(name.answer_name);
-          }
             this.update();
-        } else if(JSON.stringify(orig) !== JSON.stringify(obj)){//only update if merged new and original aren't equal
+          }
+        }
+        if(JSON.stringify(orig) !== JSON.stringify(obj)){//only update if merged new and original aren't equal
           this.update();
         }
       } else {

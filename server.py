@@ -23,12 +23,14 @@ def index():
 
 @socketio.on('sniffer_init', namespace='/scan')
 def sniffer_init(message):
+  print("sniffer intialized")
   pool = ThreadPool(processes=1)
   async_result = pool.apply_async(sniff_listener,[request.namespace])
 
 # socket events
 @socketio.on('start_scan', namespace='/scan')
 def scan(message):
+  print("starting scan")
   handler = icmpv6.ICMPv6()
   handler.echoAllNodes()
   handler.echoAllNodeNames()
