@@ -1,0 +1,86 @@
+from scapy.all import *
+from ipv6 import getMacFromPacket
+import dns as dns
+import icmpv6 as icmpv6
+import binascii
+from multiprocessing.pool import ThreadPool, Pool
+from flask.ext.socketio import SocketIO, emit
+
+
+class IPv6Sniffer:
+    pool = None
+
+    def init(self):
+        None
+
+    # initialize the listener
+    def start(self, namespace, socketio):
+        print("sniffer intialized on " + namespace)
+        self.pool = ThreadPool(processes=1)
+        self.pool.apply_async(self.listen,[namespace, socketio])
+
+    # start the listener
+    def listen(self, namespace, socketio):
+        sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): self.callback(packet, namespace, socketio), store=0)
+
+    # stop the listener
+    def stop(self):
+        print('Stopping sniffer')
+        if self.pool:
+            self.pool.close()
+            self.pool.terminate()
+            self.pool.join()
+        else:
+            print('Sniffer not initialized')
+
+    # callback for when packets are received
+    def callback(self, packet, namespace, socketio):
+        res = {}
+        res['ip'] = packet[IPv6].src
+        channel = False
+
+        # icmp node
+        if ICMPv6EchoReply in packet:
+            channel = 'icmp_echo_result'
+            res['mac'] = getMacFromPacket(packet)
+        # icmp node name
+        elif ICMPv6NIReplyName in packet:
+            channel = 'icmp_name_result'
+            res['device_name'] = packet[ICMPv6NIReplyName].fields["data"][1][1].strip()
+            res['mac'] = getMacFromPacket(packet)
+        # multicast report
+        elif Raw in packet and binascii.hexlify(str(packet[Raw]))[0:2] == "8f":
+            channel = 'multicast_result'
+            handler = icmpv6.ICMPv6()
+            reports = handler.parseMulticastReport(packet[Raw])
+            res['multicast_report'] = reports
+            res['mac'] = getMacFromPacket(packet)
+        # llmnr
+        elif UDP in packet and packet[UDP].dport == 5355 and LLMNRQuery in packet:
+            channel = 'llmnr_result'
+            try:
+              handler = dns.DNS()
+              dns_data = handler.parseLLMNRPacket(packet[LLMNRQuery])
+              if dns_data:
+                res['dns_data'] = dns_data
+                res['mac'] = getMacFromPacket(packet)
+              else:
+                res = None
+            except Exception:
+              pass
+        # dns data
+        elif UDP in packet and packet[UDP].dport == 5353 and Raw in packet:
+            channel = 'mdns_result'
+            try:
+              handler = dns.DNS()
+              dns_data = handler.parsemDNS(packet[Raw])
+              if dns_data:
+                res['dns_data'] = dns_data
+                res['mac'] = getMacFromPacket(packet)
+              else:
+                res = None
+            except Exception:
+              pass
+
+        if channel and res:
+            socketio.emit(channel, res, namespace=namespace)

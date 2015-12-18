@@ -456,7 +456,9 @@ var nodegraph = {
     }
   },
   update: function() {
-    this.force.stop();
+    // reset the dim
+    this.setDim();
+    // this.force.stop();
 
     this.link = this.link.data(this.force.links(), function(d) {
       return d.source.id + "-" + d.target.id;
@@ -511,13 +513,11 @@ var nodegraph = {
         return d.device_name || '';
       });
 
-    this.gnode.sort(function(a, b) {
-      if (!a.device_name) return -1;
-      else return 1;
-    });
+    // this.gnode.sort(function(a, b) {
+    //   if (!a.device_name) return -1;
+    //   else return 1;
+    // });
 
-    // reset the dim
-    this.setDim();
 
     // reset the force
     this.setForce().start();
@@ -545,8 +545,8 @@ var nodegraph = {
         }
       } else {
         data.id = data.ip;
-        data.x = 0;
-        data.y = 0;
+        data.x = nodegraph.width/4;
+        data.y = nodegraph.height/4;
         this.addNode(data);
         this.addLink("root", data.ip);
         this.update();
@@ -562,7 +562,7 @@ var new_result = {
       scanPage.scanDone();
     }, 5000);
   },
-  delay: 250,
+  delay: 1000,
   updatePage: function(msg){
     setTimeout(function(){
       nodetable.updateRow(msg);
