@@ -535,8 +535,8 @@ var nodegraph = {
           var name = obj.dns_data.filter(function(obj) {
             return obj.answer_type == 28;
           })[0];
-          if(name) {
-            obj.device_name = obj.device_name || formatName(name.answer_name);
+          if(name && name != obj.device_name){
+            obj.device_name = formatName(name.answer_name);
             this.update();
           }
         }
