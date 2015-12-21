@@ -3,37 +3,46 @@ console.log('initialized');
 
 // control the ajax-ness of the page
 var scanPage = {
-  form: $('#scan-form'),
+  btn: $('#start-stop'),
+  idleHeader: $('#scan-idle-header'),
+  resultsHeader: $('#scan-results-header'),
   progress: $('#scan-progress'),
   error: $('#scan-error'),
   results: $('#scan-results'),
-  results_header: $('#results-header'),
   scanStart: function() {
-    this.form.find('button#submit').hide();
+    this.resultsHeader.find('#scan-results-count').text('No');
     this.error.hide();
     this.progress.show();
-    this.results.hide();
+    this.idleHeader.hide();
+    this.resultsHeader.show();
     this.results.show();
+
+    this.toggleState();
+
+    // initialize the table and graph
     nodetable.init();
     nodegraph.init();
   },
-  showResults: function() {
-    this.form.hide();
-    this.results_header.show();
-  },
   showError: function(){
-    this.form.show();
-    this.form.find('button#submit').show();
     this.results.hide();
-    this.results_header.hide();
+    this.idleHeader.show();
+    this.resultsHeader.hide();
     this.progress.hide();
     this.error.show();
   },
   scanDone: function() {
     this.progress.hide();
-    this.form.find('button#submit').show();
-    // this.form.show();
-    // this.form.find('.page-header').hide();
+  },
+  toggleState: function(){
+    var btn_class = this.btn.hasClass('start-scan');
+    this.btn.toggleClass('btn-danger stop-scan')
+      .toggleClass('btn-primary start-scan')
+      .text(btn_class ? 'Stop' : 'Start');
+  },
+  scanStop: function(){
+    this.error.hide();
+    this.progress.hide();
+    this.toggleState();
   }
 };
 
@@ -42,7 +51,7 @@ var nodetable = {
   table: null,
   data: [],
   init: function(data) {
-    data = data || [];
+    data = [];
     var table = $('#nodetable').DataTable({
       data: data,
       columns: [{
@@ -185,6 +194,14 @@ var nodegraph = {
   pinned: [],
 
   init: function() {
+    this.graph.nodes = [];
+    this.graph.links = [];
+    this.link = [];
+    this.gnode = [];
+    this.force = null;
+    this.svg = null;
+    this.pinned = [];
+
     // set width and height
     this.setDim();
     this.force = d3.layout.force()
@@ -560,18 +577,18 @@ var new_result = {
   set_finished_to: function(){
     new_result.fto = setTimeout(function(){
       scanPage.scanDone();
-    }, 5000);
+    }, 10000);
   },
   delay: 1000,
   updatePage: function(msg){
-    setTimeout(function(){
+    // setTimeout(function(){
       nodetable.updateRow(msg);
       nodegraph.updateNode(msg);
 
       // reset timeout to remove scanning bar
-      clearTimeout(new_result.fto);
-      new_result.set_finished_to();
-    }, new_result.delay);
+      // clearTimeout(new_result.fto);
+      // new_result.set_finished_to();
+    // }, new_result.delay);
   }
 };
 

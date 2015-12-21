@@ -9,6 +9,7 @@ from flask.ext.socketio import SocketIO, emit
 
 class IPv6Sniffer:
     pool = None
+    stopped = False
 
     def init(self):
         None
@@ -16,22 +17,27 @@ class IPv6Sniffer:
     # initialize the listener
     def start(self, namespace, socketio):
         print("sniffer intialized on " + namespace)
+        self.stopped = False
         self.pool = ThreadPool(processes=1)
         self.pool.apply_async(self.listen,[namespace, socketio])
 
     # start the listener
     def listen(self, namespace, socketio):
-        sniff(lfilter=lambda (packet): IPv6 in packet, prn=lambda (packet): self.callback(packet, namespace, socketio), store=0)
+        res = sniff(lfilter=lambda (packet): IPv6 in packet,
+            prn=lambda (packet): self.callback(packet, namespace, socketio),
+            stop_filter=self.stopfilter,
+            store=0)
+        return res
 
     # stop the listener
     def stop(self):
         print('Stopping sniffer')
-        if self.pool:
-            self.pool.close()
-            self.pool.terminate()
-            self.pool.join()
-        else:
-            print('Sniffer not initialized')
+        self.stopped = True
+        self.pool.close()
+        self.pool.join()
+
+    def stopfilter(self, packet):
+        return self.stopped
 
     # callback for when packets are received
     def callback(self, packet, namespace, socketio):

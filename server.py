@@ -4,7 +4,7 @@ import ipv6.icmpv6 as icmpv6
 import ipv6.dns as dns
 from collections import Counter
 from operator import add
-import ipv6.IPv6Sniffer as ipv6sniffer
+import ipv6.ipv6sniffer as ipv6sniffer
 
 PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
@@ -39,6 +39,7 @@ def scan(message):
 
 @socketio.on('scan_llmnr', namespace='/scan')
 def scan_llmnr(message):
+  print('scan llmnr')
   if "multicast_report" in message:
     handler = dns.DNS()
     for report in message['multicast_report']:

@@ -7,11 +7,9 @@
     /*
      * Handle the ICMP results and intialize the DNS scan
      */
-    socket.on('icmp_results', function(msg) {
+    socket.on('reception', function(msg) {
       // initiate next step(s)
-      console.log('icmp_results', msg);
-        // socket.emit('scan_dns', {res: msg.data});
-        scanPage.showResults();
+      console.log('stop', msg);
     });
 
     /*
@@ -25,8 +23,8 @@
       new_result.updatePage(msg);
     });
     socket.on('multicast_result', function(msg){
-      new_result.updatePage(msg);
       socket.emit('scan_llmnr', msg);
+      new_result.updatePage(msg);
     });
     socket.on('mdns_result', function(msg){
       new_result.updatePage(msg);
@@ -36,12 +34,17 @@
     });
 
     // event handler for scan action
-    $('form#start-scan').submit(function(event) {
+    $('#start-stop').on('click', function(e) {
       console.log('scanning...');
-      socket.emit('sniffer_init', {});
-      scanPage.scanStart();
-      scanPage.showResults();
-      socket.emit('start_scan', {});
-      return false;
+      e.preventDefault();
+
+      if($(this).hasClass('start-scan')){
+        socket.emit('sniffer_init', {});
+        scanPage.scanStart();
+        socket.emit('start_scan', {});
+      } else {
+        socket.emit('sniffer_kill', {});
+        scanPage.scanStop();
+      }
     });
   });
