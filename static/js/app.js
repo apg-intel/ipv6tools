@@ -586,8 +586,8 @@ var new_result = {
       nodegraph.updateNode(msg);
 
       // reset timeout to remove scanning bar
-      // clearTimeout(new_result.fto);
-      // new_result.set_finished_to();
+      clearTimeout(new_result.fto);
+      new_result.set_finished_to();
     // }, new_result.delay);
   }
 };

@@ -17,14 +17,15 @@ class IPv6Sniffer:
     # initialize the listener
     def start(self, namespace, socketio):
         print("sniffer intialized on " + namespace)
+        self.socketio = socketio
         self.stopped = False
         self.pool = ThreadPool(processes=1)
-        self.pool.apply_async(self.listen,[namespace, socketio])
+        self.pool.apply_async(self.listen,[namespace])
 
     # start the listener
-    def listen(self, namespace, socketio):
+    def listen(self, namespace):
         res = sniff(lfilter=lambda (packet): IPv6 in packet,
-            prn=lambda (packet): self.callback(packet, namespace, socketio),
+            prn=lambda (packet): self.callback(packet, namespace),
             stop_filter=self.stopfilter,
             store=0)
         return res
@@ -40,7 +41,7 @@ class IPv6Sniffer:
         return self.stopped
 
     # callback for when packets are received
-    def callback(self, packet, namespace, socketio):
+    def callback(self, packet, namespace):
         res = {}
         res['ip'] = packet[IPv6].src
         channel = False
@@ -89,4 +90,4 @@ class IPv6Sniffer:
               pass
 
         if channel and res:
-            socketio.emit(channel, res, namespace=namespace)
+            self.socketio.emit(channel, res, namespace=namespace)
