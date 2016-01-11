@@ -1,6 +1,8 @@
+var socket;
+
   $(document).ready(function() {
     var namespace = '/scan'; // change to an empty string to use the global namespace
-    var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+    socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
     // socket handlers
 

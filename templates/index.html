@@ -3,11 +3,6 @@
   <div class="col-md-12">
     <div>
       <button type="button" id="start-stop" class='btn pull-right btn-primary start-scan'>Start</button>
-      <!-- <div id="scan-form">
-        <form class="form-inline" action="#" method="POST" id="start-scan">
-          <button type="submit" class="btn btn-primary" id="submit">Start Scan</button>
-        </form>
-      </div> -->
 
       <h2 class="page-header scan-header" id="scan-idle-header">Scan for devices</h2>
       <h2 class="page-header scan-header" id="scan-results-header" style="display:none;">
@@ -52,4 +47,9 @@
     </div>
   </div>
 </div>
+
+<script type="text/javascript">
+  var mods = {{ mods | tojson | safe }};
+  console.log(mods)
+</script>
 {% endblock %}

@@ -390,27 +390,16 @@ var nodegraph = {
     if (d.root) {
       // nothing yet
     } else {
-      nodegraph.buildMenu();
+      nodegraph.buildMenu(d);
       d3.select('.nodegraph-context-menu')
         .style('left', (d3.event.pageX - 2) + 'px')
         .style('top', (d3.event.pageY - 2) + 'px')
         .style('display', 'block');
     }
     d3.event.preventDefault();
-    console.log(d);
   },
-  buildMenu: function(d) {
-    var menu = [{
-      title: 'Do Something',
-      action: function(e, d, i) {
-        console.log('asdf', e, d, i);
-      }
-    }, {
-      title: 'Do Something Else',
-      action: function(e, d, i) {
-        console.log('asdf2', e, d, i);
-      }
-    }];
+  buildMenu: function(target) {
+    var menu = mods;
 
     var elm = this;
     d3.selectAll('.nodegraph-context-menu').html('');
@@ -423,7 +412,7 @@ var nodegraph = {
         return d.title;
       })
       .on('click', function(d, i) {
-        d.action(elm, d, i);
+        socket.emit('mod_action', {name: d.name, target: target});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
