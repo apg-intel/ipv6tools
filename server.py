@@ -52,7 +52,6 @@ def scan(message):
 
 @socketio.on('scan_llmnr', namespace='/scan')
 def scan_llmnr(message):
-  print('scan llmnr')
   if "multicast_report" in message:
     handler = dns.DNS()
     for report in message['multicast_report']:
