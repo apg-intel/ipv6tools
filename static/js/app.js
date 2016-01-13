@@ -51,9 +51,13 @@ var nodetable = {
   table: null,
   data: [],
   init: function(data) {
-    data = [];
-    var table = $('#nodetable').DataTable({
-      data: data,
+    this.data = []; //reset the data array
+    if(this.table) //clear table if it's been initialized
+      this.table.clear();
+
+    // intialize the table if it hasn't already been
+    this.table = this.table || $('#nodetable').DataTable({
+      data: this.data,
       columns: [{
         className: 'details-control',
         data: null,
@@ -87,12 +91,11 @@ var nodetable = {
         }
       }
     });
-    this.table = table;
     this.oTable = $('#nodetable').dataTable();
 
     $('#nodetable tbody').on('click', 'tr.has-details > td', function(e) {
       var tr = $(this).closest('tr'),
-        row = table.row(tr);
+        row = nodetable.table.row(tr);
 
       tr.find('.details-control > .glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
 
@@ -390,16 +393,27 @@ var nodegraph = {
     if (d.root) {
       // nothing yet
     } else {
-      nodegraph.buildMenu(d);
+      nodegraph.buildMenu();
       d3.select('.nodegraph-context-menu')
         .style('left', (d3.event.pageX - 2) + 'px')
         .style('top', (d3.event.pageY - 2) + 'px')
         .style('display', 'block');
     }
     d3.event.preventDefault();
+    console.log(d);
   },
-  buildMenu: function(target) {
-    var menu = mods;
+  buildMenu: function(d) {
+    var menu = [{
+      title: 'Do Something',
+      action: function(e, d, i) {
+        console.log('asdf', e, d, i);
+      }
+    }, {
+      title: 'Do Something Else',
+      action: function(e, d, i) {
+        console.log('asdf2', e, d, i);
+      }
+    }];
 
     var elm = this;
     d3.selectAll('.nodegraph-context-menu').html('');
@@ -412,7 +426,7 @@ var nodegraph = {
         return d.title;
       })
       .on('click', function(d, i) {
-        socket.emit('mod_action', {name: d.name, target: target});
+        d.action(elm, d, i);
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
