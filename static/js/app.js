@@ -52,8 +52,24 @@ var nodetable = {
   data: [],
   init: function(data) {
     this.data = []; //reset the data array
-    if(this.table) //clear table if it's been initialized
+    if(this.table){ //clear table if it's been initialized
       this.table.clear();
+    } else {
+      // otherwise add the listener
+      $('#nodetable').on('click', 'tr.has-details > td', function(e) {
+        var tr = $(this).closest('tr'),
+          row = nodetable.table.row(tr);
+
+        tr.find('.details-control > .glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
+        if (row.child.isShown()) {
+          row.child.hide();
+          tr.removeClass('shown');
+        } else {
+          row.child(nodetable.formatSubrow(row.data()), 'dns-details').show();
+          tr.addClass('shown');
+        }
+      });
+    }
 
     // intialize the table if it hasn't already been
     this.table = this.table || $('#nodetable').DataTable({
@@ -92,21 +108,6 @@ var nodetable = {
       }
     });
     this.oTable = $('#nodetable').dataTable();
-
-    $('#nodetable tbody').on('click', 'tr.has-details > td', function(e) {
-      var tr = $(this).closest('tr'),
-        row = nodetable.table.row(tr);
-
-      tr.find('.details-control > .glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
-
-      if (row.child.isShown()) {
-        row.child.hide();
-        tr.removeClass('shown');
-      } else {
-        row.child(nodetable.formatSubrow(row.data()), 'dns-details').show();
-        tr.addClass('shown');
-      }
-    });
   },
   update: function(data) {
     this.data = data;
