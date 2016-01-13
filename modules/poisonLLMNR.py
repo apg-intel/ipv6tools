@@ -108,7 +108,7 @@ class IPv6Sniffer:
                 if target:
                     if target == response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""):
                         send(ip_packet/udp_segment/llmnrQuery)
-                        print "Poision LLMNR packet sent to %s" % response[IPv6].fields["src"]
+                        print "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
                 else:
                     send(ip_packet/udp_segment/llmnrQuery)
-                    print "Poision LLMNR packet sent to %s" % response[IPv6].fields["src"]
+                    print "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
