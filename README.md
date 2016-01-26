@@ -7,7 +7,7 @@
 - flask (pip install)
 - netifaces (pip install) --hopefully we don't need this for too long
 - Flask-SocketIO
-- gevent-websocket, gevent, or eventlet -- for Flask-SocketIO
+- gevent-websocket -- for Flask-SocketIO
 
 ## How to run
 
