@@ -56,18 +56,26 @@ var nodetable = {
       this.table.clear();
     } else {
       // otherwise add the listener
-      $('#nodetable').on('click', 'tr.has-details > td', function(e) {
+      $('#nodetable').on('click', 'tr > td', function(e) {
         var tr = $(this).closest('tr'),
           row = nodetable.table.row(tr);
 
-        tr.find('.details-control > .glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
-        if (row.child.isShown()) {
-          row.child.hide();
-          tr.removeClass('shown');
-        } else {
-          row.child(nodetable.formatSubrow(row.data()), 'dns-details').show();
-          tr.addClass('shown');
+        // pin in nodegraph
+        console.log(row.data().ip)
+        nodegraph.pinNode(row.data().ip);
+
+        // show details row if needed
+        if(tr.hasClass('has-details')){
+          tr.find('.details-control > .glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
+          if (row.child.isShown()) {
+            row.child.hide();
+            tr.removeClass('shown');
+          } else {
+            row.child(nodetable.formatSubrow(row.data()), 'dns-details').show();
+            tr.addClass('shown');
+          }
         }
+
       });
     }
 
@@ -102,7 +110,7 @@ var nodetable = {
           $(row).addClass('has-details');
         }
 
-        if (nodegraph.pinned.indexOf(d.ip) >= 0) {
+        if (nodegraph.isPinned(d.ip)) {
           $(row).addClass('highlighted-row');
         }
       }
@@ -342,7 +350,7 @@ var nodegraph = {
       .attr("fill", nodegraph.getFill)
       .attr("stroke", nodegraph.getStroke);
 
-    if (d.id && nodegraph.pinned.indexOf(d.id) >= 0) nodegraph.pinned.splice(nodegraph.pinned.indexOf(d.id), 1);
+    nodegraph.unpinNode(d.id);
   },
   dragstart: function(d) {
     if (d3.event.sourceEvent.which === 1) { //only on left click drag
@@ -351,7 +359,7 @@ var nodegraph = {
         .classed("fixed", d.fixed = true)
         .attr("fill", nodegraph.getFill)
         .attr("stroke", nodegraph.getStroke);
-      if (d.id && nodegraph.pinned.indexOf(d.id) === -1) nodegraph.pinned.push(d.id);
+      nodegraph.pinNode(d.id);
     }
   },
   mouseover: function(d) {
@@ -371,7 +379,7 @@ var nodegraph = {
       .attr("stroke", nodegraph.getStroke);
 
     if (d.id) {
-      if (!d3.select(this).classed("fixed") && nodegraph.pinned.indexOf(d.id) < 0) {
+      if (!d3.select(this).classed("fixed") && !nodegraph.isPinned(d.id)) {
         $('#' + ipv6_id(d.id)).removeClass('highlighted-row');
       }
     }
@@ -446,6 +454,24 @@ var nodegraph = {
   },
   removeNode: function(id) {
 
+  },
+  pinNode: function(ip){
+    if (ip && nodegraph.pinned.indexOf(ip) === -1) nodegraph.pinned.push(ip);
+    nodegraph.updateNodes();
+  },
+  unpinNode: function(ip){
+    if (ip && nodegraph.pinned.indexOf(ip) >= 0) nodegraph.pinned.splice(nodegraph.pinned.indexOf(ip), 1);
+    nodegraph.updateNodes();
+  },
+  isPinned: function(ip){
+    return nodegraph.pinned.indexOf(ip) >= 0;
+  },
+  updateNodes: function(){
+    d3.selectAll('.gnode')
+      .classed("fixed", function(d){ return nodegraph.isPinned(d.id); })
+      .select('circle.node')
+      .attr("fill", nodegraph.getFill)
+      .attr("stroke", nodegraph.getStroke);
   },
   addLink: function(sourceId, targetId) {
     // var sourceNode = this.findNode(sourceId);

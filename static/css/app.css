@@ -48,7 +48,7 @@ body {
 * Entries table
 */
 
-#nodetable tr.has-details {
+#nodetable tr {
   cursor: pointer;
 }
 #nodetable tr.has-details.shown, #nodetable tr.highlighted-row {
