@@ -61,7 +61,6 @@ var nodetable = {
           row = nodetable.table.row(tr);
 
         // pin in nodegraph
-        console.log(row.data().ip)
         nodegraph.pinNode(row.data().ip);
 
         // show details row if needed
@@ -411,7 +410,7 @@ var nodegraph = {
     d3.event.preventDefault();
     console.log(d);
   },
-  buildMenu: function(d) {
+  buildMenu: function(target) {
     var menu = mods;
 
     var elm = this;
@@ -425,7 +424,7 @@ var nodegraph = {
         return d.title;
       })
       .on('click', function(d, i) {
-        socket.emit('mod_action', {});
+        socket.emit('mod_action', {name: d.name, target: target});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
