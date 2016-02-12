@@ -5,13 +5,10 @@ var socket;
     socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
 
     // socket handlers
-
-    /*
-     * Handle the ICMP results and intialize the DNS scan
-     */
-    socket.on('reception', function(msg) {
-      // initiate next step(s)
-      console.log('stop', msg);
+    socket.on('module_output', function(msg) {
+      if(msg.log){
+        console.log(msg.log);
+      }
     });
 
     /*

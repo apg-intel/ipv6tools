@@ -5,6 +5,7 @@ import ipv6.dns as dns
 from collections import Counter
 from operator import add
 import ipv6.ipv6sniffer as ipv6sniffer
+import importlib
 
 PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
@@ -12,24 +13,13 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 sniffer = ipv6sniffer.IPv6Sniffer()
 
-mods = {}
+mods = []
 
 # flask routes
 @app.route('/')
 def index():
   mods = get_modules()
-  tmp = []
-  for k,v in mods.iteritems():
-    tmp.append({
-      'title': v['title'],
-      'name': k
-    })
-
-  return render_template('index.html', mods=tmp)
-
-@socketio.on('mod_action', namespace='/scan')
-def mod_action(message):
-  mods[message['name']]['action'](message['target'])
+  return render_template('index.html', mods=mods)
 
 @socketio.on('sniffer_init', namespace='/scan')
 def sniffer_init(message):
@@ -58,22 +48,28 @@ def scan_llmnr(message):
       if report['multicast_address'] == "ff02::1:3":
         handler.llmnr_noreceive(message['ip'])
 
+@socketio.on('mod_action', namespace='/scan')
+def mod_action(message): #target,name,action
+  mod = importlib.import_module(message['modname'])
+  action = getattr(mod, message['action'])
+  action(message['target'], socketio)
 
 def get_modules():
-    import pkgutil, os.path, importlib
+    import pkgutil, os.path
     import modules
 
     pkg = modules
     prefix = pkg.__name__ + "."
+    mods = []
 
     for importer, modname, ispkg in pkgutil.iter_modules(pkg.__path__, prefix):
       mod = importlib.import_module(modname)
-      action = getattr(mod, "action")
-      menu_text = getattr(mod, "menu_text")
-      mods[modname.replace(prefix, "")] = {
-        'title': menu_text,
-        'action': action
-      }
+      actions = getattr(mod, "actions")
+      mods.append({
+        'name': modname.replace(prefix, ""),
+        'modname': modname,
+        'actions': actions
+      })
     return mods
 
 if __name__ == '__main__':

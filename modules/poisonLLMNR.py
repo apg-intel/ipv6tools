@@ -8,9 +8,16 @@ from ipv6.ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, ge
 
 
 menu_text = "Poison LLMNR"
+actions = {
+  "primary": {
+    "title": "Poison LLMNR",
+    "action": "action"
+  }
+}
 
-def action(target):
+def action(target, socketio, namespace='/module'):
     sniffer = IPv6Sniffer()
+    socketio.emit('module_output', {'log': 'Z'}, namespace=namespace)
     sniffer.start()
 
 class IPv6Sniffer:

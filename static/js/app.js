@@ -421,10 +421,10 @@ var nodegraph = {
       .append('a')
       .attr('href', '#')
       .html(function(d) {
-        return d.title;
+        return d.actions.primary.title;
       })
       .on('click', function(d, i) {
-        socket.emit('mod_action', {name: d.name, target: target});
+        socket.emit('mod_action', {modname: d.modname, name: d.name, target: target, action: d.actions.primary.action});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
