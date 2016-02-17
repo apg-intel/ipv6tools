@@ -7,7 +7,7 @@ var socket;
     // socket handlers
     socket.on('module_output', function(msg) {
       if(msg.log){
-        console.log(msg.log);
+        module_handler.console.log(msg.log);
       }
     });
 

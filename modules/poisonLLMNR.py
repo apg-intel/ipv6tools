@@ -15,9 +15,9 @@ actions = {
   }
 }
 
-def action(target, socketio, namespace='/module'):
+def action(target, socketio, namespace='/scan'):
     sniffer = IPv6Sniffer()
-    socketio.emit('module_output', {'log': 'Z'}, namespace=namespace)
+    socketio.emit('module_output', {'log': 'LLMNR poisoner initialized...'}, namespace=namespace)
     sniffer.start()
 
 class IPv6Sniffer:

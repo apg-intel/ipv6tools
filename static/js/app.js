@@ -9,6 +9,7 @@ var scanPage = {
   progress: $('#scan-progress'),
   error: $('#scan-error'),
   results: $('#scan-results'),
+  modules: $('#module-container'),
   scanStart: function() {
     this.resultsHeader.find('#scan-results-count').text('No');
     this.error.hide();
@@ -16,6 +17,7 @@ var scanPage = {
     this.idleHeader.hide();
     this.resultsHeader.show();
     this.results.show();
+    this.modules.show();
 
     this.toggleState();
 
@@ -189,6 +191,7 @@ var nodetable = {
   }
 };
 
+// initialize, modify, and update the graph
 var nodegraph = {
   div: '#nodegraph',
   width: 500,
@@ -591,6 +594,16 @@ var nodegraph = {
   }
 };
 
+var module_handler = {
+  console: {
+    handle: $('#module-console'),
+    log: function(msg){
+      this.handle.append(msg+"\n");
+    }
+  }
+}
+
+// handle new nodes
 var new_result = {
   fto: null,
   set_finished_to: function(){

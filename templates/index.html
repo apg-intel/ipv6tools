@@ -48,8 +48,17 @@
   </div>
 </div>
 
+<div id="module-container" style="display: none;">
+  <hr>
+  <div class="row">
+    <div class="col-sm-12">
+      <textarea id="module-console" class="form-control" rows="5" placeholder="Activate a module to view output..." disabled style="cursor: default; background-color: white;"></textarea>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
   var mods = {{ mods | tojson | safe }};
-  console.log(mods)
+  console.log(mods);
 </script>
 {% endblock %}
