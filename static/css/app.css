@@ -94,3 +94,14 @@ circle.node {
 .nodegraph-context-menu ul.dropdown-menu {
   display: block;
 }
+
+
+/* Module console */
+#module-console {
+  height: 250px;
+  overflow-y: auto;
+}
+
+#module-console > div {
+  color: #555;
+}
