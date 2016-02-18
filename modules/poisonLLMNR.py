@@ -2,31 +2,28 @@ from scapy.all import *
 from copy import copy
 import sys
 from multiprocessing.pool import ThreadPool, Pool
+from template import Template
 
 sys.path.insert(0,'..')
 from ipv6.ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, getMacAddress
 
+class IPv6Module(Template):
 
-menu_text = "Poison LLMNR"
-actions = {
-  "primary": {
-    "title": "Poison LLMNR",
-    "action": "action"
-  }
-}
+  def __init__(self, socketio, namespace):
+    super(IPv6Module, self).__init__(socketio, namespace)
+    self.modname = "poisonLLMNR"
+    self.menu_text = "Poison LLMNR"
+    self.actions = {
+      "primary": {
+        "title": "Poison LLMNR",
+        "action": "action"
+      }
+    }
 
-def action(target, sio, ns='/scan'):
-    global socketio
-    global namespace
-    socketio = sio
-    namespace = ns
+  def action(self, target):
     sniffer = IPv6Sniffer()
-    socket_log('LLMNR poisoner initialized...')
+    self.socket_log('LLMNR poisoner initialized...')
     sniffer.start()
-
-def socket_log(msg):
-  socketio.emit('module_output', {'log': msg}, namespace=namespace)
-
 
 class IPv6Sniffer:
     pool = None

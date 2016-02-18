@@ -11,9 +11,11 @@ PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
+ns = '/scan'
 sniffer = ipv6sniffer.IPv6Sniffer()
 
 mods = []
+mod_objects = {}
 
 # flask routes
 @app.route('/')
@@ -21,16 +23,16 @@ def index():
   mods = get_modules()
   return render_template('index.html', mods=mods)
 
-@socketio.on('sniffer_init', namespace='/scan')
+@socketio.on('sniffer_init', namespace=ns)
 def sniffer_init(message):
   sniffer.start(request.namespace, socketio)
 
-@socketio.on('sniffer_kill', namespace='/scan')
+@socketio.on('sniffer_kill', namespace=ns)
 def sniffer_init(message):
   sniffer.stop()
 
 # socket events
-@socketio.on('start_scan', namespace='/scan')
+@socketio.on('start_scan', namespace=ns)
 def scan(message):
   print("starting scan")
   handler = icmpv6.ICMPv6()
@@ -40,7 +42,7 @@ def scan(message):
   handler = dns.DNS()
   handler.mDNSQuery()
 
-@socketio.on('scan_llmnr', namespace='/scan')
+@socketio.on('scan_llmnr', namespace=ns)
 def scan_llmnr(message):
   if "multicast_report" in message:
     handler = dns.DNS()
@@ -48,11 +50,10 @@ def scan_llmnr(message):
       if report['multicast_address'] == "ff02::1:3":
         handler.llmnr_noreceive(message['ip'])
 
-@socketio.on('mod_action', namespace='/scan')
+@socketio.on('mod_action', namespace=ns)
 def mod_action(message): #target,name,action
-  mod = importlib.import_module(message['modname'])
-  action = getattr(mod, message['action'])
-  action(message['target'], socketio)
+  action = getattr(mod_objects[message['modname']], message['action'])
+  action(message['target'])
 
 def get_modules():
     import pkgutil, os.path
@@ -61,15 +62,18 @@ def get_modules():
     pkg = modules
     prefix = pkg.__name__ + "."
     mods = []
-
     for importer, modname, ispkg in pkgutil.iter_modules(pkg.__path__, prefix):
-      mod = importlib.import_module(modname)
-      actions = getattr(mod, "actions")
-      mods.append({
-        'name': modname.replace(prefix, ""),
-        'modname': modname,
-        'actions': actions
-      })
+      if not ispkg and modname != "modules.template":
+        mod = importlib.import_module(modname)
+        modobj = getattr(mod, "IPv6Module")(socketio, ns)
+        mod_objects[modobj.modname] = modobj
+
+        mods.append({
+          'modname': modobj.modname,
+          'actions': modobj.actions
+        })
+      else:
+        print modname
     return mods
 
 if __name__ == '__main__':

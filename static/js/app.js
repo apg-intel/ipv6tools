@@ -427,7 +427,7 @@ var nodegraph = {
         return d.actions.primary.title;
       })
       .on('click', function(d, i) {
-        socket.emit('mod_action', {modname: d.modname, name: d.name, target: target, action: d.actions.primary.action});
+        socket.emit('mod_action', {modname: d.modname, target: target, action: d.actions.primary.action});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
@@ -598,7 +598,9 @@ var module_handler = {
   console: {
     handle: $('#module-console'),
     log: function(msg){
-      this.handle.append(msg+"\n");
+      if(msg.log){
+        this.handle.append("["+ (msg.module || undefined) +"]"+msg.log+"\n");
+      }
     }
   }
 }
