@@ -608,7 +608,9 @@ var module_handler = {
     handle: $('#module-console'),
     log: function(msg){
       if(msg.log){
-        this.handle.append("["+ (msg.module || undefined) +"]"+msg.log+"\n");
+        var ts = new Date();
+        ts = ts.toISOString();
+        this.handle.append($("<div>").html("["+ts+"] "+ (msg.module || '') +" | "+msg.log));
       }
     }
   }
