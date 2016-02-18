@@ -414,7 +414,16 @@ var nodegraph = {
     console.log(d);
   },
   buildMenu: function(target) {
-    var menu = mods;
+    var menu = [];
+    for(i in mods){
+      for(x in mods[i].actions){
+        var tmp = mods[i].actions[x];
+        if(tmp.contextmenu){
+          tmp.modname = mods[i].modname;
+          menu.push(tmp);
+        }
+      }
+    }
 
     var elm = this;
     d3.selectAll('.nodegraph-context-menu').html('');
@@ -424,10 +433,10 @@ var nodegraph = {
       .append('a')
       .attr('href', '#')
       .html(function(d) {
-        return d.actions.primary.title;
+        return d.title + " <small class='text-muted'>"+d.modname+"</small>";
       })
       .on('click', function(d, i) {
-        socket.emit('mod_action', {modname: d.modname, target: target, action: d.actions.primary.action});
+        socket.emit('mod_action', {modname: d.modname, target: target, action: d.action});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },

@@ -13,17 +13,26 @@ class IPv6Module(Template):
     super(IPv6Module, self).__init__(socketio, namespace)
     self.modname = "poisonLLMNR"
     self.menu_text = "Poison LLMNR"
-    self.actions = {
-      "primary": {
+    self.actions = [
+      {
         "title": "Poison LLMNR",
-        "action": "action"
-      }
-    }
+        "action": "action",
+        "contextmenu": True
+      },
+      {
+        "title": "asdf LLMNR",
+        "action": "action",
+        "contextmenu": True
+      },
+    ]
 
   def action(self, target=None):
-    sniffer = IPv6Sniffer(self)
+    self.sniffer = IPv6Sniffer(self)
     self.socket_log('LLMNR poisoner initialized...')
-    sniffer.start()
+    self.sniffer.start()
+
+  def stop_sniffer(self):
+    self.sniffer.stop()
 
 class IPv6Sniffer:
     pool = None
