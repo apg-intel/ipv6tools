@@ -20,10 +20,9 @@ class IPv6Module(Template):
         "contextmenu": True
       },
       {
-        "title": "asdf LLMNR",
-        "action": "action",
-        "contextmenu": True
-      },
+        "title": "Stop LLMNR poisoner",
+        "action": "stop_sniffer"
+      }
     ]
 
   def action(self, target=None):
@@ -33,6 +32,7 @@ class IPv6Module(Template):
 
   def stop_sniffer(self):
     self.sniffer.stop()
+    self.socket_log('LLMNR sniffer stopped.')
 
 class IPv6Sniffer:
     pool = None
