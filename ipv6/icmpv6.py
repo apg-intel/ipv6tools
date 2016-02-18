@@ -225,7 +225,8 @@ class ICMPv6:
             "ff02::123":"SVRLOC-DA",
             "ff05::2":"OSPFv3",
             "ff02::2":"Router",
-            "ff02::1000":"SLP"}
+            "ff02::1000":"SLP",
+            "ff02::2:ff2e:b774": "FreeBSD"}
         if multicast_address in serviceDict:
             return serviceDict[multicast_address]
         else:
