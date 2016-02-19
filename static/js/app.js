@@ -415,6 +415,7 @@ var nodegraph = {
   },
   buildMenu: function(target) {
     var menu = [];
+    var mods = mods || [{modname: "", actions: [{action: null, title: "No modules loaded.", target: true}]}];
     for(i in mods){
       for(x in mods[i].actions){
         var tmp = mods[i].actions[x];
@@ -436,7 +437,8 @@ var nodegraph = {
         return d.title + " <small class='text-muted'>"+d.modname+"</small>";
       })
       .on('click', function(d, i) {
-        module_handler.action({modname: d.modname, target: target, action: d.action});
+        if(d.action)
+          module_handler.action({modname: d.modname, target: target, action: d.action});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
