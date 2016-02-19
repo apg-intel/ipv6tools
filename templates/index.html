@@ -51,8 +51,19 @@
 <div id="module-container" style="display: none;">
   <hr>
   <div class="row">
-    <div class="col-sm-6">
-      <!-- mod buttons -->
+    <div class="col-sm-12">
+      <div class="btn-toolbar" id="module-buttons">
+        <!-- mod buttons -->
+        {% for mod in mods %}
+          <div class="btn-group">
+          {% for action in mod.actions %}
+            {% if not action.target %}
+              <button class="btn btn-default module-btn" data-toggle="tooltip" data-title="{{ mod.modname }}" data-action="{{ action.action }}" data-modname="{{ mod.modname }}">{{ action.title }}</button>
+            {% endif %}
+          {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
   <div class="row">

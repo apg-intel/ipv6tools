@@ -96,12 +96,18 @@ circle.node {
 }
 
 
-/* Module console */
+/* Modules */
 #module-console {
   height: 200px;
   overflow-y: auto;
+  background-color: #1d1f21;
 }
 
-#module-console > div {
-  color: #555;
+#module-console > div .ts { color: #5f819d; }
+#module-console > div .modname { color: #a54242; }
+#module-console > div .msglog { color: #c5c8c6; }
+#module-console > div { color: #c5c8c6; }
+
+#module-buttons {
+  margin-bottom: 10px;
 }

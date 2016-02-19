@@ -53,7 +53,7 @@ def scan_llmnr(message):
 @socketio.on('mod_action', namespace=ns)
 def mod_action(message): #target,name,action
   action = getattr(mod_objects[message['modname']], message['action'])
-  action(message['target'])
+  action(message.get('target'))
 
 def get_modules():
     import pkgutil, os.path

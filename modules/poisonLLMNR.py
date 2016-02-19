@@ -17,7 +17,11 @@ class IPv6Module(Template):
       {
         "title": "Poison LLMNR",
         "action": "action",
-        "contextmenu": True
+        "target": True
+      },
+      {
+        "title": "Poison LLMNR",
+        "action": "action"
       },
       {
         "title": "Stop LLMNR poisoner",
@@ -27,12 +31,15 @@ class IPv6Module(Template):
 
   def action(self, target=None):
     self.sniffer = IPv6Sniffer(self)
-    self.socket_log('LLMNR poisoner initialized...')
+    self.socket_log('Sniffer intitialized.')
     self.sniffer.start()
 
-  def stop_sniffer(self):
-    self.sniffer.stop()
-    self.socket_log('LLMNR sniffer stopped.')
+  def stop_sniffer(self, msg):
+    try:
+      self.sniffer.stop()
+      self.socket_log('Sniffer terminated.')
+    except Exception, e:
+      self.socket_log('Sniffer not yet intitialized.')
 
 class IPv6Sniffer:
     pool = None

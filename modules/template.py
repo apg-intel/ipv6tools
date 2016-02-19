@@ -10,7 +10,6 @@ class Template(object):
     return "Action is not yet defined."
 
   def socket_log(self, msg):
-    print msg
     if self.socketio:
       self.socketio.emit('module_output', {'log': msg, 'module': self.modname}, namespace=self.namespace)
     else:

@@ -418,7 +418,7 @@ var nodegraph = {
     for(i in mods){
       for(x in mods[i].actions){
         var tmp = mods[i].actions[x];
-        if(tmp.contextmenu){
+        if(tmp.target){
           tmp.modname = mods[i].modname;
           menu.push(tmp);
         }
@@ -436,7 +436,7 @@ var nodegraph = {
         return d.title + " <small class='text-muted'>"+d.modname+"</small>";
       })
       .on('click', function(d, i) {
-        socket.emit('mod_action', {modname: d.modname, target: target, action: d.action});
+        module_handler.action({modname: d.modname, target: target, action: d.action});
         d3.select('.nodegraph-context-menu').style('display', 'none');
       });
   },
@@ -604,13 +604,21 @@ var nodegraph = {
 };
 
 var module_handler = {
+  action: function(params){
+    socket.emit('mod_action', {modname: params.modname, target: params.target, action: params.action});
+  },
   console: {
     handle: $('#module-console'),
     log: function(msg){
       if(msg.log){
         var ts = new Date();
         ts = ts.toISOString();
-        this.handle.append($("<div>").html("["+ts+"] "+ (msg.module || '') +" | "+msg.log));
+        this.handle.append($("<div>")
+          .append($('<span>').addClass('ts').text('['+ts+'] ')) //timestamp
+          .append($('<span>').addClass('modname').text(msg.module || '')) //modname
+          .append((msg.module) ? ' | ' : '') //pipe
+          .append($('<span>').addClass('msglog').text(msg.log)) //modname
+        );
       }
     }
   }
@@ -643,3 +651,16 @@ function formatName(name){
 function ipv6_id(ip) {
   return ip.replace(/\:/g, "");
 }
+
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+
+  $('#module-buttons').on('click', '.module-btn', function(e){
+    var $this = $(this);
+    module_handler.action({
+      action: $this.data('action'),
+      modname: $this.data('modname')
+    });
+  });
+})
