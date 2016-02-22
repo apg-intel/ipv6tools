@@ -415,7 +415,7 @@ var nodegraph = {
   },
   buildMenu: function(target) {
     var menu = [];
-    var mods = mods || [{modname: "", actions: [{action: null, title: "No modules loaded.", target: true}]}];
+    mods = mods || [{modname: "", actions: [{action: null, title: "No modules loaded.", target: true}]}];
     for(i in mods){
       for(x in mods[i].actions){
         var tmp = mods[i].actions[x];
