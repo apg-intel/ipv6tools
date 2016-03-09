@@ -31,9 +31,8 @@ Modules are classes that allow interaction with individual nodes or all nodes. T
 
 Included in the project are a couple of modules to help validate your network, as well as use as examples for your own modules.
 
-**TODO** write descriptions for these modules
-* **poisonLLMNR**
-* **CVE-2016-1879**
+* **poisonLLMNR** - Link-Local Multicast Name Resolution is the successor of of NBT-NS, which allows local nodes to resolve names and IP addresses.  Enabling this module poisons LLMNR queries to all nodes on the local link.
+* **CVE-2016-1879** - The following CVE is a vulnerability in SCTP that affects FreeBSD 9.3, 10.1 and 10.2.  Enabling this module will launch specially crafted packet ICMPv6 and potentially cause a DoS (assertion failure or NULL pointer dereference and kernel panic) to a single node.
 
 ### Custom Modules
 
