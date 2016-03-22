@@ -1,13 +1,5 @@
-/*
- * Base structure
- */
-
-
 /* Move down content because we have a fixed navbar that is 50px tall */
-
-body {
-  padding-top: 50px;
-}
+body { padding-top: 50px; }
 
 /*
  * Global add-ons
@@ -23,80 +15,57 @@ body {
  * Hide default border to remove 1px line.
  */
 
-.navbar-fixed-top {
-  border: 0;
-}
+.navbar-fixed-top { border: 0; }
 
 /*
  * Main content
  */
 
-.main {
-  padding: 20px;
-}
+.main { padding: 20px; }
 @media (min-width: 768px) {
   .main {
     padding-right: 40px;
     padding-left: 40px;
   }
 }
-.main .page-header {
-  margin-top: 0;
-}
+.main .page-header { margin-top: 0; }
 
 /*
 * Entries table
 */
 
-#nodetable tr {
-  cursor: pointer;
-}
-#nodetable tr.has-details.shown, #nodetable tr.highlighted-row {
-  background-color: #d9edf7;
-}
-#nodetable tr.dns-details {
-  background-color: #f5f5f5;
-}
-#nodetable table.row-details-table {
-  margin-bottom: 0;
-}
-#nodetable tr.has-details > .details-control > .glyphicon {
-  opacity: 0.5;
-}
-#nodetable table.row-details-table tr > td.answer_data {
-  word-break: break-word;
-}
-table.borderless tr > td {
-  border: none!important;
-}
+#nodetable tr { cursor: pointer; }
+#nodetable tr.has-details.shown, #nodetable tr.highlighted-row { background-color: #d9edf7; }
+#nodetable tr.dns-details { background-color: #f5f5f5; }
+#nodetable table.row-details-table { margin-bottom: 0; }
+#nodetable tr.has-details > .details-control > .glyphicon { opacity: 0.5; }
+#nodetable table.row-details-table tr > td.answer_data { word-break: break-word; }
+table.borderless tr > td { border: none!important; }
 table.borderless tr > th {
   border-top: none!important;
   border-bottom: 1px solid #ddd;
 }
 
 /*
- * Node graph styles
- */
+* Node graph styles
+*/
 
-circle.node {
-  cursor: pointer;
-}
+circle.node { cursor: pointer; }
 
 /*
 * Node graph context menu
 */
-
 .nodegraph-context-menu {
   position: absolute;
   display: none;
   z-index: 1200;
 }
-.nodegraph-context-menu ul.dropdown-menu {
-  display: block;
-}
+.nodegraph-context-menu ul.dropdown-menu { display: block; }
 
 
-/* Modules */
+/*
+* Modules
+*/
 #module-console {
   height: 200px;
   overflow-y: auto;
@@ -107,7 +76,4 @@ circle.node {
 #module-console > div .modname { color: #a54242; }
 #module-console > div .msglog { color: #c5c8c6; }
 #module-console > div { color: #c5c8c6; }
-
-#module-buttons {
-  margin-bottom: 10px;
-}
+#module-buttons { margin-bottom: 10px; }

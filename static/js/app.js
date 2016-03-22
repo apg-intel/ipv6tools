@@ -1,6 +1,3 @@
-console.log('initialized');
-
-
 // control the ajax-ness of the page
 var scanPage = {
   btn: $('#start-stop'),
@@ -48,6 +45,7 @@ var scanPage = {
   }
 };
 
+// object to handle the node table
 // initialize, modify, and update the table
 var nodetable = {
   table: null,

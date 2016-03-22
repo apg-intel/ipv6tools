@@ -12,7 +12,6 @@ class IPv6Module(Template):
   def __init__(self, socketio, namespace):
     super(IPv6Module, self).__init__(socketio, namespace)
     self.modname = "poisonLLMNR"
-    self.menu_text = "Poison LLMNR"
     self.actions = [
       {
         "title": "Poison LLMNR",
