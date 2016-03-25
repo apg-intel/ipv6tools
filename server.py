@@ -1,7 +1,5 @@
 from flask import Flask, request, render_template
 from flask.ext.socketio import SocketIO, emit
-from collections import Counter
-from operator import add
 import importlib
 
 # import ipv6 stuff

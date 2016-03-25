@@ -1,14 +1,10 @@
 from scapy.all import *
 import binascii
-from multiprocessing.pool import ThreadPool, Pool
-from multiprocessing import Process, Pipe
+from multiprocessing.pool import ThreadPool
 from copy import copy
-from itertools import izip
-import time
 from itertools import izip_longest
-from ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, getMacAddress
+from ipv6 import createIPv6, get_source_address, grabRawSrc, getMacAddress
 from scapy.layers.dns import DNS as scapyDNS
-import traceback
 
 class DNS:
     def init(self):
