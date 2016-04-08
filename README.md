@@ -1,6 +1,6 @@
 # IPv6 Validation Toolkit
 
-The IPv6 Validation Toolkit is a framework containing a set of modules used to test and validate a network of IPv6-capable devices.
+The IPv6 framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network.  The built-in modules support enumeration of IPv6 features such as ICMPv6 and Multicast Listener Discovery (MLD).  In addition, the framework also supports enumeration of Upper Layer Protocols (ULP) such as multicast DNS (mDNS) and Link-Local Multicast Name Resolution (LLMNR).  Users can easily expand the capability of the framework by creating plugins and modules in the Python language.
 
 * [Requirements](#requirements)
 * [Installation](#installation)
