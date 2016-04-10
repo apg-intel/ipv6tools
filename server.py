@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template
 from flask.ext.socketio import SocketIO, emit
 import importlib
+import os
+import sys
 
 # import ipv6 stuff
 import ipv6.icmpv6 as icmpv6
@@ -98,4 +100,15 @@ def get_modules():
 
 # run the app
 if __name__ == '__main__':
-    socketio.run(app)
+
+    # we need root rights:
+    if os.geteuid() != 0:
+        exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
+
+    print "Server starting on http://127.0.0.1:5000/"
+    try:
+        socketio.run(app)
+    except KeyboardInterrupt:
+        print 'Interrupted. Exiting.'
+        sys.exit(0)
+
