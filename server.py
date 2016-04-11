@@ -1,8 +1,6 @@
+import importlib, os, sys, argparse
 from flask import Flask, request, render_template
 from flask.ext.socketio import SocketIO, emit
-import importlib
-import os
-import sys
 
 # import ipv6 stuff
 import ipv6.icmpv6 as icmpv6
@@ -15,7 +13,6 @@ app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 ns = '/scan' #namespace for socketio
 sniffer = ipv6sniffer.IPv6Sniffer()
-
 mod_objects = {}
 
 # flask routes
@@ -71,6 +68,7 @@ def scan_llmnr(message):
 #   target  [optional] - target object to perform on
 @socketio.on('mod_action', namespace=ns)
 def mod_action(message): #target,name,action
+    if not mod_objects: get_modules() # handle server restarts without page refreshes
     action = getattr(mod_objects[message['modname']], message['action'])
     action(message.get('target'))
 
@@ -105,9 +103,15 @@ if __name__ == '__main__':
     if os.geteuid() != 0:
         exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
 
-    print "Server starting on http://127.0.0.1:5000/"
+    # cli arguments
+    parser = argparse.ArgumentParser(description='The IPv6 framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network.')
+    parser.add_argument('--host', dest="host", default="127.0.0.1", help="address to bind the server to (default: 127.0.0.1)")
+    parser.add_argument('--port', dest="port", default="5000", help="port to run the server on (default: 5000)", type=int)
+    args = parser.parse_args()
+
+    print "Server starting on http://{host}:{port}/".format(host=args.host, port=args.port)
     try:
-        socketio.run(app)
+        socketio.run(app, host=args.host, port=args.port)
     except KeyboardInterrupt:
         print 'Interrupted. Exiting.'
         sys.exit(0)

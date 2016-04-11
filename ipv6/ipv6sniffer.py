@@ -66,15 +66,15 @@ class IPv6Sniffer:
         elif UDP in packet and packet[UDP].dport == 5355 and LLMNRQuery in packet:
             channel = 'llmnr_result'
             try:
-              handler = dns.DNS()
-              dns_data = handler.parseLLMNRPacket(packet[LLMNRQuery])
-              if dns_data:
-                res['dns_data'] = dns_data
-                res['mac'] = getMacFromPacket(packet)
-              else:
-                res = None
+                handler = dns.DNS()
+                dns_data = handler.parseLLMNRPacket(packet[LLMNRQuery])
+                if dns_data:
+                    res['dns_data'] = dns_data
+                    res['mac'] = getMacFromPacket(packet)
+                else:
+                    res = None
             except Exception:
-              pass
+                pass
         # dns data
         elif UDP in packet and packet[UDP].dport == 5353 and Raw in packet:
             channel = 'mdns_result'
