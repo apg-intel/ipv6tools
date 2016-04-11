@@ -9,36 +9,36 @@ from ipv6.ipv6 import createIPv6, get_source_address, grabRawDst, grabRawSrc, ge
 
 class IPv6Module(Template):
 
-  def __init__(self, socketio, namespace):
-    super(IPv6Module, self).__init__(socketio, namespace)
-    self.modname = "poisonLLMNR"
-    self.actions = [
-      {
-        "title": "Poison LLMNR",
-        "action": "action",
-        "target": True
-      },
-      {
-        "title": "Poison LLMNR",
-        "action": "action"
-      },
-      {
-        "title": "Stop LLMNR poisoner",
-        "action": "stop_sniffer"
-      }
-    ]
+    def __init__(self, socketio, namespace):
+        super(IPv6Module, self).__init__(socketio, namespace)
+        self.modname = "poisonLLMNR"
+        self.actions = [
+            {
+                "title": "Poison LLMNR",
+                "action": "action",
+                "target": True
+            },
+            {
+                "title": "Poison LLMNR",
+                "action": "action"
+            },
+            {
+                "title": "Stop LLMNR poisoner",
+                "action": "stop_sniffer"
+            }
+        ]
 
-  def action(self, target=None):
-    self.sniffer = IPv6Sniffer(self)
-    self.socket_log('Sniffer intitialized.')
-    self.sniffer.start()
+    def action(self, target=None):
+        self.sniffer = IPv6Sniffer(self)
+        self.socket_log('Sniffer intitialized.')
+        self.sniffer.start()
 
-  def stop_sniffer(self, msg):
-    try:
-      self.sniffer.stop()
-      self.socket_log('Sniffer terminated.')
-    except Exception, e:
-      self.socket_log('Sniffer not yet intitialized.')
+    def stop_sniffer(self, msg):
+        try:
+            self.sniffer.stop()
+            self.socket_log('Sniffer terminated.')
+        except Exception, e:
+            self.socket_log('Sniffer not yet intitialized.')
 
 class IPv6Sniffer:
     pool = None

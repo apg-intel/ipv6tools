@@ -22,35 +22,35 @@ mod_objects = {}
 # only route is the index - everything else uses websockets (for now)
 @app.route('/')
 def index():
-  mods = get_modules()
-  return render_template('index.html', mods=mods)
+    mods = get_modules()
+    return render_template('index.html', mods=mods)
 
 # websocket to intialize the main sniffer
 # message
 #   None
 @socketio.on('sniffer_init', namespace=ns)
 def sniffer_init(message):
-  sniffer.start(request.namespace, socketio)
+    sniffer.start(request.namespace, socketio)
 
 # websocket to stop the main sniffer
 # message
 #   None
 @socketio.on('sniffer_kill', namespace=ns)
 def sniffer_init(message):
-  sniffer.stop()
+    sniffer.stop()
 
 # websocket to perform the initial network scan
 # message
 #   None
 @socketio.on('start_scan', namespace=ns)
 def scan(message):
-  print("starting scan")
-  handler = icmpv6.ICMPv6()
-  handler.echoAllNodes()
-  handler.echoAllNodeNames()
-  handler.echoMulticastQuery()
-  handler = dns.DNS()
-  handler.mDNSQuery()
+    print("starting scan")
+    handler = icmpv6.ICMPv6()
+    handler.echoAllNodes()
+    handler.echoAllNodeNames()
+    handler.echoMulticastQuery()
+    handler = dns.DNS()
+    handler.mDNSQuery()
 
 # websocket to get the multicast report for a node
 # message
@@ -58,11 +58,11 @@ def scan(message):
 #   ip                [required] - ip of the node to scan
 @socketio.on('scan_llmnr', namespace=ns)
 def scan_llmnr(message):
-  if "multicast_report" in message:
-    handler = dns.DNS()
-    for report in message['multicast_report']:
-      if report['multicast_address'] == "ff02::1:3":
-        handler.llmnr_noreceive(message['ip'])
+    if "multicast_report" in message:
+        handler = dns.DNS()
+        for report in message['multicast_report']:
+            if report['multicast_address'] == "ff02::1:3":
+                handler.llmnr_noreceive(message['ip'])
 
 # websocket to execute a module action
 # message
@@ -71,8 +71,8 @@ def scan_llmnr(message):
 #   target  [optional] - target object to perform on
 @socketio.on('mod_action', namespace=ns)
 def mod_action(message): #target,name,action
-  action = getattr(mod_objects[message['modname']], message['action'])
-  action(message.get('target'))
+    action = getattr(mod_objects[message['modname']], message['action'])
+    action(message.get('target'))
 
 # load modules from /modules
 def get_modules():
@@ -85,17 +85,17 @@ def get_modules():
 
     # loop through the modules in the module directory
     for importer, modname, ispkg in pkgutil.iter_modules(pkg.__path__, prefix):
-      # make sure it's not a package or the template file
-      if not ispkg and modname != "modules.template":
+        # make sure it's not a package or the template file
+        if not ispkg and modname != "modules.template":
         # get the IPv6Module class from the file
-        mod = importlib.import_module(modname)
-        modobj = getattr(mod, "IPv6Module")(socketio, ns)
-        mod_objects[modobj.modname] = modobj
+            mod = importlib.import_module(modname)
+            modobj = getattr(mod, "IPv6Module")(socketio, ns)
+            mod_objects[modobj.modname] = modobj
 
-        mods.append({
-          'modname': modobj.modname,
-          'actions': modobj.actions
-        })
+            mods.append({
+                'modname': modobj.modname,
+                'actions': modobj.actions
+            })
     return mods
 
 # run the app
