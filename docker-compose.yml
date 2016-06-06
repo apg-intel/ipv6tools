@@ -1,0 +1,7 @@
+www:
+  build: .
+  volumes:
+    - .:/src
+  ports:
+    - 80:5000
+  net: host
