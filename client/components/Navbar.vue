@@ -13,7 +13,7 @@
             </span>
             <div class="nav-right nav-menu">
                 <span class="nav-item">
-                    <a class="button is-primary" id="start-stop-scan" v-on:click="startStopScan" :class="{scanning: scanning}">
+                    <a class="button is-primary" id="start-stop-scan" v-on:click="startStopScan" :class="{'scan-active': scanning}">
                         <span class="icon">
                             <i class="fa" :class="{'fa-spin': scanning, 'fa-circle-o-notch': scanning, 'fa-circle-o': !scanning}"></i>
                         </span>
@@ -44,13 +44,13 @@
 </script>
 
 <style type="css">
-    .scanning:hover {
-        background-color: #ff3860;
+    .scan-active:hover {
+        background-color: #ff3860!important;
     }
-    .scanning:hover span {
+    .scan-active:hover span {
         display: none;
     }
-    .scanning:hover:before {
+    .scan-active:hover:before {
         content: 'Stop Scanning';
     }
 </style>
