@@ -48,10 +48,13 @@ import { Navbar, NodeGraph, NodeTable } from './components/'
       startScan: function() {
         this.scanning = true
         this.results = this.generateFakeResults()
+        socket.emit('sniffer_init', {})
+        socket.emit('start_scan', {})
         console.log('scanning!')
       },
       stopScan: function() {
         this.scanning = false
+        socket.emit('sniffer_kill', {});
         console.log('Stop scanning...')
       }
     }

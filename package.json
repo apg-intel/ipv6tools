@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/apg-intel/ipv6tools#readme",
   "dependencies": {
-    "bulma": "^0.4.0"
+    "bulma": "^0.4.0",
+    "socket.io": "^1.7.3"
   },
   "devDependencies": {
     "babel-core": "^6.24.0",
@@ -33,7 +34,7 @@
     "css-loader": "^0.27.3",
     "d3": "^4.7.3",
     "file-loader": "^0.10.1",
-    "font-awesome": "0.0.5-beta.2",
+    "font-awesome": "^4.7.0",
     "forever": "^0.15.3",
     "style-loader": "^0.14.1",
     "url-loader": "^0.5.8",
