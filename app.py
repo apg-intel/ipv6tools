@@ -1,26 +1,26 @@
 import importlib, os, sys, argparse
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_from_directory
 from flask.ext.socketio import SocketIO
 
-# import ipv6 stuff
-import ipv6.icmpv6 as icmpv6
-import ipv6.dns as dns
-import ipv6.ipv6sniffer as ipv6sniffer
+# # import ipv6 stuff
+# import ipv6.icmpv6 as icmpv6
+# import ipv6.dns as dns
+# import ipv6.ipv6sniffer as ipv6sniffer
 
 PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 ns = '/scan' #namespace for socketio
-sniffer = ipv6sniffer.IPv6Sniffer()
+# sniffer = ipv6sniffer.IPv6Sniffer()
 mod_objects = {}
 
 # flask routes
 # only route is the index - everything else uses websockets (for now)
 @app.route('/')
 def index():
-    mods = get_modules()
-    return render_template('index.html', mods=mods)
+    # mods = get_modules()
+    return render_template('index.html')
 
 # websocket to intialize the main sniffer
 # message
@@ -71,6 +71,11 @@ def mod_action(message): #target,name,action
     if not mod_objects: get_modules() # handle server restarts without page refreshes
     action = getattr(mod_objects[message['modname']], message['action'])
     action(message.get('target'))
+
+@app.route('/build/<path:filename>')
+def build(filename):
+    return send_from_directory("build", filename)
+
 
 # load modules from /modules
 def get_modules():
