@@ -1,6 +1,6 @@
 import importlib, os, sys, argparse
 from flask import Flask, request, render_template
-from flask.ext.socketio import SocketIO, emit
+from flask.ext.socketio import SocketIO
 
 # import ipv6 stuff
 import ipv6.icmpv6 as icmpv6
@@ -33,7 +33,7 @@ def sniffer_init(message):
 # message
 #   None
 @socketio.on('sniffer_kill', namespace=ns)
-def sniffer_init(message):
+def sniffer_kill(message):
     sniffer.stop()
 
 # websocket to perform the initial network scan
@@ -74,7 +74,7 @@ def mod_action(message): #target,name,action
 
 # load modules from /modules
 def get_modules():
-    import pkgutil, os.path
+    import pkgutil
     import modules
 
     pkg = modules

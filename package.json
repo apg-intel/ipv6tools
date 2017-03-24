@@ -1,0 +1,45 @@
+{
+  "name": "ipv6tools",
+  "version": "1.0.0",
+  "description": "The IPv6 framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network. Edit",
+  "main": "webpack.config.js",
+  "scripts": {
+    "dev": "webpack-dev-server --inline --hot --host 0.0.0.0",
+    "build": "webpack --progress --hide-modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apg-intel/ipv6tools.git"
+  },
+  "keywords": [
+    "ipv6"
+  ],
+  "author": "joshporter1+ronmajic",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/apg-intel/ipv6tools/issues"
+  },
+  "homepage": "https://github.com/apg-intel/ipv6tools#readme",
+  "dependencies": {
+    "bulma": "^0.4.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.1",
+    "babel-plugin-transform-export-extensions": "^6.22.0",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-vue": "^0.1.0",
+    "bulma": "^0.4.0",
+    "css-loader": "^0.27.3",
+    "file-loader": "^0.10.1",
+    "font-awesome": "0.0.5-beta.2",
+    "forever": "^0.15.3",
+    "style-loader": "^0.14.1",
+    "url-loader": "^0.5.8",
+    "vue": "^2.2.4",
+    "vue-loader": "^11.1.4",
+    "vue-template-compiler": "^2.2.4",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.2"
+  }
+}
