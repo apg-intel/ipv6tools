@@ -1,22 +1,29 @@
 <template>
   <div>
-      <navbar :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></navbar>
-      <section class="section" v-if="results.length">
-        <div class="columns">
-          <!-- <node-graph :results="results" class="column is-6"></node-graph> -->
-          <node-table :results="results" class="column is-12"></node-table>
-        </div>
+    <navbar :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></navbar>
+    <section class="section" v-if="results">
+      <div class="columns">
+        <!-- <node-graph :results="results" class="column is-6"></node-graph> -->
+        <node-table :results="results" class="column is-12"></node-table>
+      </div>
+    </section>
+    <div class="columns">
+      <section v-if="results" class="column is-6">
+        <h1 class="title is-5">Processed Results</h1>
+        <pre><code class="json">{{results}}</code></pre>
       </section>
-      <section v-if="results_raw.length">
-        <pre>
-          <code class="json">{{results_raw}}</code>
-        </pre>
+      <section v-if="results_raw.length" class="column is-6">
+        <h1 class="title is-5">Raw Results</h1>
+        <pre><code class="json">{{results_raw}}</code></pre>
       </section>
+    </div>
   </div>
 </template>
 
 <script>
 import { Navbar, NodeGraph, NodeTable } from './components/'
+
+var merge = require('deepmerge')
 
 // import websockets
 var io = require('socket.io-client')
@@ -27,7 +34,7 @@ var socket = io.connect('http://' + document.domain + ':8081' + namespace);
     data: function() {
       return {
         scanning: false,
-        results: [],
+        results: false,
         results_raw: []
       }
     },
@@ -64,21 +71,17 @@ var socket = io.connect('http://' + document.domain + ':8081' + namespace);
     methods: {
       addOrUpdateResult: function(data){
         this.results_raw.push(data)
-        var ipMatch = function(obj){
-          return obj.ip === data.ip
-        }
         if(data){
-          var obj = this.results.filter(ipMatch)[0]
-          if(obj){
-            this.results.filter(ipMatch)[0] = Object.assign(obj, data); //merged new
+          if(data.ip in this.results) {
+            this.$set(this.results, data.ip, merge(this.results[data.ip], data))
           } else {
-            this.results.push(data)
+            this.$set(this.results, data.ip, data)
           }
         }
       },
       startScan: function() {
         this.scanning = true
-        this.results = []
+        this.results = {}
         this.results_raw = []
         socket.emit('sniffer_init', {})
         socket.emit('start_scan', {})
