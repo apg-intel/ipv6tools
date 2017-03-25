@@ -1,27 +1,25 @@
 <template>
     <nav class="nav has-shadow">
-        <div class="container">
-            <div class="nav-left">
-                <a class="nav-item">
-                    IPv6Tools
+        <div class="nav-left">
+            <a class="nav-item">
+                IPv6Tools
+            </a>
+        </div>
+        <span class="nav-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+        <div class="nav-right nav-menu">
+            <span class="nav-item">
+                <a class="button is-primary" id="start-stop-scan" v-on:click="startStopScan" :class="{'scan-active': scanning}">
+                    <span class="icon">
+                        <i class="fa" :class="{'fa-spin': scanning, 'fa-circle-o-notch': scanning, 'fa-circle-o': !scanning}"></i>
+                    </span>
+                    <span v-if="scanning">Scanning</span>
+                    <span v-else>Scan</span>
                 </a>
-            </div>
-            <span class="nav-toggle">
-                <span></span>
-                <span></span>
-                <span></span>
             </span>
-            <div class="nav-right nav-menu">
-                <span class="nav-item">
-                    <a class="button is-primary" id="start-stop-scan" v-on:click="startStopScan" :class="{'scan-active': scanning}">
-                        <span class="icon">
-                            <i class="fa" :class="{'fa-spin': scanning, 'fa-circle-o-notch': scanning, 'fa-circle-o': !scanning}"></i>
-                        </span>
-                        <span v-if="scanning">Scanning</span>
-                        <span v-else>Scan</span>
-                    </a>
-                </span>
-            </div>
         </div>
     </nav>
 </template>

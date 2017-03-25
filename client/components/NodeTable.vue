@@ -11,7 +11,8 @@
       </thead>
       <tbody>
         <tr v-for="result in results" :result="result">
-          <td><i class="fa fa-chevron-down" aria-hidden="true"></i></td>
+          <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)"><i class="fa fa-chevron-down" aria-hidden="true"></i></td>
+          <td v-else></td>
           <td>{{result.ip}}</td>
           <td>{{result.mac}}</td>
           <td>{{result.device_name}}</td>

@@ -3,16 +3,16 @@ from flask import Flask, request, render_template, send_from_directory
 from flask.ext.socketio import SocketIO
 
 # # import ipv6 stuff
-# import ipv6.icmpv6 as icmpv6
-# import ipv6.dns as dns
-# import ipv6.ipv6sniffer as ipv6sniffer
+import ipv6.icmpv6 as icmpv6
+import ipv6.dns as dns
+import ipv6.ipv6sniffer as ipv6sniffer
 
 PROPAGATE_EXCEPTIONS = True
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
 ns = '/scan' #namespace for socketio
-# sniffer = ipv6sniffer.IPv6Sniffer()
+sniffer = ipv6sniffer.IPv6Sniffer()
 mod_objects = {}
 
 # flask routes

@@ -57,9 +57,6 @@ module.exports = {
       compress: {
         warnings: false
       }
-    }),
-    new webpack.ProvidePlugin({
-      'socket': './client/socket.js'
     })
   ],
   resolve: {
