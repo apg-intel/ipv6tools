@@ -1,5 +1,5 @@
 import importlib, os, sys, argparse
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, json, send_from_directory
 from flask.ext.socketio import SocketIO
 
 # # import ipv6 stuff
@@ -8,6 +8,7 @@ import ipv6.dns as dns
 import ipv6.ipv6sniffer as ipv6sniffer
 
 PROPAGATE_EXCEPTIONS = True
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -19,8 +20,13 @@ mod_objects = {}
 # only route is the index - everything else uses websockets (for now)
 @app.route('/')
 def index():
-    # mods = get_modules()
     return render_template('index.html')
+
+@socketio.on('get_mods', namespace=ns)
+def get_mods():
+    mods = get_modules()
+    print('modules laded')
+    socketio.emit('get_mods', json.dumps(mods), namespace=ns)
 
 # websocket to intialize the main sniffer
 # message
