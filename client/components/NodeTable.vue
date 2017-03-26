@@ -14,7 +14,7 @@
           <tr>
             <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)">
               <a href="#" v-on:click="show(result.ip)">
-                <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                <i class="fa" :class="{'fa-chevron-up': isShown(result.ip), 'fa-chevron-down': !isShown(result.ip)}" aria-hidden="true"></i>
               </a>
             </td>
             <td v-else></td>
@@ -22,8 +22,23 @@
             <td>{{result.mac}}</td>
             <td>{{result.device_name}}</td>
           </tr>
-          <tr v-if="showDetails==result.ip">
+          <tr v-if="showDetails.includes(result.ip)">
             <td colspan="5">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>isAnswer</th>
+                  <th>answer_data</th>
+                  <th>answer_type</th>
+                  <th>answer_name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>{{}}</td>
+                </tr>
+              </tbody>
+            </table>
               <pre><code class="json">{{result.dns_data}}</code></pre>
             </td>
           </tr>
@@ -40,15 +55,19 @@
     },
     data: function() {
       return {
-        showDetails: false
+        showDetails: []
       }
     },
     methods: {
+      isShown: function(ip) {
+        return this.showDetails.includes(ip);
+      },
       show: function(ip) {
-        if(this.showDetails == ip) {
-          this.showDetails = false
+        console.log(this.showDetails)
+        if(this.isShown(ip)) {
+          this.showDetails.splice(this.showDetails.indexOf(ip), 1)
         } else {
-          this.showDetails = ip
+          this.showDetails.push(ip)
         }
       }
     }
