@@ -5,7 +5,9 @@
   "main": "webpack.config.js",
   "scripts": {
     "dev": "webpack-dev-server --inline --hot --host 0.0.0.0",
-    "build": "webpack --progress --hide-modules"
+    "build": "webpack --progress --hide-modules",
+    "setup": "sudo pip install -r requirements.txt && npm install && npm run build",
+    "serve": "sudo python app.py"
   },
   "repository": {
     "type": "git",

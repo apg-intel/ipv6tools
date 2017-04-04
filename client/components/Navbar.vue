@@ -15,7 +15,7 @@
         </span>
         <div class="nav-right nav-menu">
             <span class="nav-item">
-                <a class="button is-primary" id="start-stop-scan" v-on:click="startStopScan" :class="{'scan-active': scanning}">
+                <a class="button is-primary" id="start-stop-scan" v-on:click.prevent="startStopScan" :class="{'scan-active': scanning}">
                     <span class="icon">
                         <i class="fa" :class="{'fa-spin': scanning, 'fa-circle-o-notch': scanning, 'fa-circle-o': !scanning}"></i>
                     </span>

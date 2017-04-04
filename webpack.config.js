@@ -6,8 +6,8 @@ module.exports = {
   entry: './client/main.js',
   // where to place the compiled bundle
   output: {
-    path: path.join(__dirname, 'build'),
-    publicPath: "/build/",
+    path: path.join(__dirname, 'assets'),
+    publicPath: "/assets/",
     filename: 'app.js'
   },
   /* resolveLoader: {

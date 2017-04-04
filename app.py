@@ -78,9 +78,9 @@ def mod_action(message): #target,name,action
     action = getattr(mod_objects[message['modname']], message['action'])
     action(message.get('target'))
 
-@app.route('/build/<path:filename>')
-def build(filename):
-    return send_from_directory("build", filename)
+@app.route('/assets/<path:filename>')
+def assets(filename):
+    return send_from_directory("assets", filename)
 
 
 # load modules from /modules

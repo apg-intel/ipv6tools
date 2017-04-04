@@ -13,7 +13,7 @@
         <template v-for="result in results" :result="result">
           <tr>
             <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)">
-              <a href="#" v-on:click="show(result.ip)">
+              <a href="#" v-on:click.prevent="show(result.ip)">
                 <i class="fa" :class="{'fa-chevron-up': isShown(result.ip), 'fa-chevron-down': !isShown(result.ip)}" aria-hidden="true"></i>
               </a>
             </td>
