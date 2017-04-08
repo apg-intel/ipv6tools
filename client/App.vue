@@ -1,34 +1,43 @@
 <template>
   <div>
-    <navbar :scanning="scanning" :active="active" v-on:start="startScan" v-on:stop="stopScan" v-on:setActive="setActiveTab"></navbar>
-    <div v-if="has_results">
-      <section class="section" v-if="isActiveTab('table')">
-        <div class="columns">
-          <!-- <node-graph :results="results" class="column is-6"></node-graph> -->
-          <node-table :results="results" class="column is-12"></node-table>
+    <navbar :active="active" v-on:setActive="setActiveTab"></navbar>
+    <div class="columns">
+      <div class="column is-2">
+        <scan-button :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></scan-button>
+        <module-menu :modules="modules">
+        </module-menu>
+      </div>
+      <div class="column is-10">
+        <div v-if="has_results">
+          <section class="section" v-if="isActiveTab('table')">
+            <div class="columns">
+              <!-- <node-graph :results="results" class="column is-6"></node-graph> -->
+              <node-table :results="results" class="column is-12"></node-table>
+            </div>
+          </section>
+          <section class="section" v-if="isActiveTab('json')">
+            <div class="columns">
+              <div class="column is-6">
+                <h1 class="title is-5">Processed Results</h1>
+                <pre><code class="json">{{results}}</code></pre>
+              </div>
+              <div class="column is-6">
+                <h1 class="title is-5">Raw Results</h1>
+                <pre><code class="json">{{results_raw}}</code></pre>
+              </div>
+            </div>
+          </section>
+          <section class="section" v-if="isActiveTab('graph')">
+            <h3 class="title is-3">Graph not yet implemented</h3>
+          </section>
         </div>
-      </section>
-      <section class="section" v-if="isActiveTab('json')">
-        <div class="columns">
-          <div class="column is-6">
-            <h1 class="title is-5">Processed Results</h1>
-            <pre><code class="json">{{results}}</code></pre>
-          </div>
-          <div class="column is-6">
-            <h1 class="title is-5">Raw Results</h1>
-            <pre><code class="json">{{results_raw}}</code></pre>
-          </div>
-        </div>
-      </section>
-      <section class="section" v-if="isActiveTab('graph')">
-        <h3 class="title is-3">Graph not yet implemented</h3>
-      </section>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { Navbar, NodeGraph, NodeTable } from './components/'
+import { Navbar, NodeGraph, NodeTable, ModuleMenu, ScanButton } from './components/'
 var merge = require('deepmerge');
 var io = require('socket.io-client');
 
@@ -47,8 +56,10 @@ var socket = io.connect('http://' + document.domain + ':8080' + namespace);
     },
     components: {
       navbar: Navbar,
+      'scan-button': ScanButton,
       'node-graph': NodeGraph,
-      'node-table': NodeTable
+      'node-table': NodeTable,
+      'module-menu': ModuleMenu
     },
     computed: {
       has_results: function() {
@@ -93,7 +104,7 @@ var socket = io.connect('http://' + document.domain + ':8080' + namespace);
       getModules: function() {
         var _this = this;
         socket.on('get_mods', function(msg){
-          _this.modules = msg;
+          _this.modules = JSON.parse(msg);
         });
         socket.emit('get_mods');
       },

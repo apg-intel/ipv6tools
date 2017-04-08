@@ -1,3 +1,5 @@
 export Navbar from './Navbar.vue'
 export NodeGraph from './NodeGraph.vue'
 export NodeTable from './NodeTable.vue'
+export ModuleMenu from './ModuleMenu.vue'
+export ScanButton from './ScanButton.vue'

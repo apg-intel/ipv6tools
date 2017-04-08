@@ -1,0 +1,77 @@
+<template>
+  <aside class="menu hero is-fullheight" id="sidebar">
+    <div>
+      <div class="main">
+        <p class="menu-label">
+          Modules
+        </p>
+        <template v-for="module in modules">
+          <ul class="menu-list" v-if="hasGlobalActions(module.actions)">
+            <li>
+              <a :class="{'is-active': isExpanded(module.modname)}" v-on:click="toggleModule(module.modname)">{{module.modname}}</a>
+              <ul v-if="isExpanded(module.modname)">
+                <li v-for="action in module.actions" :action="action" v-if="!action.target">
+                  <a>{{action.title}}</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </template>
+      </div>
+    </div>
+  </aside>
+</template>
+
+<script>
+  export default {
+    props: {
+      'modules': Array
+    },
+    data: function() {
+      return {
+        expanded: []
+      }
+    },
+    methods: {
+      isExpanded: function(name){
+        return this.expanded.indexOf(name) >= 0
+      },
+      hasGlobalActions: function(actions){
+        var hasGlobals = false
+        console.log(actions)
+        for(var x in actions){
+          if(!actions[x].target){
+            hasGlobals = true
+          }
+        }
+        return hasGlobals
+      },
+      toggleModule: function(name){
+        if(this.isExpanded(name)){
+          this.expanded = this.expanded.filter(function (item) {
+              return item != name;
+          });
+        } else {
+          this.expanded.push(name)
+        }
+      }
+    }
+  }
+</script>
+
+<style type="css">
+  #sidebar{
+    background: #232B2D;
+  }
+
+  #sidebar .main {
+    padding: 10px;
+    color: #6F7B7E;
+  }
+
+  #start-stop-scan {
+    display: flex;
+    border-radius: 0;
+    padding: 30px 0;
+  }
+</style>
