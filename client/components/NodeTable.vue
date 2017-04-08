@@ -22,7 +22,7 @@
             <td>{{result.mac}}</td>
             <td>{{result.device_name}}</td>
           </tr>
-          <tr v-if="showDetails.includes(result.ip)">
+          <tr v-if="showDetails.indexOf(result.ip) >= 0">
             <td colspan="5">
             <table class="table">
               <thead>
@@ -60,7 +60,7 @@
     },
     methods: {
       isShown: function(ip) {
-        return this.showDetails.includes(ip);
+        return this.showDetails.indexOf(ip) >= 0;
       },
       show: function(ip) {
         console.log(this.showDetails)

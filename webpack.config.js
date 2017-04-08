@@ -10,6 +10,11 @@ module.exports = {
     publicPath: "/assets/",
     filename: 'app.js'
   },
+  devServer: {
+    proxy: {
+      '/socket.io': 'http://localhost:8080'
+    }
+  },
   /* resolveLoader: {
     root: path.join(__dirname, 'node_modules'),
   }, */
