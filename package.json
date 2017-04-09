@@ -4,7 +4,7 @@
   "description": "The IPv6 framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network. Edit",
   "main": "webpack.config.js",
   "scripts": {
-    "dev": "webpack-dev-server --inline --hot --host 0.0.0.0",
+    "dev": "webpack-dev-server --inline --hot --host 0.0.0.0 --port 8081",
     "build": "webpack --progress --hide-modules",
     "setup": "sudo pip install -r requirements.txt && npm install && npm run build",
     "serve": "sudo python app.py"

@@ -69,6 +69,16 @@
     color: #6F7B7E;
   }
 
+  #sidebar .main a {
+    color: #6F7B7E;
+  }
+
+   #sidebar .main a.is-active {
+    background-color: whitesmoke;
+    border-color: transparent;
+    color: #363636;
+  }
+
   #start-stop-scan {
     display: flex;
     border-radius: 0;
