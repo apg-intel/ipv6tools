@@ -1,4 +1,5 @@
 export Navbar from './Navbar.vue'
+export Console from './Console.vue'
 export NodeGraph from './NodeGraph.vue'
 export NodeTable from './NodeTable.vue'
 export ModuleMenu from './ModuleMenu.vue'

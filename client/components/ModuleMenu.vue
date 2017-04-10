@@ -11,7 +11,7 @@
               <a :class="{'is-active': isExpanded(module.modname)}" v-on:click="toggleModule(module.modname)">{{module.modname}}</a>
               <ul v-if="isExpanded(module.modname)">
                 <li v-for="action in module.actions" :action="action" v-if="!action.target">
-                  <a>{{action.title}}</a>
+                  <a href="#" v-on:click.prevent="execModule(module.modname, action.action, null)">{{action.title}}</a>
                 </li>
               </ul>
             </li>
@@ -38,7 +38,6 @@
       },
       hasGlobalActions: function(actions){
         var hasGlobals = false
-        console.log(actions)
         for(var x in actions){
           if(!actions[x].target){
             hasGlobals = true
@@ -54,6 +53,10 @@
         } else {
           this.expanded.push(name)
         }
+      },
+      execModule: function(modname, action, target){
+        // _this.logMessage('Modules loaded.')
+        utils.socket.emit('mod_action', {modname: modname, target: target, action: action});
       }
     }
   }
@@ -77,11 +80,5 @@
     background-color: whitesmoke;
     border-color: transparent;
     color: #363636;
-  }
-
-  #start-stop-scan {
-    display: flex;
-    border-radius: 0;
-    padding: 30px 0;
   }
 </style>

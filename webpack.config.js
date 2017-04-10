@@ -62,11 +62,15 @@ module.exports = {
       compress: {
         warnings: false
       }
+    }),
+    new webpack.ProvidePlugin({
+      'utils': 'utils'
     })
   ],
   resolve: {
     alias: {
-      vue: 'vue/dist/vue.common.js'
+      vue: 'vue/dist/vue.common.js',
+      utils: path.resolve(__dirname, './client/utils')
     }
   },
 }

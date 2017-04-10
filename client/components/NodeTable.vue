@@ -34,8 +34,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>{{}}</td>
+                <tr v-for="result in result.dns_data">
+                  <td>{{result.isAnswer}}</td>
+                  <td>{{result.answer_data}}</td>
+                  <td>{{result.answer_type}}</td>
+                  <td>{{result.answer_name}}</td>
                 </tr>
               </tbody>
             </table>

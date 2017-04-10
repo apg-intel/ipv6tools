@@ -1,5 +1,5 @@
 <template>
-    <a class="button is-primary" id="start-stop-scan" v-on:click.prevent="startStopScan" :class="{'scan-active': scanning}">
+    <a class="button is-primary is-fullwidth" id="start-stop-scan" v-on:click.prevent="startStopScan" :class="{'scan-active': scanning}">
         <span class="icon">
             <i class="fa" :class="{'fa-spin': scanning, 'fa-circle-o-notch': scanning, 'fa-circle-o': !scanning}"></i>
         </span>
@@ -28,6 +28,10 @@
 </script>
 
 <style type="css">
+  #start-stop-scan {
+    border-radius: 0;
+    padding: 35px 0;
+  }
   .scan-active:hover {
       background-color: #ff3860!important;
   }

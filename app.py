@@ -25,7 +25,6 @@ def index():
 @socketio.on('get_mods', namespace=ns)
 def get_mods():
     mods = get_modules()
-    print('modules laded')
     socketio.emit('get_mods', json.dumps(mods), namespace=ns)
 
 # websocket to intialize the main sniffer

@@ -1,35 +1,23 @@
 <template>
   <div>
     <navbar :active="active" v-on:setActive="setActiveTab"></navbar>
-    <div class="columns">
-      <div class="column is-2">
+    <div class="columns is-gapless">
+      <div class="column is-narrow">
         <scan-button :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></scan-button>
         <module-menu :modules="modules">
         </module-menu>
       </div>
-      <div class="column is-10">
+      <div class="column">
         <div v-if="has_results">
-          <section class="section" v-if="isActiveTab('table')">
-            <div class="columns">
-              <!-- <node-graph :results="results" class="column is-6"></node-graph> -->
-              <node-table :results="results" class="column is-12"></node-table>
-            </div>
-          </section>
-          <section class="section" v-if="isActiveTab('json')">
-            <div class="columns">
-              <div class="column is-6">
-                <h1 class="title is-5">Processed Results</h1>
-                <pre><code class="json">{{results}}</code></pre>
-              </div>
-              <div class="column is-6">
-                <h1 class="title is-5">Raw Results</h1>
-                <pre><code class="json">{{results_raw}}</code></pre>
-              </div>
-            </div>
-          </section>
-          <section class="section" v-if="isActiveTab('graph')">
-            <h3 class="title is-3">Graph not yet implemented</h3>
-          </section>
+          <div v-if="isActiveTab('table')">
+            <node-table :results="results" class="column is-12"></node-table>
+          </div>
+          <div v-if="isActiveTab('graph')">
+            <node-graph :results="results" class="column is-12"></node-graph>
+          </div>
+        </div>
+        <div v-if="isActiveTab('console')">
+          <console :results="results" :console_output="console_output" class="column is-12"></console>
         </div>
       </div>
     </div>
@@ -37,12 +25,8 @@
 </template>
 
 <script>
-import { Navbar, NodeGraph, NodeTable, ModuleMenu, ScanButton } from './components/'
+import { Navbar, NodeGraph, NodeTable, ModuleMenu, ScanButton, Console } from './components/'
 var merge = require('deepmerge');
-var io = require('socket.io-client');
-
-var namespace = '/scan'; // change to an empty string to use the global namespace
-var socket = io.connect('http://' + document.domain + ':8080' + namespace);
 
   export default {
     data: function() {
@@ -51,11 +35,13 @@ var socket = io.connect('http://' + document.domain + ':8080' + namespace);
         results: {},
         results_raw: [],
         modules: [],
-        active: 'table'
+        active: 'table',
+        console_output: []
       }
     },
     components: {
       navbar: Navbar,
+      console: Console,
       'scan-button': ScanButton,
       'node-graph': NodeGraph,
       'node-table': NodeTable,
@@ -85,12 +71,15 @@ var socket = io.connect('http://' + document.domain + ':8080' + namespace);
         this.scanning = true;
         this.results = {};
         this.results_raw = [];
-        socket.emit('sniffer_init', {});
-        socket.emit('start_scan', {});
+        this.logMessage('Initializing sniffer...')
+        utils.socket.emit('sniffer_init', {});
+        this.logMessage('Sniffer initialized, beginning scan.')
+        utils.socket.emit('start_scan', {});
       },
       stopScan: function() {
         this.scanning = false
-        socket.emit('sniffer_kill', {});
+        this.logMessage('Sniffer stopped.')
+        utils.socket.emit('sniffer_kill', {});
       },
       setActiveTab: function(tab) {
         this.active = tab;
@@ -101,42 +90,53 @@ var socket = io.connect('http://' + document.domain + ':8080' + namespace);
       formatName: function(name) {
         return name.replace(/\.local\./g, "");
       },
+      logMessage: function(msg) {
+        msg = {log: msg}
+        msg.timestamp = new Date().toISOString()
+        this.console_output.push(msg)
+      },
       getModules: function() {
         var _this = this;
-        socket.on('get_mods', function(msg){
+        utils.socket.on('get_mods', function(msg){
           _this.modules = JSON.parse(msg);
         });
-        socket.emit('get_mods');
+        this.logMessage('Modules loaded.')
+        utils.socket.emit('get_mods');
       },
       initSockets: function() {
         var _this = this;
-        socket.on('icmp_echo_result', function(msg) {
+        utils.socket.on('icmp_echo_result', function(msg) {
           _this.mergeResult(msg);
         });
-        socket.on('icmp_name_result', function(msg) {
+        utils.socket.on('icmp_name_result', function(msg) {
           _this.mergeResult(msg);
         });
-        socket.on('multicast_result', function(msg) {
-          socket.emit('scan_llmnr', msg);
+        utils.socket.on('multicast_result', function(msg) {
+          utils.socket.emit('scan_llmnr', msg);
           _this.mergeResult(msg);
         });
-        socket.on('mdns_result', function(msg) {
+        utils.socket.on('mdns_result', function(msg) {
           _this.mergeResult(msg);
         });
-        socket.on('llmnr_result', function(msg) {
+        utils.socket.on('llmnr_result', function(msg) {
           _this.mergeResult(msg);
-        });
-        // socket handlers
-        socket.on('module_output', function(msg) {
-          if(msg.log) {
-            console.log(msg);
-          }
         });
 
-        socket.on('module_merge', function(msg) {
+        // mod handlers
+        utils.socket.on('module_output', function(msg) {
+          if(msg.log) {
+            msg.timestamp = new Date().toISOString()
+            _this.console_output.push(msg)
+          }
+        });
+        utils.socket.on('module_merge', function(msg) {
           _this.mergeResult(msg);
         })
       }
     }
   }
 </script>
+
+<style type="css">
+  html { overflow-x: auto; }
+</style>

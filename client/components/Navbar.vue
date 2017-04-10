@@ -12,8 +12,8 @@
         </span>
         <div class="nav-right nav-menu">
             <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="table" :class="{'is-active': isActive('table')}">Table</a>
-            <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="json" :class="{'is-active': isActive('json')}">JSON</a>
             <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="graph" :class="{'is-active': isActive('graph')}">Graph</a>
+            <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="console" :class="{'is-active': isActive('console')}">Console</a>
         </div>
     </nav>
 </template>
