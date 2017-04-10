@@ -69,6 +69,10 @@ class IPv6Sniffer:
                 if dns_data:
                     res['dns_data'] = dns_data
                     res['mac'] = getMacFromPacket(packet)
+                    # extract name from dns response type 28
+                    for entry in dns_data:
+                        if entry['answer_type'] == 28:
+                            res['device_name'] = entry['answer_name']
                 else:
                     res = None
             except Exception:
