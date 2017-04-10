@@ -42,7 +42,6 @@
                 </tr>
               </tbody>
             </table>
-              <pre><code class="json">{{result.dns_data}}</code></pre>
             </td>
           </tr>
         </template>

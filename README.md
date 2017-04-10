@@ -26,7 +26,7 @@ The IPv6 framework is a robust set of modules and plugins that allow a user to a
 3. Navigate to [http://localhost:8081](http://localhost:8081) in a web browser
 
 ### Web client - prod
-1. `$ npm run serve`
+1. `$ npm run start`
 2. Navigate to [http://localhost:8080](http://localhost:8080) in a web browser
 
 ### CLI
