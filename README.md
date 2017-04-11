@@ -12,10 +12,12 @@ The IPv6 framework is a robust set of modules and plugins that allow a user to a
 
 * python 2.7
 * pip
+* npm
 
 ## Installation
 
 1. `$ git clone http://github.com/ronmajic/ipv6tools.git`
+  * *Temporary: `git checkout dev`*
 2. `$ npm run setup`
 
 ## Usage
