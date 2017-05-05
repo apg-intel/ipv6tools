@@ -14,6 +14,12 @@
             <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="table" :class="{'is-active': isActive('table')}">Table</a>
             <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="graph" :class="{'is-active': isActive('graph')}">Graph</a>
             <a href="#" class="nav-item is-tab is-hidden-mobile" v-on:click.prevent="setActive" data-tab="console" :class="{'is-active': isActive('console')}">Console</a>
+            <a href="#" class="nav-item" title="Change Layout" style="display: none;">
+                <span class="icon">
+                    <i class="fa fa-cog"></i>
+                </span>
+
+            </a>
         </div>
     </nav>
 </template>

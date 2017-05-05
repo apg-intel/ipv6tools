@@ -8,17 +8,17 @@
         </module-menu>
       </div>
       <div class="column">
-        <div v-if="has_results">
-          <div v-if="isActiveTab('table')">
+        <template v-if="has_results">
+          <template v-if="isActiveTab('table')">
             <node-table :results="results" class="column is-12"></node-table>
-          </div>
-          <div v-if="isActiveTab('graph')">
-            <node-graph :results="results" class="column is-12"></node-graph>
-          </div>
-        </div>
-        <div v-if="isActiveTab('console')">
+          </template>
+          <template v-if="isActiveTab('graph')">
+            <node-graph :results="results" class="column is-12 is-fullheight"></node-graph>
+          </template>
+        </template>
+        <template v-if="isActiveTab('console')">
           <console :results="results" :console_output="console_output" class="column is-12"></console>
-        </div>
+        </template>
       </div>
     </div>
   </div>
