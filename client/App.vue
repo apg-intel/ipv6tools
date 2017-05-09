@@ -13,7 +13,7 @@
             <node-table :results="results" class="column is-12"></node-table>
           </template>
           <template v-if="isActiveTab('graph')">
-            <node-graph :results="results" class="column is-12 is-fullheight"></node-graph>
+            <node-graph :results="results" class="column is-12"></node-graph>
           </template>
         </template>
         <template v-if="isActiveTab('console')">

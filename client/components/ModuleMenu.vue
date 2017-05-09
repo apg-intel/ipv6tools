@@ -65,6 +65,7 @@
 <style type="css">
   #sidebar{
     background: #232B2D;
+    min-height: 86.9vh;
   }
 
   #sidebar .main {
