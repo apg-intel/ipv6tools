@@ -40,6 +40,7 @@
     "file-loader": "^0.10.1",
     "font-awesome": "^4.7.0",
     "forever": "^0.15.3",
+    "socket.io-client": "^1.7.3",
     "style-loader": "^0.14.1",
     "url-loader": "^0.5.8",
     "vue": "^2.2.4",
