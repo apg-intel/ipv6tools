@@ -28,6 +28,15 @@
         div: "#graph-inner"
       }
     },
+    computed: {
+      graphData: function() {
+        let range = 100
+        return {
+          nodes:d3.range(0, range).map(function(d){ return {label: "l"+d ,r:~~d3.randomUniform(8, 28)()}}),
+          links:d3.range(0, range).map(function(){ return {source:~~d3.randomUniform(range)(), target:~~d3.randomUniform(range)()} })
+        }
+      }
+    },
     watch: {
       width: function() {
         this.initialize();
@@ -42,27 +51,21 @@
       initialize() {
         console.log('Initializing graph.');
         let _this = this;
-        let range = 100
-        let data = {
-            nodes:d3.range(0, range).map(function(d){ return {label: "l"+d ,r:~~d3.randomUniform(8, 28)()}}),
-            links:d3.range(0, range).map(function(){ return {source:~~d3.randomUniform(range)(), target:~~d3.randomUniform(range)()} })        
-        }
         _this.svg = d3.select("#graph-inner").html('').append("svg")
 
         _this.svg.attr("width", _this.width).attr("height", _this.height)
 
-        console.log(data)
-        _this.drawChart(data)
+        _this.drawChart(_this.data)
       },
       drawChart(data) {
           let _this = this;
-          console.log('drawing shit')
+          console.log('drawing shit');
           
           let simulation = d3.forceSimulation()
               .force("link", d3.forceLink().id(function(d) { return d.index }))
               .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
               .force("charge", d3.forceManyBody())
-              .force("center", d3.forceCenter(_this.width / 2, _this.width / 2))
+              .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY(0))
               .force("x", d3.forceX(0))
       
@@ -79,6 +82,8 @@
               .selectAll("circle")
               .data(data.nodes)
               .enter().append("circle")
+              .attr("fill", "red")
+              .attr("stroke", "blue")
               .attr("r", function(d){  return d.r })
               .call(d3.drag()
                   .on("start", dragstarted)
