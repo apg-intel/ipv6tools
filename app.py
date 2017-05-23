@@ -1,6 +1,6 @@
 import importlib, os, sys, argparse
 from flask import Flask, request, render_template, json, send_from_directory
-from flask.ext.socketio import SocketIO
+from flask_socketio import SocketIO
 
 # # import ipv6 stuff
 import ipv6.icmpv6 as icmpv6
