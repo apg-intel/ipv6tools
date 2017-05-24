@@ -17,27 +17,53 @@
         width: 0,
         height: 0,
         radius: 12,
-        nodes: [],
-        links: [],
-        gnode: [],
-        force: null,
+        node: null,
+        link: null,
+        drag: null,
         svg: null,
         pinned: [],
+        updateTimeout: null,
         div: "#graph-inner"
       }
     },
     computed: {
       graphData: function() {
-        let range = 100
+        let links = [];
+        let nodes = [];
+        // add root node
+        nodes.push({
+          x: this.width / 2,
+          y: this.height / 2,
+          fixed: true,
+          index: 0,
+          value: 3,
+          root: true,
+          id: "root"
+        });
+        for(var k in this.results) {
+          nodes.push({
+            label: this.results[k].ip, 
+            id: this.results[k].ip, 
+            value: 1
+          });
+          links.push({
+            source: 0, 
+            target: nodes.length-1
+          });
+        }
         return {
-          nodes:d3.range(0, range).map(function(d){ return {label: "l"+d ,r:~~d3.randomUniform(8, 28)()}}),
-          links:d3.range(0, range).map(function(){ return {source:~~d3.randomUniform(range)(), target:~~d3.randomUniform(range)()} })
+          nodes: nodes,
+          links: links
         }
       }
     },
     watch: {
       width: function() {
         this.initialize();
+        this.update();
+      },
+      graphData: function() {
+        console.log("Updated data", this.graphData);
         this.update();
       }
     },
@@ -49,87 +75,102 @@
       initialize() {
         console.log('Initializing graph.');
         let _this = this;
+
         _this.svg = d3.select("#graph-inner").html('').append("svg")
-
         _this.svg.attr("width", _this.width).attr("height", _this.height)
-
-        _this.drawChart(_this.data)
+        _this.drawChart(_this.graphData)
       },
       drawChart(data) {
           let _this = this;
           console.log('drawing shit');
           
-          let simulation = d3.forceSimulation()
+          _this.simulation = d3.forceSimulation()
               .force("link", d3.forceLink().id(function(d) { return d.index }))
               .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
               .force("charge", d3.forceManyBody())
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY(0))
               .force("x", d3.forceX(0))
+              .on("tick", _this.ticked);
+
+          _this.drag = d3.drag()
+              .on("start", _this.dragstarted)
+              .on("drag", _this.dragged)
+              .on("end", _this.dragended);
       
-          let link = _this.svg.append("g")
+          _this.link = _this.svg.append("g")
               .attr("class", "links")
               .selectAll("line")
               .data(data.links)
-              .enter()
-              .append("line")
-              .attr("stroke", "black")
+              .enter().append("line")
+              .attr("stroke", "black");
 
-          let node = _this.svg.append("g")
+          _this.node = _this.svg.append("g")
               .attr("class", "nodes")
               .selectAll("circle")
               .data(data.nodes)
               .enter().append("circle")
+              .attr("class", function(d) {
+                return (d.fixed) ? "node root_node" : "node";
+              })
               .attr("fill", "red")
               .attr("stroke", "blue")
-              .attr("r", function(d){  return d.r })
-              .call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended));    
+              .attr("stroke-width", 2)
+              .attr("r", function(d){ return 10 });
           
-          
-          let ticked = function() {
-              link
-                  .attr("x1", function(d) { return d.source.x; })
-                  .attr("y1", function(d) { return d.source.y; })
-                  .attr("x2", function(d) { return d.target.x; })
-                  .attr("y2", function(d) { return d.target.y; });
-      
-              node
-                  .attr("cx", function(d) { return d.x; })
-                  .attr("cy", function(d) { return d.y; });
-          }  
-          
-          simulation
-              .nodes(data.nodes)
-              .on("tick", ticked);
-      
-          simulation.force("link")
-              .links(data.links);    
-          
-          
-          
-          function dragstarted(d) {
-              if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-              d.fx = d.x;
-              d.fy = d.y;
-          }
-          
-          function dragged(d) {
-              d.fx = d3.event.x;
-              d.fy = d3.event.y;
-          }
-          
-          function dragended(d) {
-              if (!d3.event.active) simulation.alphaTarget(0);
-              d.fx = null;
-              d.fy = null;
-          } 
+          _this.update();
       },
 
       update() {
-        console.log('Updating graph.');
+        let _this = this;
+        clearTimeout(_this.updateTimeout);
+        _this.updateTimeout = setTimeout(function(){
+          console.log('Updating graph.');
+          let data = _this.graphData;
+
+          _this.node = _this.node.data(data.nodes, function(d) {return d.id; });
+          _this.node.exit().remove();
+          _this.node = _this.node.enter()
+            .append("circle")
+            .call(_this.drag)
+            .merge(_this.node);
+
+          _this.link = _this.link.data(data.links, function(d) { return d.source.id + "-" + d.target.id});
+          _this.link.exit().remove();
+          _this.link = _this.link.enter()
+            .append("line")
+            .merge(_this.link);
+
+          _this.simulation.nodes(data.nodes);
+          _this.simulation.force("link").links(data.links);
+          _this.simulation.alpha(1).restart();
+        }, 2000);
+      },
+      ticked() {
+        this.link
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+        
+        this.node
+            .attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+
+      },
+      dragstarted(d) {
+        if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      },
+      dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      },
+      dragended(d) {
+        if (!d3.event.active) this.simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
       },
       onResize() {
         let style = getComputedStyle(this.$el)
