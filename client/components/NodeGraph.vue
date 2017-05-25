@@ -43,6 +43,8 @@
         });
         for(var k in this.results) {
           nodes.push({
+            x: this.width / 2,
+            y: this.height / 2,
             label: this.results[k].ip, 
             id: this.results[k].ip, 
             value: 1
@@ -90,9 +92,13 @@
           console.log('drawing shit');
           
           _this.simulation = d3.forceSimulation()
-              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(1))
+              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(0.5))
               // .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
-              .force("charge", d3.forceManyBody())
+              .force("charge", 
+                d3.forceManyBody()
+                  .distanceMin(25)
+                  .strength(function(d){ return d.value*-150 })
+              )
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY())
               .force("x", d3.forceX())
@@ -127,18 +133,20 @@
           .attr("class", function(d) {
             return (d.fixed) ? "node root_node" : "node";
           })
-          .attr("fill", "red")
-          .attr("stroke", "blue")
+          .attr("fill", "#00c4a7")
+          .attr("stroke", "#00c4a7")
           .attr("stroke-width", 2)
           .attr("r", function(d){ return d.value * 10; })
           .call(_this.drag)
           .merge(_this.node);
 
+        _this.node.append("title").text(function(d){ return d.label; })
+
         _this.link = _this.link.data(data.links, function(d) { return d.source.id + "-" + d.target.id});
         _this.link.exit().remove();
         _this.link = _this.link.enter()
           .append("line")
-          .attr("stroke", "black")
+          .attr("stroke", "#999999")
           .merge(_this.link);
 
         _this.simulation.nodes(data.nodes);
