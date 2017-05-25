@@ -28,6 +28,7 @@
     },
     computed: {
       graphData: function() {
+        console.log(this.results);
         let links = [];
         let nodes = [];
         // add root node
@@ -64,7 +65,11 @@
       },
       graphData: function() {
         console.log("Updated data", this.graphData);
-        this.update();
+        let _this = this;
+        clearTimeout(_this.updateTimeout);
+        _this.updateTimeout = setTimeout(function(){
+          _this.update();
+        }, 1000);
       }
     },
     mounted: function() {
@@ -85,12 +90,12 @@
           console.log('drawing shit');
           
           _this.simulation = d3.forceSimulation()
-              .force("link", d3.forceLink().id(function(d) { return d.index }))
-              .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
+              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(1))
+              // .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
               .force("charge", d3.forceManyBody())
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
-              .force("y", d3.forceY(0))
-              .force("x", d3.forceX(0))
+              .force("y", d3.forceY())
+              .force("x", d3.forceX())
               .on("tick", _this.ticked);
 
           _this.drag = d3.drag()
@@ -101,50 +106,44 @@
           _this.link = _this.svg.append("g")
               .attr("class", "links")
               .selectAll("line")
-              .data(data.links)
-              .enter().append("line")
-              .attr("stroke", "black");
 
           _this.node = _this.svg.append("g")
               .attr("class", "nodes")
               .selectAll("circle")
-              .data(data.nodes)
               .enter().append("circle")
-              .attr("class", function(d) {
-                return (d.fixed) ? "node root_node" : "node";
-              })
-              .attr("fill", "red")
-              .attr("stroke", "blue")
-              .attr("stroke-width", 2)
-              .attr("r", function(d){ return 10 });
           
           _this.update();
       },
 
       update() {
         let _this = this;
-        clearTimeout(_this.updateTimeout);
-        _this.updateTimeout = setTimeout(function(){
-          console.log('Updating graph.');
-          let data = _this.graphData;
+        console.log('Updating graph.');
+        let data = _this.graphData;
 
-          _this.node = _this.node.data(data.nodes, function(d) {return d.id; });
-          _this.node.exit().remove();
-          _this.node = _this.node.enter()
-            .append("circle")
-            .call(_this.drag)
-            .merge(_this.node);
+        _this.node = _this.node.data(data.nodes, function(d) {return d.id; });
+        _this.node.exit().remove();
+        _this.node = _this.node.enter()
+          .append("circle")
+          .attr("class", function(d) {
+            return (d.fixed) ? "node root_node" : "node";
+          })
+          .attr("fill", "red")
+          .attr("stroke", "blue")
+          .attr("stroke-width", 2)
+          .attr("r", function(d){ return d.value * 10; })
+          .call(_this.drag)
+          .merge(_this.node);
 
-          _this.link = _this.link.data(data.links, function(d) { return d.source.id + "-" + d.target.id});
-          _this.link.exit().remove();
-          _this.link = _this.link.enter()
-            .append("line")
-            .merge(_this.link);
+        _this.link = _this.link.data(data.links, function(d) { return d.source.id + "-" + d.target.id});
+        _this.link.exit().remove();
+        _this.link = _this.link.enter()
+          .append("line")
+          .attr("stroke", "black")
+          .merge(_this.link);
 
-          _this.simulation.nodes(data.nodes);
-          _this.simulation.force("link").links(data.links);
-          _this.simulation.alpha(1).restart();
-        }, 2000);
+        _this.simulation.nodes(data.nodes);
+        _this.simulation.force("link").links(data.links);
+        _this.simulation.alpha(1).restart();
       },
       ticked() {
         this.link
