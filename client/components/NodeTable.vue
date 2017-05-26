@@ -11,7 +11,7 @@
       </thead>
       <tbody>
         <template v-for="result in results" :result="result">
-          <tr>
+          <tr v-on:contextmenu.prevent="rightclick(result.ip, $event)">
             <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)">
               <a href="#" v-on:click.prevent="show(result.ip)">
                 <i class="fa" :class="{'fa-chevron-up': isShown(result.ip), 'fa-chevron-down': !isShown(result.ip)}" aria-hidden="true"></i>
@@ -53,7 +53,8 @@
 <script>
   export default {
     props: {
-      'results': Object
+      results: Object,
+      contextmenu: Function
     },
     data: function() {
       return {
@@ -71,6 +72,9 @@
         } else {
           this.showDetails.push(ip)
         }
+      },
+      rightclick: function(ip, event) {
+        this.contextmenu(ip);
       }
     }
   }

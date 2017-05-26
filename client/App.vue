@@ -10,10 +10,10 @@
       <div class="column">
         <template v-if="has_results">
           <template v-if="isActiveTab('table')">
-            <node-table :results="results" class="column is-12"></node-table>
+            <node-table :results="results" class="column is-12" :contextmenu="contextmenu"></node-table>
           </template>
           <template v-if="isActiveTab('graph')">
-            <node-graph :results="results" class="column is-12"></node-graph>
+            <node-graph :results="results" class="column is-12" :contextmenu="contextmenu"></node-graph>
           </template>
         </template>
         <template v-if="isActiveTab('console')">
@@ -132,6 +132,9 @@ var merge = require('deepmerge');
         utils.socket.on('module_merge', function(msg) {
           _this.mergeResult(msg);
         })
+      },
+      contextmenu: function(ip) {
+        console.log("right clicked context menu", ip);
       }
     }
   }

@@ -10,7 +10,8 @@
 
   export default {
     props: {
-      results: Object
+      results: Object,
+      contextmenu: Function
     },
     data: function() {
       return {
@@ -21,7 +22,7 @@
         link: null,
         drag: null,
         svg: null,
-        pinned: [],
+        nodecount: 0,
         updateTimeout: null,
         div: "#graph-inner"
       }
@@ -66,10 +67,13 @@
       },
       graphData: function() {
         let _this = this;
-        clearTimeout(_this.updateTimeout);
-        _this.updateTimeout = setTimeout(function(){
-          _this.update();
-        }, 1000);
+        if(_this.graphData.nodes.length > _this.nodecount){
+          _this.nodecount = _this.graphData.nodes.length;
+          clearTimeout(_this.updateTimeout);
+          _this.updateTimeout = setTimeout(function(){
+            _this.update();
+          }, 1000);
+        }
       }
     },
     mounted: function() {
@@ -90,12 +94,12 @@
           console.log('drawing shit');
           
           _this.simulation = d3.forceSimulation()
-              .force("link", d3.forceLink().id(function(d) { return d.index }))
+              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(0.4))
               // .force("collide",d3.forceCollide( function(d){return d.value*10 }).iterations(100) )
               .force("charge", 
                 d3.forceManyBody()
                   .distanceMin(25)
-                  .strength(function(d){ return d.value*-250 })
+                  .strength(function(d){ return d.value*-300 })
               )
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY())
@@ -136,6 +140,7 @@
           .attr("stroke-width", 2)
           .attr("r", function(d){ return d.value * _this.rad_factor; })
           .on("dblclick", _this.dblclick)
+          .on("contextmenu", _this.rightclick)
           .call(_this.drag)
           .merge(_this.node);
 
@@ -178,6 +183,10 @@
         this.simulation.alphaTarget(0.3).restart();
         d.fx = null;
         d.fy = null;
+      },
+      rightclick(d) {
+        d3.event.preventDefault();
+        this.contextmenu(d.id);
       },
       onResize() {
         let style = getComputedStyle(this.$el)
