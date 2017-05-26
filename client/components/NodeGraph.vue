@@ -16,7 +16,7 @@
       return {
         width: 0,
         height: 0,
-        radius: 12,
+        rad_factor: 10,
         node: null,
         link: null,
         drag: null,
@@ -28,13 +28,12 @@
     },
     computed: {
       graphData: function() {
-        console.log(this.results);
         let links = [];
         let nodes = [];
         // add root node
         nodes.push({
-          x: this.width / 2,
-          y: this.height / 2,
+          fx: (this.width / 2),
+          fy: (this.height / 2),
           fixed: true,
           index: 0,
           value: 3,
@@ -43,8 +42,8 @@
         });
         for(var k in this.results) {
           nodes.push({
-            x: this.width / 2,
-            y: this.height / 2,
+            x: this.width / 3,
+            y: this.height / 3,
             label: this.results[k].ip, 
             id: this.results[k].ip, 
             value: 1
@@ -66,7 +65,6 @@
         this.update();
       },
       graphData: function() {
-        console.log("Updated data", this.graphData);
         let _this = this;
         clearTimeout(_this.updateTimeout);
         _this.updateTimeout = setTimeout(function(){
@@ -92,12 +90,12 @@
           console.log('drawing shit');
           
           _this.simulation = d3.forceSimulation()
-              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(0.5))
-              // .force("collide",d3.forceCollide( function(d){return d.r + 8 }).iterations(16) )
+              .force("link", d3.forceLink().id(function(d) { return d.index }))
+              // .force("collide",d3.forceCollide( function(d){return d.value*10 }).iterations(100) )
               .force("charge", 
                 d3.forceManyBody()
                   .distanceMin(25)
-                  .strength(function(d){ return d.value*-150 })
+                  .strength(function(d){ return d.value*-250 })
               )
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY())
@@ -107,7 +105,7 @@
           _this.drag = d3.drag()
               .on("start", _this.dragstarted)
               .on("drag", _this.dragged)
-              .on("end", _this.dragended);
+              .on("end", _this.dragended)
       
           _this.link = _this.svg.append("g")
               .attr("class", "links")
@@ -136,7 +134,8 @@
           .attr("fill", "#00c4a7")
           .attr("stroke", "#00c4a7")
           .attr("stroke-width", 2)
-          .attr("r", function(d){ return d.value * 10; })
+          .attr("r", function(d){ return d.value * _this.rad_factor; })
+          .on("dblclick", _this.dblclick)
           .call(_this.drag)
           .merge(_this.node);
 
@@ -159,11 +158,9 @@
             .attr("y1", function(d) { return d.source.y; })
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; });
-        
         this.node
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
-
       },
       dragstarted(d) {
         if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
@@ -176,6 +173,9 @@
       },
       dragended(d) {
         if (!d3.event.active) this.simulation.alphaTarget(0);
+      },
+      dblclick(d) {
+        this.simulation.alphaTarget(0.3).restart();
         d.fx = null;
         d.fy = null;
       },
