@@ -31,10 +31,11 @@
       graphData: function() {
         let links = [];
         let nodes = [];
+        let root_offset = this.rad_factor*3/2;
         // add root node
         nodes.push({
-          fx: (this.width / 2),
-          fy: (this.height / 2),
+          fx: (this.width / 2) - root_offset,
+          fy: (this.height / 2) - root_offset,
           fixed: true,
           index: 0,
           value: 3,
@@ -43,8 +44,8 @@
         });
         for(var k in this.results) {
           nodes.push({
-            x: this.width / 3,
-            y: this.height / 3,
+            x: this.width / 2,
+            y: this.height / 2,
             label: this.results[k].ip, 
             id: this.results[k].ip, 
             value: 1
@@ -63,10 +64,11 @@
     watch: {
       width: function() {
         this.initialize();
-        this.update();
+        // this.update();
       },
       graphData: function() {
         let _this = this;
+        console.log(_this.nodecount, _this.graphData.nodes.length)
         if(_this.graphData.nodes.length > _this.nodecount){
           _this.nodecount = _this.graphData.nodes.length;
           clearTimeout(_this.updateTimeout);
@@ -120,13 +122,14 @@
               .selectAll("circle")
               .enter().append("circle")
           
-          _this.update();
+          // _this.update();
       },
 
       update() {
         let _this = this;
         console.log('Updating graph.');
         let data = _this.graphData;
+        _this.simulation.alphaTarget(0.3).restart();
 
         _this.node = _this.node.data(data.nodes, function(d) {return d.id; });
         _this.node.exit().remove();
@@ -135,9 +138,9 @@
           .attr("class", function(d) {
             return (d.fixed) ? "node root_node" : "node";
           })
-          .attr("fill", "#00c4a7")
-          .attr("stroke", "#00c4a7")
-          .attr("stroke-width", 2)
+          .attr("fill", _this.getFill)
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 1.5)
           .attr("r", function(d){ return d.value * _this.rad_factor; })
           .on("dblclick", _this.dblclick)
           .on("contextmenu", _this.rightclick)
@@ -155,7 +158,7 @@
 
         _this.simulation.nodes(data.nodes);
         _this.simulation.force("link").links(data.links);
-        _this.simulation.alpha(1).restart();
+        _this.simulation.alpha(0)
       },
       ticked() {
         this.link
@@ -186,7 +189,7 @@
       },
       rightclick(d) {
         d3.event.preventDefault();
-        this.contextmenu(d.id);
+        this.contextmenu(d.id, d3.event.pageX, d3.event.pageY);
       },
       onResize() {
         let style = getComputedStyle(this.$el)
@@ -200,6 +203,15 @@
         // set dimensions
         this.width = width;
         this.height = height;
+      },
+      getFill(d) {
+        if (d.root) {
+          return "rgb(51, 103, 153)";
+        } else if (d.dns_data || d.multicast_report) {
+          return "rgb(197, 82, 65)";
+        } else {
+          return "rgb(170, 170, 170)";
+        }
       }
     }
   }

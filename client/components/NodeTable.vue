@@ -74,7 +74,7 @@
         }
       },
       rightclick: function(ip, event) {
-        this.contextmenu(ip);
+        this.contextmenu(ip, event.pageX, event.pageY);
       }
     }
   }

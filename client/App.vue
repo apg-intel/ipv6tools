@@ -21,11 +21,12 @@
         </template>
       </div>
     </div>
+    <contextmenu :results="results" :modules="modules" :menu_options="menu_options"></contextmenu>
   </div>
 </template>
 
 <script>
-import { Navbar, NodeGraph, NodeTable, ModuleMenu, ScanButton, Console } from './components/'
+import { Navbar, NodeGraph, NodeTable, ModuleMenu, ContextMenu, ScanButton, Console } from './components/'
 var merge = require('deepmerge');
 
   export default {
@@ -36,7 +37,13 @@ var merge = require('deepmerge');
         results_raw: [],
         modules: [],
         active: 'table',
-        console_output: []
+        console_output: [],
+        menu_options: {
+          x: "0px",
+          y: "0px",
+          ip: "",
+          show: false
+        }
       }
     },
     components: {
@@ -45,7 +52,8 @@ var merge = require('deepmerge');
       'scan-button': ScanButton,
       'node-graph': NodeGraph,
       'node-table': NodeTable,
-      'module-menu': ModuleMenu
+      'module-menu': ModuleMenu,
+      'contextmenu': ContextMenu
     },
     computed: {
       has_results: function() {
@@ -133,8 +141,14 @@ var merge = require('deepmerge');
           _this.mergeResult(msg);
         })
       },
-      contextmenu: function(ip) {
-        console.log("right clicked context menu", ip);
+      contextmenu: function(ip, x, y) {
+        console.log("right clicked context menu", ip, x, y);
+        this.menu_options = {
+          x: x+"px",
+          y: y+"px",
+          ip: ip,
+          show: true
+        }
       }
     }
   }
