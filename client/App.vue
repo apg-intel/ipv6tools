@@ -1,24 +1,26 @@
 <template>
   <div>
-    <navbar :active="active" v-on:setActive="setActiveTab"></navbar>
-    <div class="columns is-gapless">
-      <div class="column is-narrow">
-        <scan-button :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></scan-button>
-        <module-menu :modules="modules">
-        </module-menu>
-      </div>
-      <div class="column">
-        <template v-if="has_results">
-          <template v-if="isActiveTab('table')">
-            <node-table :results="results" class="column is-12" :contextmenu="contextmenu"></node-table>
+    <div v-on:click="menu_options.show = false">
+      <navbar :active="active" v-on:setActive="setActiveTab"></navbar>
+      <div class="columns is-gapless">
+        <div class="column is-narrow">
+          <scan-button :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></scan-button>
+          <module-menu :modules="modules">
+          </module-menu>
+        </div>
+        <div class="column">
+          <template v-if="has_results">
+            <template v-if="isActiveTab('table')">
+              <node-table :results="results" class="column is-12" :contextmenu="contextmenu"></node-table>
+            </template>
+            <template v-if="isActiveTab('graph')">
+              <node-graph :results="results" class="column is-12" :contextmenu="contextmenu"></node-graph>
+            </template>
           </template>
-          <template v-if="isActiveTab('graph')">
-            <node-graph :results="results" class="column is-12" :contextmenu="contextmenu"></node-graph>
+          <template v-if="isActiveTab('console')">
+            <console :results="results" :console_output="console_output" class="column is-12"></console>
           </template>
-        </template>
-        <template v-if="isActiveTab('console')">
-          <console :results="results" :console_output="console_output" class="column is-12"></console>
-        </template>
+        </div>
       </div>
     </div>
     <contextmenu :results="results" :modules="modules" :menu_options="menu_options"></contextmenu>
@@ -142,10 +144,10 @@ var merge = require('deepmerge');
         })
       },
       contextmenu: function(ip, x, y) {
-        console.log("right clicked context menu", ip, x, y);
+        this.menu_options.show = false;
         this.menu_options = {
-          x: x+"px",
-          y: y+"px",
+          x: x,
+          y: y,
           ip: ip,
           show: true
         }

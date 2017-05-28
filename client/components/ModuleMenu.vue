@@ -11,7 +11,7 @@
               <a :class="{'is-active': isExpanded(module.modname)}" v-on:click="toggleModule(module.modname)">{{module.modname}}</a>
               <ul v-if="isExpanded(module.modname)">
                 <li v-for="action in module.actions" :action="action" v-if="!action.target">
-                  <a href="#" v-on:click.prevent="execModule(module.modname, action.action, null)">{{action.title}}</a>
+                  <a href="#" v-on:click.prevent="execute_action(module.modname, action.action, null)">{{action.title}}</a>
                 </li>
               </ul>
             </li>
@@ -54,7 +54,7 @@
           this.expanded.push(name)
         }
       },
-      execModule: function(modname, action, target){
+      execute_action: function(modname, action, target){
         // _this.logMessage('Modules loaded.')
         utils.socket.emit('mod_action', {modname: modname, target: target, action: action});
       }

@@ -74,7 +74,7 @@
           clearTimeout(_this.updateTimeout);
           _this.updateTimeout = setTimeout(function(){
             _this.update();
-          }, 1000);
+          }, 500);
         }
       }
     },
@@ -101,7 +101,7 @@
               .force("charge", 
                 d3.forceManyBody()
                   .distanceMin(25)
-                  .strength(function(d){ return d.value*-300 })
+                  .strength(function(d){ return d.value*-400 })
               )
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY())
@@ -140,7 +140,7 @@
           })
           .attr("fill", _this.getFill)
           .attr("stroke", "#fff")
-          .attr("stroke-width", 1.5)
+          .attr("stroke-width", 2)
           .attr("r", function(d){ return d.value * _this.rad_factor; })
           .on("dblclick", _this.dblclick)
           .on("contextmenu", _this.rightclick)
@@ -206,7 +206,7 @@
       },
       getFill(d) {
         if (d.root) {
-          return "rgb(51, 103, 153)";
+          return "#00d1b2";
         } else if (d.dns_data || d.multicast_report) {
           return "rgb(197, 82, 65)";
         } else {
