@@ -1,5 +1,5 @@
 <template>
-  <aside class="menu hero is-fullheight" id="sidebar">
+  <aside class="menu" id="sidebar">
     <div>
       <div class="main">
         <p class="menu-label">
@@ -69,7 +69,7 @@
 <style type="css">
   #sidebar{
     background: #232B2D;
-    min-height: 86.9vh;
+    height: 100%;
   }
 
   #sidebar .main {

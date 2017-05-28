@@ -3,18 +3,16 @@
     <div v-on:click="menu_options.show = false">
       <navbar :active="active" v-on:setActive="setActiveTab"></navbar>
       <div class="columns is-gapless">
-        <div class="column is-narrow">
+        <div class="column is-narrow hero is-fullheight">
           <scan-button :scanning="scanning" v-on:start="startScan" v-on:stop="stopScan"></scan-button>
           <module-menu :modules="modules">
           </module-menu>
         </div>
         <div class="column">
           <div class="columns is-gapless" v-if="has_results">
-            <template v-if="isActiveTab('table')">
-              <node-table :results="results" class="column is-half" :contextmenu="contextmenu"></node-table>
-              <node-graph :results="results" class="column is-half" :contextmenu="contextmenu"></node-graph>
-            </template>
-            <template v-if="isActiveTab('graph')">
+            <template v-if="isActiveTab('results')">
+              <node-table :results="results" class="column hero is-fullheight" :contextmenu="contextmenu"></node-table>
+              <node-graph :results="results" class="column hero is-fullheight" :contextmenu="contextmenu"></node-graph>
             </template>
           </div>
           <template v-if="isActiveTab('console')">
@@ -39,7 +37,7 @@ var merge = require('deepmerge');
         results: {},
         results_raw: [],
         modules: [],
-        active: 'table',
+        active: 'results',
         console_output: [],
         menu_options: {
           x: "0px",
@@ -173,7 +171,5 @@ var merge = require('deepmerge');
 <style type="css">
   html { overflow-x: auto; }
 
-  .columns, .column {
-    height: 100%;
-  }
+  .hero.is-fullheight { min-height: 92.8vh; }
 </style>
