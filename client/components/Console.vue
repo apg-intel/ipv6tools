@@ -25,7 +25,7 @@
   */
   #module-console {
     /*background-color: #1d1f21;*/
-    min-height: 500px;
+    min-height: 200px;
   }
 
   #module-console > div .ts { color: #5f819d; }

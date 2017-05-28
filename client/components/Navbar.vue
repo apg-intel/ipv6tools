@@ -30,9 +30,11 @@
             'active'
         ],
         methods: {
+            // set the active menu button
             setActive: function(e) {
                 this.$emit('setActive', e.target.dataset['tab']);
             },
+            // check if menu button is active
             isActive: function(name) {
                 return this.active === name;
             }

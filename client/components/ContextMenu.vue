@@ -31,6 +31,7 @@
       }
     },
     computed: {
+      // dynamic props to avoid using this.menu_options every time
       show: function() {
         return this.menu_options.show;
       },
@@ -39,19 +40,19 @@
       }
     },
     watch: {
+      // watch menu_options for changes to show to display the contextmenu
       menu_options: function() {
         if(this.show) {
           this.openMenu();
-          this.$nextTick(function() {
-            this.$el.focus();
-          });
         }
       }
     },
     methods: {
+      // click handler
       execute_action: function(modname, action) {
         utils.socket.emit('mod_action', {modname: modname, target: this.results[this.ip], action: action, input: this.module_input});
       },
+      // set the position of the menu
       setPosition: function() {
         this.$nextTick(function(){
           let maxTop = window.innerHeight - this.$el.offsetHeight - 25;
@@ -65,10 +66,13 @@
           this.left = left;
         });
       },
+      // reset the input field and open and position the menu
       openMenu: function() {
         this.module_input = "";
+        this.menu_options.show = true;
         this.setPosition();
       },
+      // close the menu
       closeMenu: function() {
         this.menu_options.show = false;
       }

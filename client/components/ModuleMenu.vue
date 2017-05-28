@@ -33,9 +33,11 @@
       }
     },
     methods: {
+      // check if collapsible menu is open
       isExpanded: function(name){
         return this.expanded.indexOf(name) >= 0
       },
+      // check if it has non-targeted actions
       hasGlobalActions: function(actions){
         var hasGlobals = false
         for(var x in actions){
@@ -45,6 +47,7 @@
         }
         return hasGlobals
       },
+      // toggle the expanded menus
       toggleModule: function(name){
         if(this.isExpanded(name)){
           this.expanded = this.expanded.filter(function (item) {
@@ -54,6 +57,7 @@
           this.expanded.push(name)
         }
       },
+      // click handler
       execute_action: function(modname, action, target){
         // _this.logMessage('Modules loaded.')
         utils.socket.emit('mod_action', {modname: modname, target: target, action: action});

@@ -16,7 +16,6 @@
     },
     methods: {
       startStopScan: function() {
-          console.log('Starting scan...')
           if(this.scanning) {
               this.$emit('stop')
           } else {
