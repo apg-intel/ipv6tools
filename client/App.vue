@@ -171,5 +171,5 @@ var merge = require('deepmerge');
 <style type="css">
   html { overflow-x: auto; }
 
-  .hero.is-fullheight { min-height: 92.8vh; }
+  .hero.is-fullheight { min-height: 92.7vh!important; }
 </style>

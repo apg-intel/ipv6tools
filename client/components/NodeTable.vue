@@ -1,6 +1,6 @@
 <template>
   <div>
-    <table class="table">
+    <table id="nodetable" class="table">
       <thead>
         <tr>
           <th>Details</th>
@@ -11,7 +11,7 @@
       </thead>
       <tbody>
         <template v-for="result in results" :result="result">
-          <tr v-on:contextmenu.prevent="rightclick(result.ip, $event)">
+          <tr v-on:contextmenu.prevent="rightclick(result.ip, $event)" class="clickable-row">
             <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)">
               <a href="#" v-on:click.prevent="show(result.ip)">
                 <i class="fa" :class="{'fa-chevron-up': isShown(result.ip), 'fa-chevron-down': !isShown(result.ip)}" aria-hidden="true"></i>
@@ -79,3 +79,9 @@
     }
   }
 </script>
+
+<style type="text/css">
+  tr.clickable-row {
+    cursor: pointer;
+  }
+</style>

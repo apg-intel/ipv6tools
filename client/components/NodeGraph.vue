@@ -68,7 +68,6 @@
       },
       graphData: function() {
         let _this = this;
-        console.log(_this.nodecount, _this.graphData.nodes.length)
         if(_this.graphData.nodes.length > _this.nodecount){
           _this.nodecount = _this.graphData.nodes.length;
           clearTimeout(_this.updateTimeout);
@@ -93,16 +92,19 @@
       },
       drawChart(data) {
           let _this = this;
-          console.log('drawing shit');
+          let attractForce = d3.forceManyBody().strength(function(d){ return d.value*50 });
+          let repelForce = d3.forceManyBody().strength(function(d){ return d.value*-250 }).distanceMin(10);
           
           _this.simulation = d3.forceSimulation()
-              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(0.4))
+              .force("link", d3.forceLink().id(function(d) { return d.index }).strength(0.6))
               // .force("collide",d3.forceCollide( function(d){return d.value*10 }).iterations(100) )
               .force("charge", 
                 d3.forceManyBody()
                   .distanceMin(25)
-                  .strength(function(d){ return d.value*-400 })
+                  .strength(function(d){ return d.value*-250 })
               )
+              // .force("attractForce", attractForce)
+              // .force("repelForce", repelForce)
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY())
               .force("x", d3.forceX())
@@ -139,7 +141,7 @@
             return (d.fixed) ? "node root_node" : "node";
           })
           .attr("fill", _this.getFill)
-          .attr("stroke", "#fff")
+          .attr("stroke", "whitesmoke")
           .attr("stroke-width", 2)
           .attr("r", function(d){ return d.value * _this.rad_factor; })
           .on("dblclick", _this.dblclick)
@@ -223,9 +225,14 @@
     flex-direction: column;
     height: 100%;
     padding: 10px 10px 0 10px;
+    background: whitesmoke;
   }
 
   #graph-inner {
     flex: 1;
+  }
+
+  circle.node {
+    cursor: pointer;
   }
 </style>
