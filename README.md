@@ -77,3 +77,22 @@ class IPv6Module(Template):
 
 * Not compatible with Firefox or IE
 * Untested on large networks
+
+### Mac Install Notes
+
+*Optional: use a virtualenv for installation:* `virtualenv venv && source venv/bin/activate`
+
+1. Install [NVM](https://github.com/creationix/nvm)
+2. Install node `nvm install node`
+3. Clone the repo `git clone https://github.com/apg-intel/ipv6tools.git`
+4. Install requirements `npm run setup`
+5. Install dnet:
+```
+$ wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
+$ tar xfz libdnet-1.12.tgz
+$ ./configure
+$ make
+$ sudo make install
+$ cd python
+$ python setup.py install
+```
