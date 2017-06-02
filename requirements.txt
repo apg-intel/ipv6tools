@@ -4,5 +4,5 @@ Flask-SocketIO==2.8.6
 gevent==1.2.1
 gevent-websocket==0.10.1
 netifaces==0.10.5
-pypcap==1.1.6
+pcapy==0.11.1
 scapy==2.3.3
