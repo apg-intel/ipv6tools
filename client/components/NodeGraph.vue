@@ -22,6 +22,7 @@
         link: null,
         drag: null,
         svg: null,
+        zoom: null,
         nodecount: 0,
         updateTimeout: null,
         div: "#graph-inner"
@@ -84,15 +85,18 @@
       this.onResize();
     },
     methods: {
-      initialize() {
+      initialize: function() {
         console.log('Initializing graph.');
         let _this = this;
+        _this.zoom = d3.zoom()
+          .on("zoom", _this.zoomed);
 
-        _this.svg = d3.select("#graph-inner").html('').append("svg")
+        d3.select("#graph-inner").html('').append("svg");
+        _this.svg = d3.select("svg").call(_this.zoom).on("dblclick.zoom", null);
         _this.svg.attr("width", _this.width).attr("height", _this.height)
         _this.drawChart(_this.graphData)
       },
-      drawChart(data) {
+      drawChart: function(data) {
           let _this = this;
           
           _this.simulation = d3.forceSimulation()
@@ -121,7 +125,7 @@
               .enter().append("circle")
       },
 
-      update() {
+      update: function() {
         let _this = this;
         console.log('Updating graph.');
         let data = _this.graphData;
@@ -155,7 +159,7 @@
         _this.simulation.nodes(data.nodes);
         _this.simulation.force("link").links(data.links);
       },
-      ticked() {
+      ticked: function() {
         this.link
             .attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
@@ -165,28 +169,28 @@
             .attr("cx", function(d) { return d.x; })
             .attr("cy", function(d) { return d.y; });
       },
-      dragstarted(d) {
+      dragstarted: function(d) {
         if (!d3.event.active) this.simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
         d.fy = d.y;
       },
-      dragged(d) {
+      dragged: function(d) {
         d.fx = d3.event.x;
         d.fy = d3.event.y;
       },
-      dragended(d) {
+      dragended: function(d) {
         if (!d3.event.active) this.simulation.alphaTarget(0);
       },
-      dblclick(d) {
+      dblclick: function(d) {
         this.simulation.alphaTarget(0.3).restart();
         d.fx = null;
         d.fy = null;
       },
-      rightclick(d) {
+      rightclick: function(d) {
         d3.event.preventDefault();
         this.contextmenu(d.id, d3.event.pageX, d3.event.pageY);
       },
-      onResize() {
+      onResize: function() {
         let style = getComputedStyle(this.$el)
         window.el = this.$el
         // get the heights and widths
@@ -199,7 +203,12 @@
         this.width = width;
         this.height = height;
       },
-      getFill(d) {
+      zoomed: function() {
+        console.log("zoom zoom");
+        this.node.attr("transform", d3.event.transform);
+        this.link.attr("transform", d3.event.transform);
+      },
+      getFill: function(d) {
         if (d.root) {
           return "#00d1b2";
         } else if (d.dns_data || d.multicast_report) {
