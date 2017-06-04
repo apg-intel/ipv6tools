@@ -44,19 +44,17 @@
           id: "root"
         });
         for(var k in this.results) {
-          for (var i = 0; i < 50; i++) {
-            nodes.push({
-              x: this.width / 2,
-              y: this.height / 2,
-              label: this.results[k].ip, 
-              id: this.results[k].ip, 
-              value: 1
-            });
-            links.push({
-              source: 0, 
-              target: nodes.length-1
-            });
-          }
+          nodes.push({
+            x: this.width / 2,
+            y: this.height / 2,
+            label: this.results[k].ip, 
+            id: this.results[k].ip, 
+            value: 1
+          });
+          links.push({
+            source: 0, 
+            target: nodes.length-1
+          });
         }
         return {
           nodes: nodes,
