@@ -13,7 +13,8 @@ module.exports = {
   devServer: {
     proxy: {
       '/socket.io': 'http://localhost:8080'
-    }
+    },
+    disableHostCheck: true
   },
   /* resolveLoader: {
     root: path.join(__dirname, 'node_modules'),

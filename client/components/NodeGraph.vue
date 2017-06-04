@@ -43,17 +43,19 @@
           id: "root"
         });
         for(var k in this.results) {
-          nodes.push({
-            x: this.width / 2,
-            y: this.height / 2,
-            label: this.results[k].ip, 
-            id: this.results[k].ip, 
-            value: 1
-          });
-          links.push({
-            source: 0, 
-            target: nodes.length-1
-          });
+          for (var i = 0; i < 50; i++) {
+            nodes.push({
+              x: this.width / 2,
+              y: this.height / 2,
+              label: this.results[k].ip, 
+              id: this.results[k].ip, 
+              value: 1
+            });
+            links.push({
+              source: 0, 
+              target: nodes.length-1
+            });
+          }
         }
         return {
           nodes: nodes,
@@ -92,19 +94,13 @@
       },
       drawChart(data) {
           let _this = this;
-          let attractForce = d3.forceManyBody().strength(function(d){ return d.value*50 });
-          let repelForce = d3.forceManyBody().strength(function(d){ return d.value*-250 }).distanceMin(10);
           
           _this.simulation = d3.forceSimulation()
               .force("link", d3.forceLink().id(function(d) { return d.index }).strength(0.6))
-              // .force("collide",d3.forceCollide( function(d){return d.value*10 }).iterations(100) )
               .force("charge", 
                 d3.forceManyBody()
-                  .distanceMin(25)
                   .strength(function(d){ return d.value*-250 })
               )
-              // .force("attractForce", attractForce)
-              // .force("repelForce", repelForce)
               .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
               .force("y", d3.forceY())
               .force("x", d3.forceX())
@@ -123,15 +119,13 @@
               .attr("class", "nodes")
               .selectAll("circle")
               .enter().append("circle")
-          
-          // _this.update();
       },
 
       update() {
         let _this = this;
         console.log('Updating graph.');
         let data = _this.graphData;
-        _this.simulation.alphaTarget(0.3).restart();
+        _this.simulation.alpha(1).restart();
 
         _this.node = _this.node.data(data.nodes, function(d) {return d.id; });
         _this.node.exit().remove();
@@ -160,7 +154,6 @@
 
         _this.simulation.nodes(data.nodes);
         _this.simulation.force("link").links(data.links);
-        _this.simulation.alpha(0)
       },
       ticked() {
         this.link
