@@ -29,14 +29,16 @@
       }
     },
     computed: {
+      root_offset: function() {
+        return this.rad_factor*3/2;
+      },
       graphData: function() {
         let links = [];
         let nodes = [];
-        let root_offset = this.rad_factor*3/2;
         // add root node
         nodes.push({
-          fx: (this.width / 2) - root_offset,
-          fy: (this.height / 2) - root_offset,
+          fx: (this.width / 2) - this.root_offset,
+          fy: (this.height / 2) - this.root_offset,
           fixed: true,
           index: 0,
           value: 3,
@@ -44,9 +46,10 @@
           id: "root"
         });
         for(var k in this.results) {
+          for (var i = 0; i < 2; i++) {
           nodes.push({
-            x: this.width / 2,
-            y: this.height / 2,
+            x: this.width / 3,
+            y: this.height / 3,
             label: this.results[k].ip, 
             id: this.results[k].ip, 
             value: 1
@@ -55,6 +58,7 @@
             source: 0, 
             target: nodes.length-1
           });
+          }
         }
         return {
           nodes: nodes,
@@ -93,6 +97,21 @@
         _this.svg = d3.select("svg").call(_this.zoom).on("dblclick.zoom", null);
         _this.svg.attr("width", _this.width).attr("height", _this.height)
         _this.drawChart(_this.graphData)
+
+        let addN = function(){
+          let rand = "asdf"+Math.random()
+          _this.$parent.mergeResult({
+            ip: rand,
+            mac: rand
+          })
+          setTimeout(function(){
+            addN();
+          }, 5000)
+        }
+
+        setTimeout(function(){
+          addN()
+        }, 5000)
       },
       drawChart: function(data) {
           let _this = this;
@@ -103,7 +122,7 @@
                 d3.forceManyBody()
                   .strength(function(d){ return d.value*-250 })
               )
-              .force("center", d3.forceCenter(_this.width / 2, _this.height / 2))
+              .force("center", d3.forceCenter((_this.width / 2) - _this.root_offset, (_this.height / 2) - _this.root_offset))
               .force("y", d3.forceY())
               .force("x", d3.forceX())
               .on("tick", _this.ticked);
@@ -127,7 +146,6 @@
         let _this = this;
         console.log('Updating graph.');
         let data = _this.graphData;
-        _this.simulation.alpha(1).restart();
 
         _this.node = _this.node.data(data.nodes, function(d) {return d.id; });
         _this.node.exit().remove();
@@ -154,8 +172,13 @@
           .attr("stroke", "#999999")
           .merge(_this.link);
 
+        _this.simulation.stop();
+
         _this.simulation.nodes(data.nodes);
         _this.simulation.force("link").links(data.links);
+
+        _this.simulation.alpha(1).restart();
+
       },
       ticked: function() {
         this.link
