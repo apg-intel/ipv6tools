@@ -10,7 +10,7 @@
         </tr>
       </thead>
       <tbody>
-        <template v-for="result in results" :result="result">
+        <template v-for="result in results_arr" :result="result">
           <tr v-on:contextmenu.prevent="rightclick(result.ip, $event)" class="clickable-row">
             <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)">
               <a href="#" v-on:click.prevent="show(result.ip)">
@@ -47,6 +47,7 @@
         </template>
       </tbody>
     </table>
+    asdf: {{results_arr.map(function(obj){ return obj.device_name })}}
   </div>
 </template>
 
@@ -59,6 +60,13 @@
     data: function() {
       return {
         showDetails: []
+      }
+    },
+    computed: {
+      results_arr: function() {
+        return Object.values(this.results).sort(function(a,b){
+          return (b.device_name || '').localeCompare(a.device_name || '');
+        })
       }
     },
     methods: {

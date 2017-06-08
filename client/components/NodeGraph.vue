@@ -95,23 +95,8 @@
 
         d3.select("#graph-inner").html('').append("svg");
         _this.svg = d3.select("svg").call(_this.zoom).on("dblclick.zoom", null);
-        _this.svg.attr("width", _this.width).attr("height", _this.height)
-        _this.drawChart(_this.graphData)
-
-        let addN = function(){
-          let rand = "asdf"+Math.random()
-          _this.$parent.mergeResult({
-            ip: rand,
-            mac: rand
-          })
-          setTimeout(function(){
-            addN();
-          }, 5000)
-        }
-
-        setTimeout(function(){
-          addN()
-        }, 5000)
+        _this.svg.attr("width", _this.width).attr("height", _this.height);
+        _this.drawChart(_this.graphData);
       },
       drawChart: function(data) {
           let _this = this;

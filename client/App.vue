@@ -31,7 +31,7 @@ var merge = require('deepmerge');
 
   export default {
     data: function() {
-      // app data 
+      // app data
       return {
         scanning: false,
         results: {},
