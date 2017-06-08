@@ -47,7 +47,6 @@
         </template>
       </tbody>
     </table>
-    asdf: {{results_arr.map(function(obj){ return obj.device_name })}}
   </div>
 </template>
 
@@ -65,7 +64,13 @@
     computed: {
       results_arr: function() {
         return Object.values(this.results).sort(function(a,b){
-          return (b.device_name || '').localeCompare(a.device_name || '');
+          if ((!a.device_name) && (!b.device_name))
+            return 0;
+          else if (!a.device_name)
+            return 1;
+          else if (!b.device_name)
+            return -1;
+          return (a.device_name).localeCompare(b.device_name);
         })
       }
     },

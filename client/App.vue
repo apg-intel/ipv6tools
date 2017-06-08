@@ -11,7 +11,7 @@
         <div class="column">
           <div class="columns is-gapless" v-if="has_results">
             <template v-if="isActiveTab('results')">
-              <node-table :results="results" class="column hero is-fullheight" :contextmenu="contextmenu"></node-table>
+              <node-table :results="results" class="column hero is-fullheight is-scrollable" :contextmenu="contextmenu"></node-table>
               <node-graph :results="results" class="column hero is-fullheight" :contextmenu="contextmenu"></node-graph>
             </template>
           </div>
@@ -172,4 +172,8 @@ var merge = require('deepmerge');
   html { overflow-x: auto; }
 
   .hero.is-fullheight { min-height: 92.7vh!important; }
+  .hero.is-fullheight.is-scrollable {
+    height: 92.7vh!important;
+    overflow: scroll;
+  }
 </style>
