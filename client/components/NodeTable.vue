@@ -3,6 +3,11 @@
     <table id="nodetable" class="table">
       <thead>
         <tr>
+          <td colspan="4">
+            <input class="input" type="text" placeholder="Search..." v-model="search">
+          </td>
+        </tr>
+        <tr>
           <th>Details</th>
           <th>
             <a @click="sortBy('ip')" :class="{active: sortKey == 'ip'}">
@@ -75,7 +80,8 @@
       return {
         showDetails: [],
         sortKey: 'device_name',
-        reverse: false
+        reverse: false,
+        search: ''
       }
     },
     computed: {
@@ -90,7 +96,14 @@
             return -1;
           return (a[_this.sortKey]).localeCompare(b[_this.sortKey]);
         });
-        return (_this.reverse) ? arr.reverse() : arr;
+        if(_this.reverse)
+          arr = arr.reverse();
+        if(_this.search.length > 2) {
+          arr = arr.filter(function(result) {
+            return (new RegExp(_this.search)).test(JSON.stringify(result));
+          })
+        }
+        return arr;
       }
     },
     methods: {
@@ -119,6 +132,16 @@
 <style type="text/css">
   tr.clickable-row {
     cursor: pointer;
+  }
+
+  th > a {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
   }
 
   th > a.active {
