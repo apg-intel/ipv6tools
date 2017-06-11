@@ -4,9 +4,24 @@
       <thead>
         <tr>
           <th>Details</th>
-          <th>IP Address</th>
-          <th>MAC Address</th>
-          <th>Device Name</th>
+          <th>
+            <a @click="sortBy('ip')" :class="{active: sortKey == 'ip'}">
+              IP Address
+              <span class="icon is-small" v-if="sortKey == 'ip'"><i class="fa" :class="{'fa-chevron-up': reverse, 'fa-chevron-down': !reverse}"></i></span>
+            </a>
+          </th>
+          <th>
+            <a @click="sortBy('mac')" :class="{active: sortKey == 'mac'}">
+              MAC Address
+              <span class="icon is-small" v-if="sortKey == 'mac'"><i class="fa" :class="{'fa-chevron-up': reverse, 'fa-chevron-down': !reverse}"></i></span>
+            </a>
+          </th>
+          <th>
+            <a @click="sortBy('device_name')" :class="{active: sortKey == 'device_name'}">
+              Device Name
+              <span class="icon is-small" v-if="sortKey == 'device_name'"><i class="fa" :class="{'fa-chevron-up': reverse, 'fa-chevron-down': !reverse}"></i></span>
+            </a>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -58,20 +73,24 @@
     },
     data: function() {
       return {
-        showDetails: []
+        showDetails: [],
+        sortKey: 'device_name',
+        reverse: false
       }
     },
     computed: {
       results_arr: function() {
-        return Object.values(this.results).sort(function(a,b){
-          if ((!a.device_name) && (!b.device_name))
+        let _this = this;
+        let arr = Object.values(this.results).sort(function(a,b){
+          if ((!a[_this.sortKey]) && (!b[_this.sortKey]))
             return 0;
-          else if (!a.device_name)
+          else if (!a[_this.sortKey])
             return 1;
-          else if (!b.device_name)
+          else if (!b[_this.sortKey])
             return -1;
-          return (a.device_name).localeCompare(b.device_name);
-        })
+          return (a[_this.sortKey]).localeCompare(b[_this.sortKey]);
+        });
+        return (_this.reverse) ? arr.reverse() : arr;
       }
     },
     methods: {
@@ -88,6 +107,10 @@
       },
       rightclick: function(ip, event) {
         this.contextmenu(ip, event.pageX, event.pageY);
+      },
+      sortBy: function(sortKey) {
+        this.reverse = (this.sortKey == sortKey) ? ! this.reverse : false;
+        this.sortKey = sortKey;
       }
     }
   }
@@ -96,5 +119,9 @@
 <style type="text/css">
   tr.clickable-row {
     cursor: pointer;
+  }
+
+  th > a.active {
+    color: #3273dc;
   }
 </style>
