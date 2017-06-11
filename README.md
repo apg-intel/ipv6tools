@@ -16,22 +16,32 @@ The IPv6 framework is a robust set of modules and plugins that allow a user to a
 
 ## Installation
 
-1. `$ git clone http://github.com/ronmajic/ipv6tools.git`
-  * *Temporary: `git checkout dev`*
-2. `$ npm run setup`
+### Standard
+
+*[Optional] Use a virtualenv for installation:* `virtualenv venv && source venv/bin/activate`
+
+1. `git clone http://github.com/ronmajic/ipv6tools.git`
+2. `sudo pip install -r requirements.txt`
+
+
+### Development
+1. `git clone http://github.com/ronmajic/ipv6tools.git`
+2. `git checkout dev`
+3. `npm run setup`
 
 ## Usage
 
-### Web client - dev
-1. Run `$ npm run serve`
-2. In a separate terminal, run `$ npm run dev`
-3. Navigate to [http://localhost:8081](http://localhost:8081) in a web browser
-
-### Web client - prod
-1. `$ npm run start`
+### Standard
+1. `sudo python app.py`
 2. Navigate to [http://localhost:8080](http://localhost:8080) in a web browser
 
+### Development
+1. Run `$ npm run serve`
+2. In a separate terminal, run `npm run dev`
+3. Navigate to [http://localhost:8081](http://localhost:8081) in a web browser
+
 ### CLI
+**TODO**
 
 ## Modules
 
@@ -47,7 +57,6 @@ Included in the project are a couple of modules to help validate your network, a
 ### Custom Modules
 
 All modules are located in `/modules` and are automatically loaded when starting the server. Included in `/modules` is a file called `template.py`. This file contains the class that all modules must extend in order to display correctly and communicate with the webpage.
-
 
 Use this template to build a custom module
 
@@ -69,30 +78,30 @@ class IPv6Module(Template):
     ]
 
   def action(self, target=None):
+    # send a log msg
     self.socket_log('Running DoS on '+target['ip'])
+    
+    # do stuff, etc
+
+    # merge results with main result set
+    listOfDicts = [{ip: '::1', device_name: 'test'}]
+    self.module_merge(listOfDicts)
 
 ```
 
 ## Known Issues
 
-* Not compatible with Firefox or IE
 * Untested on large networks
+* Any stack traces mentioning `dnet` or `dumbnet` - follow the instructions below.
 
-### Mac Install Notes
 
-*Optional: use a virtualenv for installation:* `virtualenv venv && source venv/bin/activate`
-
-1. Install [NVM](https://github.com/creationix/nvm)
-2. Install node `nvm install node`
-3. Clone the repo `git clone https://github.com/apg-intel/ipv6tools.git`
-4. Install requirements `npm run setup`
-5. Install dnet:
+### Installing libdnet
 ```
-$ wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
-$ tar xfz libdnet-1.12.tgz
-$ ./configure
-$ make
-$ sudo make install
-$ cd python
-$ python setup.py install
+wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
+tar xfz libdnet-1.12.tgz
+./configure
+make
+sudo make install
+cd python
+python setup.py install
 ```

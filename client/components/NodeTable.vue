@@ -87,7 +87,7 @@
     computed: {
       results_arr: function() {
         let _this = this;
-        let arr = Object.values(this.results).sort(function(a,b){
+        let arr = Object.keys(this.results).map(function(key){ return _this.results[key]; }).sort(function(a,b){
           if ((!a[_this.sortKey]) && (!b[_this.sortKey]))
             return 0;
           else if (!a[_this.sortKey])
