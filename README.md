@@ -12,7 +12,7 @@ The IPv6 framework is a robust set of modules and plugins that allow a user to a
 
 * python 2.7
 * pip
-* npm
+* npm [development only]
 
 ## Installation
 
