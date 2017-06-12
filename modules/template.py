@@ -22,6 +22,14 @@ class Template(object):
     def action(self):
         return "Action is not yet defined."
 
+    # Merge a list of dictionaries with the main result set on IP
+    # msg [required] - List of dicts containing an "ip" key to merge with
+    def module_merge(self, msg):
+        if self.socketio:
+            self.socketio.emit('module_merge', msg, namespace=self.namespace)
+        else:
+            print msg
+
     # Send messages back to the webpage for logging
     # msg [required] - text to output
     def socket_log(self, msg):

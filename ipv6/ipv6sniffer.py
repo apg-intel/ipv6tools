@@ -3,9 +3,7 @@ from ipv6 import getMacFromPacket
 import dns as dns
 import icmpv6 as icmpv6
 import binascii
-from multiprocessing.pool import ThreadPool, Pool
-from flask.ext.socketio import SocketIO, emit
-
+from multiprocessing.pool import ThreadPool
 
 class IPv6Sniffer:
     pool = None
@@ -71,6 +69,10 @@ class IPv6Sniffer:
                 if dns_data:
                     res['dns_data'] = dns_data
                     res['mac'] = getMacFromPacket(packet)
+                    # extract name from dns response type 28
+                    for entry in dns_data:
+                        if entry['answer_type'] == 28:
+                            res['device_name'] = entry['answer_name']
                 else:
                     res = None
             except Exception:
@@ -84,6 +86,10 @@ class IPv6Sniffer:
               if dns_data:
                 res['dns_data'] = dns_data
                 res['mac'] = getMacFromPacket(packet)
+                # extract name from dns response type 28
+                for entry in dns_data:
+                    if entry['answer_type'] == 28:
+                        res['device_name'] = entry['answer_name']
               else:
                 res = None
             except Exception:

@@ -1,0 +1,10 @@
+{
+  "presets": [
+    "vue",
+    "es2015"
+  ],
+  "plugins": [
+    "transform-export-extensions"
+  ],
+  "comments": false
+}

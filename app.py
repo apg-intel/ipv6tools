@@ -1,13 +1,14 @@
 import importlib, os, sys, argparse
-from flask import Flask, request, render_template
-from flask.ext.socketio import SocketIO, emit
+from flask import Flask, request, render_template, json, send_from_directory
+from flask_socketio import SocketIO
 
-# import ipv6 stuff
+# # import ipv6 stuff
 import ipv6.icmpv6 as icmpv6
 import ipv6.dns as dns
 import ipv6.ipv6sniffer as ipv6sniffer
 
 PROPAGATE_EXCEPTIONS = True
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -19,8 +20,12 @@ mod_objects = {}
 # only route is the index - everything else uses websockets (for now)
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+@socketio.on('get_mods', namespace=ns)
+def get_mods():
     mods = get_modules()
-    return render_template('index.html', mods=mods)
+    socketio.emit('get_mods', json.dumps(mods), namespace=ns)
 
 # websocket to intialize the main sniffer
 # message
@@ -33,7 +38,7 @@ def sniffer_init(message):
 # message
 #   None
 @socketio.on('sniffer_kill', namespace=ns)
-def sniffer_init(message):
+def sniffer_kill(message):
     sniffer.stop()
 
 # websocket to perform the initial network scan
@@ -72,9 +77,14 @@ def mod_action(message): #target,name,action
     action = getattr(mod_objects[message['modname']], message['action'])
     action(message.get('target'))
 
+@app.route('/assets/<path:filename>')
+def assets(filename):
+    return send_from_directory("assets", filename)
+
+
 # load modules from /modules
 def get_modules():
-    import pkgutil, os.path
+    import pkgutil
     import modules
 
     pkg = modules
@@ -105,8 +115,8 @@ if __name__ == '__main__':
 
     # cli arguments
     parser = argparse.ArgumentParser(description='The IPv6 framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network.')
-    parser.add_argument('--host', dest="host", default="127.0.0.1", help="address to bind the server to (default: 127.0.0.1)")
-    parser.add_argument('--port', dest="port", default="5000", help="port to run the server on (default: 5000)", type=int)
+    parser.add_argument('--host', dest="host", default="0.0.0.0", help="address to bind the server to (default: 0.0.0.0)")
+    parser.add_argument('--port', dest="port", default="8080", help="port to run the server on (default: 8080)", type=int)
     args = parser.parse_args()
 
     print "Server starting on http://{host}:{port}/".format(host=args.host, port=args.port)
