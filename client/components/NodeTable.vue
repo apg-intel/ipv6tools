@@ -32,7 +32,7 @@
       <tbody>
         <template v-for="result in results_arr" :result="result">
           <tr v-on:contextmenu.prevent="rightclick(result.ip, $event)" class="clickable-row">
-            <td v-if="result.dns_data" :title="JSON.stringify(result.dns_data)">
+            <td v-if="result.dns_data || result.multicast_report" :title="JSON.stringify(result.multicast_report)+JSON.stringify(result.dns_data)">
               <a href="#" v-on:click.prevent="show(result.ip)">
                 <i class="fa" :class="{'fa-chevron-up': isShown(result.ip), 'fa-chevron-down': !isShown(result.ip)}" aria-hidden="true"></i>
               </a>
@@ -44,24 +44,40 @@
           </tr>
           <tr v-if="showDetails.indexOf(result.ip) >= 0">
             <td colspan="5">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>isAnswer</th>
-                  <th>answer_data</th>
-                  <th>answer_type</th>
-                  <th>answer_name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="result in result.dns_data">
-                  <td>{{result.isAnswer}}</td>
-                  <td>{{result.answer_data}}</td>
-                  <td>{{result.answer_type}}</td>
-                  <td>{{result.answer_name}}</td>
-                </tr>
-              </tbody>
-            </table>
+              <table class="table detail-table" v-if="result.dns_data">
+                <thead>
+                  <tr>
+                    <th>isAnswer</th>
+                    <th>answer_data</th>
+                    <th>answer_type</th>
+                    <th>answer_name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="result in result.dns_data">
+                    <td>{{result.isAnswer}}</td>
+                    <td>{{result.answer_data}}</td>
+                    <td>{{result.answer_type}}</td>
+                    <td>{{result.answer_name}}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="table" v-if="result.multicast_report">
+                <thead>
+                  <tr>
+                    <th>multicast_address</th>
+                    <th>record_type</th>
+                    <th>service</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="result in result.multicast_report">
+                    <td>{{result.multicast_address}}</td>
+                    <td>{{result.record_type}}</td>
+                    <td>{{result.service}}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
         </template>
@@ -100,7 +116,7 @@
           arr = arr.reverse();
         if(_this.search.length > 2) {
           arr = arr.filter(function(result) {
-            return (new RegExp(_this.search)).test(JSON.stringify(result));
+            return (new RegExp(_this.search, "i")).test(JSON.stringify(result));
           })
         }
         return arr;
@@ -146,5 +162,9 @@
 
   th > a.active {
     color: #3273dc;
+  }
+
+  table.detail-table td {
+    word-break: break-word;
   }
 </style>
