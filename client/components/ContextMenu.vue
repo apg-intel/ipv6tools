@@ -51,6 +51,7 @@
       // click handler
       execute_action: function(modname, action) {
         utils.socket.emit('mod_action', {modname: modname, target: this.results[this.ip], action: action, input: this.module_input});
+        this.closeMenu();
       },
       // set the position of the menu
       setPosition: function() {
