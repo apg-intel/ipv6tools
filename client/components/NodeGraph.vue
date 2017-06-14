@@ -30,7 +30,7 @@
     },
     computed: {
       root_offset: function() {
-        return this.rad_factor*3/2;
+        return this.rad_factor*2;
       },
       graphData: function() {
         let links = [];
