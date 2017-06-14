@@ -11,7 +11,7 @@ class IPv6Module(Template):
 
     def __init__(self, socketio, namespace):
         super(IPv6Module, self).__init__(socketio, namespace)
-        self.modname = "DAD_DoS"
+        self.modname = "DAD aaDoS"
         self.actions = [
             {
                 "title": "DAD DoS",
@@ -93,7 +93,7 @@ class IPv6Sniffer:
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = dst
 
-        if packet[IPv6].src =! "::":
+        if packet[IPv6].src != "::":
             ip_packet.fields["dst"] = packet[IPv6].src
 
 
