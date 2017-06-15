@@ -96,4 +96,5 @@ class IPv6Sniffer:
               pass
 
         if channel and res:
+            print(res)
             self.socketio.emit(channel, res, namespace=namespace)

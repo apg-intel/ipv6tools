@@ -93,15 +93,17 @@ class IPv6Module(Template):
 
 * Untested on large networks
 * Any stack traces mentioning `dnet` or `dumbnet` - follow the instructions below.
-
+* Some operating systems may require the libpcap headers. See notes below.
 
 ### Installing libdnet
 ```
-wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
-tar xfz libdnet-1.12.tgz
-./configure
-make
+git clone https://github.com/dugsong/libdnet.git
+cd libdnet
+./configure && make
 sudo make install
 cd python
 python setup.py install
 ```
+
+### libpcap headers in Ubuntu
+`sudo apt install libpcap-dev`

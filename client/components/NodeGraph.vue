@@ -30,7 +30,7 @@
     },
     computed: {
       root_offset: function() {
-        return this.rad_factor*3/2;
+        return this.rad_factor*2;
       },
       graphData: function() {
         let links = [];
@@ -46,19 +46,19 @@
           id: "root"
         });
         for(var k in this.results) {
-          for (var i = 0; i < 2; i++) {
           nodes.push({
             x: this.width / 3,
             y: this.height / 3,
-            label: this.results[k].ip, 
-            id: this.results[k].ip, 
-            value: 1
+            label: this.results[k].device_name || this.results[k].ip,
+            id: this.results[k].ip,
+            value: 1,
+            dns_data: (this.results[k].dns_data || this.results[k].multicast_report),
+            device_name: this.results[k].device_name || null
           });
           links.push({
             source: 0, 
             target: nodes.length-1
           });
-          }
         }
         return {
           nodes: nodes,
@@ -73,13 +73,13 @@
       },
       graphData: function() {
         let _this = this;
-        if(_this.graphData.nodes.length > _this.nodecount){
+        // if(_this.graphData.nodes.length > _this.nodecount){
           _this.nodecount = _this.graphData.nodes.length;
           clearTimeout(_this.updateTimeout);
           _this.updateTimeout = setTimeout(function(){
             _this.update();
           }, 500);
-        }
+        // }
       }
     },
     mounted: function() {
@@ -147,6 +147,14 @@
           .on("contextmenu", _this.rightclick)
           .call(_this.drag)
           .merge(_this.node);
+
+        // _this.nodeappend("text")
+        //   .attr("class", "nodelabel")
+        //   .attr("dx", "1em")
+        //   .attr("dy", "0.3em")
+        //   .text(function(d) {
+        //     return d.device_name || '';
+        // });
 
         _this.node.append("title").text(function(d){ return d.label; })
 
@@ -217,8 +225,8 @@
       getFill: function(d) {
         if (d.root) {
           return "#00d1b2";
-        } else if (d.dns_data || d.multicast_report) {
-          return "rgb(197, 82, 65)";
+        } else if (d.dns_data) {
+          return "rgb(120, 120, 120)";
         } else {
           return "rgb(170, 170, 170)";
         }
