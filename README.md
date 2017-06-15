@@ -98,6 +98,7 @@ class IPv6Module(Template):
 ### Installing libdnet
 ```
 git clone https://github.com/dugsong/libdnet.git
+cd libdnet
 ./configure && make
 sudo make install
 cd python
@@ -106,3 +107,4 @@ python setup.py install
 
 ### libpcap headers in Ubuntu
 `sudo apt install libpcap-dev`
+
