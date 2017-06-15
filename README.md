@@ -97,10 +97,8 @@ class IPv6Module(Template):
 
 ### Installing libdnet
 ```
-wget http://libdnet.googlecode.com/files/libdnet-1.12.tgz
-tar xfz libdnet-1.12.tgz
-./configure
-make
+git clone https://github.com/dugsong/libdnet.git
+./configure && make
 sudo make install
 cd python
 python setup.py install
