@@ -9,12 +9,15 @@
           </module-menu>
         </div>
         <div class="column">
-          <div class="columns is-gapless" v-if="has_results">
-            <template v-if="isActiveTab('results')">
-              <node-table :results="results" class="column hero is-fullheight is-scrollable" :contextmenu="contextmenu"></node-table>
-              <node-graph :results="results" class="column hero is-fullheight" :contextmenu="contextmenu"></node-graph>
-            </template>
-          </div>
+          <template v-if="isActiveTab('results')">
+            <div class="columns is-gapless is-mobile" v-if="has_results">
+              <node-table :results="results" class="column is-one-half hero is-fullheight is-scrollable" :contextmenu="contextmenu"></node-table>
+              <node-graph :results="results" class="column is-one-half hero is-fullheight" :contextmenu="contextmenu"></node-graph>
+            </div>
+          </template>
+          <template v-if="isActiveTab('table')">
+            <node-table :results="results" class="column hero is-fullheight is-scrollable" :contextmenu="contextmenu"></node-table>
+          </template>
           <template v-if="isActiveTab('console')">
             <console :results="results" :console_output="console_output" class="column is-12"></console>
           </template>
