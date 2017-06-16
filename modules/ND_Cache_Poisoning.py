@@ -23,12 +23,14 @@ class IPv6Module(Template):
         ]
 
     def action(self, target=None):
-        self.sniffer = IPv6Sniffer(self)
         self.socket_log('Poisoning cache on %s.' % target)
         counter = 0
         while counter < 100:
-            self.cache_poison(target)
-            counter += 1
+            try:
+                self.cache_poison(target)
+                counter += 1
+            except Exception as e:
+                self.socket_log(str(e))
         self.socket_log('Poisoning cache finished.')
 
     def cache_poison(self, target, dst=get_source_address(IPv6(dst="ff02::1"))):
