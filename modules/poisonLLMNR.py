@@ -99,7 +99,8 @@ class IPv6Sniffer:
             if ip not in responseDict:
                 responseDict[ip] = {"mac": mac}
 
-            if response[LLMNRQuery].fields["opcode"] == 0L and response[LLMNRQuery].fields["ancount"] == 0 and response[LLMNRQuery].fields["qd"].fields["qtype"] == 28:
+
+            if response[LLMNRQuery].fields["opcode"] == 0L and response[LLMNRQuery].fields["ancount"] == 0:
                 ip_packet = createIPv6()
                 ip_packet.fields["nh"] = 17 #DNS
                 ip_packet.fields["hlim"] = 255
