@@ -77,7 +77,7 @@ var merge = require('deepmerge');
         this.results_raw.push(data);
         if(data) {
           if(data.ip in this.results) {
-            this.$set(this.results, data.ip, merge(this.results[data.ip], data));
+            this.$set(this.results, data.ip, merge(data, this.results[data.ip]));
           } else {
             this.$set(this.results, data.ip, data);
           }
