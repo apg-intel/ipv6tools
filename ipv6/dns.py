@@ -369,6 +369,27 @@ class DNS:
                     responseDict[ip].update({"dns_data":dnsDict})
             return responseDict
 
+    def parsemDNSPacket(self, dns):
+        answer_json = []
+        # parse answers
+        for i in range(dns.ancount):
+            dnsrr = dns.an[i]
+            answer_json.append({
+                "answer_name": str(dnsrr.rrname),
+                "answer_type": int(dnsrr.type),
+                "answer_data": str(unicode(dnsrr.rdata,errors="ignore")),
+                "isAnswer": True
+            })
+        # parse additional records
+        for i in range(dns.arcount):
+            dnsrr = dns.ar[i]
+            answer_json.append({
+                "answer_name": str(dnsrr.rrname),
+                "answer_type": int(dnsrr.type),
+                "answer_data": str(unicode(dnsrr.rdata,errors="ignore")),
+                "isAnswer": False
+            })
+        return answer_json
 
     def parsemDNS(self,raw):
         dnsPacket = scapyDNS(str(raw))

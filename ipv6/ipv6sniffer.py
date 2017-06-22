@@ -78,22 +78,23 @@ class IPv6Sniffer:
             except Exception:
                 pass
         # dns data
-        elif UDP in packet and packet[UDP].dport == 5353 and Raw in packet:
+        elif UDP in packet and packet[UDP].dport == 5353:
             channel = 'mdns_result'
             try:
-              handler = dns.DNS()
-              dns_data = handler.parsemDNS(packet[Raw])
-              if dns_data:
-                res['dns_data'] = dns_data
                 res['mac'] = getMacFromPacket(packet)
-                # extract name from dns response type 28
-                for entry in dns_data:
-                    if entry['answer_type'] == 28:
-                        res['device_name'] = entry['answer_name']
-              else:
-                res = None
+                handler = dns.DNS()
+                if Raw in packet:
+                    dns_data = handler.parsemDNS(packet[Raw])
+                elif DNS in packet:
+                    dns_data = handler.parsemDNSPacket(packet[DNS])
+                if dns_data:
+                    res['dns_data'] = dns_data
+                    # extract name from dns response type 28
+                    for entry in dns_data:
+                         if entry['answer_type'] == 28:
+                             res['device_name'] = entry['answer_name']
             except Exception:
-              pass
+                pass
 
         if channel and res:
             print(res)
