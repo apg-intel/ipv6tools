@@ -126,29 +126,19 @@
         if(_this.reverse)
           arr = arr.reverse();
         if(_this.search.length >= 2) {
-          console.log(_this.results_values)
           arr = arr.filter(function(result) {
             return (new RegExp(_this.search, "i")).test(JSON.stringify(_this.results_values));
           })
+          console.log(arr);
         }
         return arr;
       }
     },
     methods: {
-      getServices: function(result) {
-        if(result.multicast_report){
-          result.multicast_report.map(function(obj) {
-            return obj.service;
-          }).join(", ")
-        } else {
-          return "";
-        }
-      },
       isShown: function(ip) {
         return this.showDetails.indexOf(ip) >= 0;
       },
       show: function(ip) {
-        console.log(this.showDetails)
         if(this.isShown(ip)) {
           this.showDetails.splice(this.showDetails.indexOf(ip), 1)
         } else {
