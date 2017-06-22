@@ -127,7 +127,7 @@
           arr = arr.reverse();
         if(_this.search.length >= 2) {
           arr = arr.filter(function(result) {
-            return (new RegExp(_this.search, "i")).test(JSON.stringify(_this.results_values));
+            return (new RegExp(_this.search, "i")).test(JSON.stringify(Object.keys(result).map(function(key){ return result[key] })));
           })
           console.log(arr);
         }
