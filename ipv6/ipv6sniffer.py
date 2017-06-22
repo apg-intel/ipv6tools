@@ -60,6 +60,11 @@ class IPv6Sniffer:
             reports = handler.parseMulticastReport(packet[Raw])
             res['multicast_report'] = reports
             res['mac'] = getMacFromPacket(packet)
+
+            services = map(lambda x: x['service'], reports)
+            services = list(filter(lambda x: x != '', services))
+            services = list(filter(None, services))
+            res['services'] = ", ".join(services)
         # llmnr
         elif UDP in packet and packet[UDP].dport == 5355 and LLMNRQuery in packet:
             channel = 'llmnr_result'

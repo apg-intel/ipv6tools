@@ -3,7 +3,7 @@
     <table id="nodetable" class="table">
       <thead>
         <tr>
-          <td colspan="4">
+          <td colspan="6">
             <input class="input" type="text" placeholder="Search..." v-model="search">
           </td>
         </tr>
@@ -27,6 +27,12 @@
               <span class="icon is-small" v-if="sortKey == 'device_name'"><i class="fa" :class="{'fa-chevron-up': reverse, 'fa-chevron-down': !reverse}"></i></span>
             </a>
           </th>
+          <th>
+            <a @click="sortBy('services')" :class="{active: sortKey == 'services'}">
+              Services
+              <span class="icon is-small" v-if="sortKey == 'services'"><i class="fa" :class="{'fa-chevron-up': reverse, 'fa-chevron-down': !reverse}"></i></span>
+            </a>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -41,6 +47,7 @@
             <td>{{result.ip}}</td>
             <td>{{result.mac}}</td>
             <td>{{result.device_name}}</td>
+            <td>{{result.services}}</td>
           </tr>
           <tr v-if="showDetails.indexOf(result.ip) >= 0">
             <td colspan="5">
@@ -123,6 +130,15 @@
       }
     },
     methods: {
+      getServices: function(result) {
+        if(result.multicast_report){
+          result.multicast_report.map(function(obj) {
+            return obj.service;
+          }).join(", ")
+        } else {
+          return "";
+        }
+      },
       isShown: function(ip) {
         return this.showDetails.indexOf(ip) >= 0;
       },
