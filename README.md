@@ -1,6 +1,20 @@
-# IPv6 Validation Toolkit
+# IPv6Tools
 
-The IPv6 framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network.  The built-in modules support enumeration of IPv6 features such as ICMPv6 and Multicast Listener Discovery (MLD).  In addition, the framework also supports enumeration of Upper Layer Protocols (ULP) such as multicast DNS (mDNS) and Link-Local Multicast Name Resolution (LLMNR).  Users can easily expand the capability of the framework by creating plugins and modules in the Python language.
+> The IPv6Tools framework is a robust set of modules and plugins that allow a user to audit an IPv6 enabled network.  The built-in modules support enumeration of IPv6 features such as ICMPv6 and Multicast Listener Discovery (MLD).  In addition, the framework also supports enumeration of Upper Layer Protocols (ULP) such as multicast DNS (mDNS) and Link-Local Multicast Name Resolution (LLMNR).  Users can easily expand the capability of the framework by creating plugins and modules in the Python language.
+
+### Write-up
+
+To read more about how this project came to fruition and how to build an app using the same technologies, follow the links below!
+
+* __Part 1__ - [There’s No Place Like ::1 — Enumerating Local IPv6 networks](https://secdevops.ai/theres-no-place-like-1-enumerating-local-ipv6-networks-88a6247e3519)
+
+For content related to development, security, devops, AI, etc... check out [SecDevOps.AI](https://secdevops.ai)!
+
+<p>
+  <img src="screenshots/scanning.gif" alt="IPv6Tools Scanning Network">
+</p>
+
+
 
 * [Requirements](#requirements)
 * [Installation](#installation)
