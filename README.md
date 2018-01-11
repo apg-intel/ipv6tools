@@ -6,10 +6,10 @@
 
 To read more about how this project came to fruition and how to build an app using the same technologies, follow the links below!
 
-* __Part 1__ - [There’s No Place Like ::1 — Enumerating Local IPv6 networks](https://secdevops.ai/theres-no-place-like-1-enumerating-local-ipv6-networks-88a6247e3519)
+*  [There’s No Place Like ::1 — Enumerating Local IPv6 networks](https://secdevops.ai/theres-no-place-like-1-enumerating-local-ipv6-networks-88a6247e3519)
+* For content related to development, security, devops, AI, etc... check out [SecDevOps.AI](https://secdevops.ai)!
 
-For content related to development, security, devops, AI, etc... check out [SecDevOps.AI](https://secdevops.ai)!
-
+<br>
 <p>
   <img src="screenshots/scanning.gif" alt="IPv6Tools Scanning Network">
 </p>
