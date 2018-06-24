@@ -34,12 +34,12 @@ To read more about how this project came to fruition and how to build an app usi
 
 *[Optional] Use a virtualenv for installation:* `virtualenv venv && source venv/bin/activate`
 
-1. `git clone http://github.com/ronmajic/ipv6tools.git`
+1. `git clone http://github.com/apg-intel/ipv6tools.git`
 2. `sudo pip install -r requirements.txt`
 
 
 ### Development
-1. `git clone http://github.com/ronmajic/ipv6tools.git`
+1. `git clone http://github.com/apg-intel/ipv6tools.git`
 2. `git checkout dev`
 3. `npm run setup`
 
